@@ -5,8 +5,33 @@
 <div class="container">
     <div class="row">
         <div class="jumbotron">
-            <h1>Hello {{ user }}</h1>
-            <p>You are on your Dashboard</p>
+            <div class="row">
+                <div class="col-xs-8 col-lg-10">
+                    <p>Please choose a Dashboard</p>
+                </div>
+                <div class="col-xs-4 col-lg-2">
+                    <a type="button" class="btn btn-success" href="{% url 'create' %}"><span class="h4">+</span> New Dashboard</a>
+                </div>
+            </div>
+            <table class="table table-responsive">
+                <tr>
+                    {% for dashboard in all_dashboards %}
+                    <td>
+                        <a type="button" class="btn btn-default btn-lg btn-block" href="/dashboards/{{ dashboard.id }}">
+                        {{ dashboard }}
+                        </a>
+                    </td>
+                    {% if forloop.last %}
+                </tr>
+                {% else %}
+                {% if forloop.counter|divisibleby:"2" %}
+                </tr>
+                <tr>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+            </table>
+
         </div>
     </div>
 </div>

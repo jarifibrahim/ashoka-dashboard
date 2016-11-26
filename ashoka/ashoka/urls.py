@@ -16,10 +16,16 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+
+from dashboard.forms import LoginForm
+
+login_forbidden =  user_passes_test(lambda u: u.is_anonymous(), '/')
 
 urlpatterns = [
-    url(r'^login/$', auth_views.login, {'template_name':'login.html'}, name='login'),
+    url(r'^login/$', login_forbidden(auth_views.login), {'template_name':'login.html',
+                                                         'authentication_form': LoginForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': '/login'}),
     url(r'^admin/', admin.site.urls),
-    url(r'^dashboard/', include('dashboard.urls')),
+    url(r'^', include('dashboard.urls')),
 ]
