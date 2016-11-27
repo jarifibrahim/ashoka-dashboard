@@ -84,9 +84,3 @@ ENV/
 
 # Pycharm
 .idea/
-
-# Sqlite
-*db.sqlite3
-
-# Django Static
-*static/
