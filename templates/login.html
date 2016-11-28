@@ -36,19 +36,19 @@
                 </div>
                 <div class="panel-body">
                     <form method="post" {% url 'login' %}">
-{% csrf_token %}
-
-                    <div class="form-group">
-                                    {{ form.username.label_tag }}
-                                    {{ form.username }}
-                    </div>
-                    <div class="form-group">
-                                    {{ form.password.label_tag }}
-                                    {{ form.password }}
-                    </div>
-                    <div class="form-group text-center">
-                    <input class=" text-center btn btn-success btn-group-sm" type="submit" value="login" />
-                    </div></form>
+                        {% csrf_token %}
+                        <div class="form-group">
+                                        {{ form.username.label_tag }}
+                                        {{ form.username }}
+                        </div>
+                        <div class="form-group">
+                                        {{ form.password.label_tag }}
+                                        {{ form.password }}
+                        </div>
+                        <div class="form-group text-center">
+                            <input class=" text-center btn btn-success btn-group-sm" type="submit" value="login" />
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
