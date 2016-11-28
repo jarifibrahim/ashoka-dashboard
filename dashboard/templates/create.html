@@ -2,35 +2,13 @@
 
 {% block content %}
 
-<div class="container">
-    {% if form.errors %}
-    {% for field in form %}
-        {% for error in field.errors %}
-            <div class="alert alert-danger">
-                <strong>{{ error|escape }}</strong>
-            </div>
-        {% endfor %}
-    {% endfor %}
-    {% for error in form.non_field_errors %}
-        <div class="alert alert-danger">
-            <strong>{{ error|escape }}</strong>
-        </div>
-    {% endfor %}
-{% endif %}
-    {% if messages %}
-    <ul class="messages">
-    {% for message in messages %}
-        <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
   <form class="form-horizontal" method="POST" action="{% url 'create' %}" >
     {% csrf_token %}
     {% for f in form %}
-    <div class="form-group">
-        <label class="col-sm-4 control-label">{{ f.label}}</label>
-        <div class="col-sm-8">{{ f }}</div>
-    </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">{{ f.label}}</label>
+            <div class="col-sm-8">{{ f }}</div>
+        </div>
     {% endfor %}
     <div class="form-group">
         <div class="col-sm-offset-4 col-sm-10">
