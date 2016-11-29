@@ -118,7 +118,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
 ]
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Simplified static file serving.

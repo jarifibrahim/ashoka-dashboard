@@ -20,10 +20,10 @@ from django.contrib.auth.decorators import user_passes_test
 
 from dashboard.forms import LoginForm
 
-login_forbidden =  user_passes_test(lambda u: u.is_anonymous(), '/')
+login_forbidden = user_passes_test(lambda u: u.is_anonymous(), '/')
 
 urlpatterns = [
-    url(r'^login/$', login_forbidden(auth_views.login), {'template_name':'login.html',
+   url(r'^login/$', login_forbidden(auth_views.login), {'template_name': 'login.html',
                                                          'authentication_form': LoginForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': '/login'}),
     url(r'^admin/', admin.site.urls),

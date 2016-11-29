@@ -1,8 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
-from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.admin.widgets import AdminDateWidget
-from .models import Dashboard
+from .models import Dashboard, FellowSurvey
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -25,19 +24,15 @@ class CreateDashboardForm(forms.ModelForm):
 
     class Meta:
         model = Dashboard
-        fields = ["name", "total_teams", "advisory_start_date", "advisory_end_date"]
+        fields = ["name", "advisory_start_date", "advisory_end_date"]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control',
                                            'placeholder': 'Dashboard Name'}),
-            'total_teams': forms.TextInput(attrs={'class': 'form-control',
-                                                  'type': 'number',
-                                                  'placeholder': 'Total Number of Teams'}),
             'advisory_end_date': AdminDateWidget(attrs={'class': 'vDateField form-control'}),
             'advisory_start_date': AdminDateWidget(attrs={'class': 'vDateField form-control'}),
         }
         labels = {
             'name': _('Name of the Dashboard'),
-            'total_teams': _('Total Number of Teams'),
             'advisory_end_date': _('End date of advisory process'),
             'advisory_start_date': _('Start date of advisory process'),
         }
@@ -61,3 +56,11 @@ class CreateDashboardForm(forms.ModelForm):
             if form_start_date == form_end_date:
                 raise forms.ValidationError(_('Advisory start date cannot be equal to advisory end date.'),
                                             code='invalid')
+
+
+class SurveyForm(forms.ModelForm):
+    """ New survey Form """
+    class Meta:
+        model = FellowSurvey
+        fields = '__all__'
+        exclude = ['submit_date']
