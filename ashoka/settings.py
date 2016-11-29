@@ -120,6 +120,7 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = '/'
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
