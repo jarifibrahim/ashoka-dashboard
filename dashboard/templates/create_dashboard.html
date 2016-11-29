@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Django Admin Widget -->
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/calendar.js"></script>
+<script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+
+<div class="container">
+  <form class="form-horizontal" method="POST" action="{% url 'create' %}" >
+    {% csrf_token %}
+    {% for f in form %}
+        <div class="form-group">
+            <label class="col-sm-4 control-label">{{ f.label}}</label>
+            <div class="col-sm-8">{{ f }}</div>
+        </div>
+    {% endfor %}
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <button type="submit" class="btn btn-default btn-success">Create New Dashboard</button>
+        </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

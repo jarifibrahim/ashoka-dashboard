@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     </head>
     <body>
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-inverse">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -29,7 +29,7 @@
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="/home">home</a></li>
+                                <li><a href="/admin">Admin page</a></li>
                                 <li><a href="#">Another action</a></li>
                                 <li><a href="#">Something else here</a></li>
                                 <li class="divider"></li>
@@ -46,25 +46,25 @@
         {% if form.errors %}
             {% for field in form %}
                 {% for error in field.errors %}
-                    <div class="bg-danger text-center">
+                    <h4 class="alert alert-danger">
                         <strong>{{ error|escape }}</strong>
-                    </div>
+                    </h4>
                 {% endfor %}
             {% endfor %}
             {% for error in form.non_field_errors %}
-                <div class="bg-danger text-center">
+                <h4 class="alert-danger alert">
                     <strong>{{ error|escape }}</strong>
-                </div>
+                </h4>
             {% endfor %}
         {% endif %}
         {% if messages %}
-            <ul class="text-center bg-warning ">
             {% for message in messages %}
-                <li{% if message.tags %} class="text-center text-{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
+                {{ message }}
+            </div>
             {% endfor %}
-            </ul>
         {% endif %}
-
+    </div>
         {% block content %}
         {% endblock %}
 
