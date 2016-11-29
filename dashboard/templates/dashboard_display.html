@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<style type="text/css">td,th{ text-align: center; min-width: 200px}</style>
-<div class="container-fluid table-responsive" style="overflow-x: auto; position: absolute;">
-    <table class="table table-striped table-bordered table-hover" >
+<style type="text/css">
+    td, th {
+        text-align: center;
+        min-width: 200px
+    }
+</style>
+
+<div class="container-fluid " style="overflow-x: auto; position: absolute;">
+    <div class="">
+        <a type="button" class="btn btn-success" href="{% url 'admin:dashboard_team_add' %}"><span class="h4">+</span> Add Team </a>
+    </div>
+    <table class="table table-responsive table-striped table-bordered table-hover" >
         <thead><tr class="bg-primary">
         {% for team in nteams %}
             <th> Team {{ team }} </th>
@@ -24,10 +33,10 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="{% static 'jquery.stickytableheaders.min.js' %}"></script>
+    <script src="{% static 'dashboard/jquery.stickytableheaders.min.js' %}"></script>
     <script src="{% static 'dashboard/colResizable-1.6.min.js' %}"></script>
     <script>
-    $('table').stickyTableHeaders();
+/*        $('table').stickyTableHeaders(); */
         $(function(){
             $("table").colResizable({resizeMode:'overflow'});
         });
