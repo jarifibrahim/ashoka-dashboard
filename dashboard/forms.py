@@ -1,8 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
-from .models import Dashboard, FellowSurvey, Member, Team
-from django.utils.translation import ugettext_lazy as _
+from .models import FellowSurvey, Member
 
 
 class LoginForm(AuthenticationForm):

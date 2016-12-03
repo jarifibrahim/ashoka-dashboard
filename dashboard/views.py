@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Dashboard, Team, Role
+from .models import Dashboard, Team
 from .forms import SurveyForm
 from django.contrib import messages
 from django.urls import reverse
@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 
 @login_required(login_url="login")
 def home(request):
-    """ The main home page"""
+    """ The main home page """
     all_dashboards = Dashboard.objects.all()
     context = {
         'all_dashboards': all_dashboards
@@ -33,13 +33,16 @@ def details(request, dashboard_id):
 
 
 def fellow_submit(request, hash_value):
-    """ New Dashboard Creation page"""
+    """ Survey from request and response """
     team_id = Team.decode_form_url(hash_value)
     team_object = get_object_or_404(Team, id=team_id)
     if request.method == 'POST':
         form = SurveyForm(request.POST, team=team_id)
         if form.is_valid():
+            # It is necessary to save the object without commit
+            # and then add the team id
             entry = form.save(commit=False)
+            # Form does not contain team id. So add it.
             entry.team = team_object
             entry.save()
             messages.success(request, 'Response Saved Successfully')

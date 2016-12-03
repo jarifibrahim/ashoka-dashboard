@@ -1,9 +1,13 @@
 from django.db import models
-from datetime import datetime as dt
 from django.core.validators import MaxValueValidator, MinValueValidator
+from datetime import datetime as dt
 
 
 class Dashboard(models.Model):
+    """
+    Represents a Dashboard. Dashboard contains
+    Teams and Teams contain Members
+    """
     name = models.CharField("Dashboard Name", max_length=200, unique=True)
     create_date = models.DateTimeField(
         "Dashboard Create Date", auto_now_add=True)
@@ -23,12 +27,16 @@ class Dashboard(models.Model):
 
     @property
     def team_count(self):
+        """ Returns total number of teams in the Dashboard """
         return len(self.teams.all())
 
     total_weeks = property(_get_total_weeks)
 
 
 class Team(models.Model):
+    """
+    Represents a Team. Each Team consists of Members.
+    """
     dashboard = models.ForeignKey(
         Dashboard, on_delete=models.CASCADE, related_name="teams")
     name = models.CharField("Team Name", max_length=200, unique=True)
@@ -41,14 +49,27 @@ class Team(models.Model):
         return len(self.member_set.all())
 
     def encode_form_url(self):
+        """
+        Encodes team id to generate a hash.
+        This hash is used to generate Team survey urls
+        """
         return "%08x" % (self.id * 387420489 % 4000000000)
 
     @classmethod
     def decode_form_url(self, data):
+        """
+        Decodes the data encoded by 'encode_form_url' function.
+
+        :param data: The hash value to be decoded.
+        """
         return int(data, 16) * 3513180409 % 4000000000
 
     def get_members_with_role(self, role):
-        """ Returns team members belonging to specific role"""
+        """
+        Returns names of team members belonging to a specific role.
+
+        :param role: Members should be belonging to this role.
+        """
         role_id = Role.get_role_id(role)
         role_members = self.members.filter(role=role_id)
         member_string = ', '.join([str(i) for i in role_members])
@@ -56,6 +77,9 @@ class Team(models.Model):
 
 
 class Role(models.Model):
+    """
+    Represents possible roles a member can have.
+    """
     short_name = models.CharField("Short Name", max_length=3)
     long_name = models.CharField("Role", max_length=18)
 
@@ -64,6 +88,13 @@ class Role(models.Model):
 
     @classmethod
     def get_role_id(self, role_name):
+        """
+        Returns the ID of the role_name. Useful when trying to find members
+        belonging to specific role.
+
+        :param role_name:   Role name whose id is to be found.
+        :raises ValueError: If no role represented by role_name is found.
+        """
         try:
             return Role.objects.filter(long_name=role_name)[0].id
         except:
@@ -73,6 +104,9 @@ class Role(models.Model):
 
 
 class Member(models.Model):
+    """
+    Represents Members of a Team.
+    """
     team = models.ForeignKey(
         Team, on_delete=models.CASCADE, related_name="members")
     name = models.CharField("Name", max_length=200)
@@ -86,6 +120,9 @@ class Member(models.Model):
 
 
 class AdvisoryPhase(models.Model):
+    """
+    Represents all the possible Advisory Phases.
+    """
     phase = models.CharField("Phases", max_length=200)
     reached_in_week = models.IntegerField("Reached in Week")
     expected_calls = models.IntegerField("Expected calls")
@@ -95,6 +132,9 @@ class AdvisoryPhase(models.Model):
 
 
 class FellowSurvey(models.Model):
+    """
+    Represents Surveys(Forms) used to get Team status report.
+    """
     team = models.ForeignKey(Team, related_name="surveys")
     submit_date = models.DateTimeField("Submit date", auto_now_add=True)
     call_date = models.DateField("Call date")
