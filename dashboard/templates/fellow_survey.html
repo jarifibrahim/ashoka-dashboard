@@ -1,21 +1,62 @@
 {% extends 'base.html' %}}
+{% load static %}
+{% block stylesheet %}
+
+<link rel="stylesheet" href="{% static 'dashboard/css/jquery-ui.min.css' %}">
+
+<style type="text/css">
+    ul {
+        list-style: none;
+        padding: 0px;
+    }
+    .form-control {
+        width: inherit;
+    }
+    label {
+        font-weight: bold;
+        color: rgb(51,51,51);
+        font-size: 14px;
+    }
+    .errorlist {
+        color: #f00;
+    }
+</style>
+{% endblock %}
 {% block content %}
-
-
 <div class="container">
-  <form class="form-horizontal" method="POST" action="{% url 'submitSurvey' %}" >
+<h3><span class="text-primary">{{ team|upper }}</span> Team Survey</h3>
+  <form class="form-horizontal" method="POST">
     {% csrf_token %}
-    {% for f in form %}
-        <div class="form-group">
-            <label class="col-sm-4 control-label">{{ f.label}}</label>
-            <div class="col-sm-8">{{ f }}</div>
-        </div>
-    {% endfor %}
+    <table class="table">
+    {{ form.as_table }}
+
+  </table>
     <div class="form-group">
-        <div class="col-sm-offset-4 col-sm-10">
-            <button type="submit" class="btn btn-default btn-success">Submit Form</button>
+        <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="btn btn-default">Submit Form</button>
         </div>
     </div>
   </form>
 </div>
+
+
+{% endblock %}
+{% block javascript %}
+<script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
+
+<script type="text/javascript">
+    $("label").addClass("form-label");
+    $("td > input").addClass("form-control");
+    $("td > select").addClass("form-control");
+    // Remove unnecessary br
+    $("#id_missing_member").next().remove();
+    $('#id_all_prepared').next().remove();
+    // Move helptext above input field
+    $('span.helptext').each(function(s){
+       $(this).prependTo($(this).parent());
+    });
+    $( ".datepicker" ).datepicker({changeMonth: true,    showAnim: 'slideDown',    showStatus: true,
+});
+
+</script>
 {% endblock %}
