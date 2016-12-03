@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dashboard, Team, Member, Role, AdvisoryPhase
+from .models import *
 
 
 # Inline models can be edited from other model's change page
@@ -14,7 +14,7 @@ class MemberInline(admin.TabularInline):
 
 class DashboardAdmin(admin.ModelAdmin):
     def get_team(self, obj):
-        return [str(o) for o in obj.team_set.all()]
+        return [str(o) for o in obj.teams.all()]
 
     get_team.short_description = 'Teams'
     # Add team inline model so that it is available for editing
@@ -36,7 +36,7 @@ class TeamAdmin(admin.ModelAdmin):
     ]
     # Columns displayed on the model view page
     list_display = ['name', 'get_dashboard', ]
-    search_fields = ['name','dashboard__name']
+    search_fields = ['name', 'dashboard__name']
     list_filter = ['name', 'dashboard']
 
 
@@ -52,13 +52,24 @@ class MemberAdmin(admin.ModelAdmin):
     get_dashboard.short_description = "Dashboard"
     get_team.short_description = "Team"
     get_role.short_description = "Role"
-    list_display = ['name', 'get_team', 'get_dashboard', 'get_role']
+    list_display = ['name', 'get_team', 'get_dashboard',
+                    'get_role', 'receives_survey_reminder_emails']
     search_fields = ['name', 'team__name', 'role__long_name']
-    list_filter = ['name', 'team__name', 'role__long_name']
+    list_filter = ['team__name', 'role__long_name',
+                   'receives_survey_reminder_emails']
 
-# Register your models here.
+
+class FellowSurveyAdmin(admin.ModelAdmin):
+    filter_horizontal = ["missing_member"]
+
+
+class AdvisoryPhaseAdmin(admin.ModelAdmin):
+    list_display = ['phase', 'reached_in_week', 'expected_calls']
+
+
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Role)
-admin.site.register(AdvisoryPhase)
+admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
+admin.site.register(FellowSurvey, FellowSurveyAdmin)
