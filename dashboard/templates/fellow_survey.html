@@ -25,7 +25,7 @@
 {% block content %}
 <div class="container">
 <h3><span class="text-primary">{{ team|upper }}</span> Team Survey</h3>
-  <form class="form-horizontal" method="POST">
+  <form class="form-horizontal" method="POST" autocomplete="off">
     {% csrf_token %}
     <table class="table">
     {{ form.as_table }}
@@ -48,15 +48,20 @@
     $("label").addClass("form-label");
     $("td > input").addClass("form-control");
     $("td > select").addClass("form-control");
-    // Remove unnecessary br
+    // Remove unnecessary <br>
     $("#id_missing_member").next().remove();
     $('#id_all_prepared').next().remove();
+
+    $("<span>Yes</span>").insertAfter('#id_all_prepared');
     // Move helptext above input field
     $('span.helptext').each(function(s){
        $(this).prependTo($(this).parent());
     });
-    $( ".datepicker" ).datepicker({changeMonth: true,    showAnim: 'slideDown',    showStatus: true,
-});
+    $( ".datepicker" ).datepicker({
+        changeMonth: true,
+        showAnim: 'slideDown',
+        showStatus: true,
+    });
 
 </script>
 {% endblock %}
