@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
-from .models import Dashboard, FellowSurvey
+from .models import Dashboard, FellowSurvey, Member, Team
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -19,6 +19,10 @@ class LoginForm(AuthenticationForm):
                                    "placeholder": "Password"}))
 
 
+'''
+Removed!!
+User can create new dashbaord via admin page
+
 class CreateDashboardForm(forms.ModelForm):
     """ New Dashboard Creation Form """
 
@@ -28,8 +32,10 @@ class CreateDashboardForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control',
                                            'placeholder': 'Dashboard Name'}),
-            'advisory_end_date': AdminDateWidget(attrs={'class': 'vDateField form-control'}),
-            'advisory_start_date': AdminDateWidget(attrs={'class': 'vDateField form-control'}),
+            'advisory_end_date': AdminDateWidget(attrs={
+                'class': 'vDateField form-control'}),
+            'advisory_start_date': AdminDateWidget(attrs={
+                'class': 'vDateField form-control'}),
         }
         labels = {
             'name': _('Name of the Dashboard'),
@@ -38,7 +44,8 @@ class CreateDashboardForm(forms.ModelForm):
         }
         error_messages = {
             'name': {
-                'unique': _('Dashboard with the provided name already exists.'),
+                'unique': _('Dashboard with the provided name already \
+                    exists.'),
             }
         }
 
@@ -51,16 +58,44 @@ class CreateDashboardForm(forms.ModelForm):
         if form_end_date and form_start_date:
             # Start date should before end date
             if form_start_date > form_end_date:
-                raise forms.ValidationError(_('Advisory start date cannot be after advisory end date.'),
-                                            code='invalid')
+                raise forms.ValidationError(_('Advisory start date cannot \
+                    be after advisory end date.'), code='invalid')
             if form_start_date == form_end_date:
-                raise forms.ValidationError(_('Advisory start date cannot be equal to advisory end date.'),
-                                            code='invalid')
+                raise forms.ValidationError(_('Advisory start date cannot \
+                    be equal to advisory end date.'), code='invalid')
+
+'''
 
 
 class SurveyForm(forms.ModelForm):
     """ New survey Form """
+
+    def __init__(self, *args, **kwargs):
+        team = kwargs.pop('team')
+        super(SurveyForm, self).__init__(*args, **kwargs)
+        self.fields['call_date'].widget.attrs['class'] = 'datepicker'
+        self.fields['missing_member'].widget = forms.CheckboxSelectMultiple()
+        # Add only members that belong to 'team'
+        self.fields['missing_member'].queryset = Member.objects.filter(
+            team=team)
+
     class Meta:
         model = FellowSurvey
+        required_css_class = 'required'
         fields = '__all__'
-        exclude = ['submit_date']
+        exclude = ['team', 'submit_date']
+        widgets = {
+            'other_comments': forms.Textarea(attrs={'class': 'form-control'}),
+            'document_link': forms.TextInput,
+        }
+        help_texts = {
+            'call_date': 'When did the call take place?',
+            'topic_discussed': 'What topics did you discuss?',
+            'phase_rating': 'Enter number between 1-10',
+            'other_comments': 'Is there any other thing you would \
+                                like to tell us?',
+            'all_prepared': 'Were all participants prepared for the call?',
+            'missing_member': 'Who was missing?',
+            'document_link': 'Link to current working document',
+            'help': 'Is there anything Ashoka Team can help you with?',
+        }

@@ -8,6 +8,8 @@
         <title>Ashoka Dashboard</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        {% block stylesheet %}
+        {% endblock %}
     </head>
     <body>
         <nav class="navbar navbar-inverse">
@@ -21,25 +23,13 @@
                     </button>
                     <a class="navbar-brand" href="{% url 'index' %}">Ashoka Dashboard</a>
                 </div>
+                {% if user.is_staff %}
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                {{ user }}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="/admin">Admin page</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
-                                <li class="divider"></li>
-                                <li><a href="/logout">Logout</a></li>
-                            </ul>
-                        </li>
+                        <li><a href="/manage">Dashboard Management</a></li>
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </nav>
     <div class="container">
@@ -59,7 +49,11 @@
         {% endif %}
         {% if messages %}
             {% for message in messages %}
-            <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
+            <div {% if message.tags %} class="alert alert-{{ message.tags }}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        alert-danger
+                    {% endif %}"
+                {% endif %}>
                 {{ message }}
             </div>
             {% endfor %}
@@ -67,9 +61,9 @@
     </div>
         {% block content %}
         {% endblock %}
-
+<!--
         <script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    -->    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
                 integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
                 crossorigin="anonymous">
         </script>
