@@ -52,7 +52,6 @@
     $("#id_missing_member").next().remove();
     $('#id_all_prepared').next().remove();
 
-    $("<span>Yes</span>").insertAfter('#id_all_prepared');
     // Move helptext above input field
     $('span.helptext').each(function(s){
        $(this).prependTo($(this).parent());

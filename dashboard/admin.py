@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import *
+from .forms import ConsultantSurveyForm
 
 
 # Inline models can be edited from other model's change page
@@ -59,7 +60,7 @@ class MemberAdmin(admin.ModelAdmin):
                    'receives_survey_reminder_emails']
 
 
-class FellowSurveyAdmin(admin.ModelAdmin):
+class ConsultantSurveyAdmin(admin.ModelAdmin):
     filter_horizontal = ["missing_member"]
 
 
@@ -72,4 +73,5 @@ admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Role)
 admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
-admin.site.register(FellowSurvey, FellowSurveyAdmin)
+admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
+admin.site.register(FellowSurvey)

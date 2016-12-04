@@ -48,22 +48,6 @@ class Team(models.Model):
     def member_count(self):
         return len(self.member_set.all())
 
-    def encode_form_url(self):
-        """
-        Encodes team id to generate a hash.
-        This hash is used to generate Team survey urls
-        """
-        return "%08x" % (self.id * 387420489 % 4000000000)
-
-    @classmethod
-    def decode_form_url(self, data):
-        """
-        Decodes the data encoded by 'encode_form_url' function.
-
-        :param data: The hash value to be decoded.
-        """
-        return int(data, 16) * 3513180409 % 4000000000
-
     def get_members_with_role(self, role):
         """
         Returns names of team members belonging to a specific role.
@@ -131,11 +115,11 @@ class AdvisoryPhase(models.Model):
         return self.phase
 
 
-class FellowSurvey(models.Model):
+class ConsultantSurvey(models.Model):
     """
-    Represents Surveys(Forms) used to get Team status report.
+    Represents Consultant Surveys(Forms) used to get Team status report.
     """
-    team = models.ForeignKey(Team, related_name="surveys")
+    team = models.ForeignKey(Team, related_name="consultant_surveys")
     submit_date = models.DateTimeField("Submit date", auto_now_add=True)
     call_date = models.DateField("Call date")
     missing_member = models.ManyToManyField(Member,
@@ -147,7 +131,7 @@ class FellowSurvey(models.Model):
     help = models.CharField("Ashoka team should help with",
                             max_length=3000,
                             blank=True)
-    phase_rating = models.IntegerField("How is the phase going?",
+    phase_rating = models.IntegerField("How is the advisory phase going?",
                                        blank=True, null=True,
                                        validators=[MinValueValidator(1),
                                                    MaxValueValidator(10)]
@@ -156,6 +140,29 @@ class FellowSurvey(models.Model):
                                       max_length=3000,
                                       blank=True)
     document_link = models.URLField("Link to current document", blank=True)
+
+    def __str__(self):
+        return "ID: {0}, Team: {1}, Date: {2}".format(
+            self.id, self.team, dt.date(self.submit_date))
+
+
+class FellowSurvey(models.Model):
+    """
+    Represents Fellow Surveys
+    """
+    team = models.ForeignKey(Team, related_name='fellow_surveys')
+    submit_date = models.DateTimeField("Submit date", auto_now_add=True)
+    phase_rating = models.IntegerField("How is the advisory phase going?",
+                                       blank=True, null=True,
+                                       validators=[MinValueValidator(1),
+                                                   MaxValueValidator(10)]
+                                       )
+    comments = models.CharField("Any other comments?",
+                                max_length=3000,
+                                blank=True)
+    other_help = models.CharField("Any other Ashoka should help with?",
+                                  max_length=3000,
+                                  blank=True)
 
     def __str__(self):
         return "ID: {0}, Team: {1}, Date: {2}".format(
