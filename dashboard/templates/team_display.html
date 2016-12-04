@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block stylesheet %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<style type="text/css">
+    #dialog-comment{ display:none;}
+    label, input { display:block; }
+    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+    fieldset { padding:0; border:0; margin-top:25px; }
+    h1 { font-size: 1.2em; margin: .6em 0; }
+    div#users-contain { width: 350px; margin: 20px 0; }
+    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+    .ui-dialog .ui-state-error { padding: .3em; }
+    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="text-primary"> {{ team_name }}</h2>
+    <!-- Team member information Table -->
+    <table class="table table-bordered" style="width:50%;">
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Missed Calls</th>
+                <th>Comments</th>
+                <th>Receives reminder emails?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team_members %}
+            <tr>
+                <td>{{ member.role }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.email }}</td>
+                <td></td>
+                <td><a href="#" class="comment-change" id={{member.id}}>{{ member.comment }}</a> </td>
+                <td>{{ member.receives_survey_reminder_emails|yesno }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Team form responses Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Submit Date</th>
+                <th>Call Date</th>
+                <th>Who was missing?</th>
+                <th>All Prepared</th>
+                <th>Progress</th>
+                <th>Topic Discussed</th>
+                <th>Requests</th>
+                <th>Rating</th>
+                <th>Comments</th>
+                <th>Links</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in consultant_responses %}
+            <tr>
+                <td>{{response.submit_date|date:"d/M"}}</td>
+                <td>{{response.call_date|date:"d/M"}}</td>
+                <td>{{response.missing_member_names}}</td>
+                <td>{{response.all_prepared|yesno}}</td>
+                <td>{{response.current_phase}}</td>
+                <td>{{response.topic_discussed}}</td>
+                <td>{{response.help}}</td>
+                <td>{{response.phase_rating|default:""}}</td>
+                <td>{{response.other_comments}}</td>
+                <td>{{response.document_link}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+
+    <!-- Dialog to change Member comments -->
+    <div id="dialog-comment" title="Change Member Comment">
+      <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="memberId" name="memberId" class="form-control">
+          <div class="form-group">
+              <label for="memberComment" class="form-label">Comment</label>
+              <textarea id="memberComment" class="form-control" name="memberComment"></textarea>
+          </div>
+          <div class="form-group">
+              <input type="submit" class="form-control btn btn-primary">
+          </div>
+      </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
+     <script>
+    $(function() {
+
+         // Register a dialog box for LRP change
+        var dialogComment = $( "#dialog-comment" ).dialog({
+          autoOpen: false,
+          height: 300,
+          width: 400,
+          modal: true,
+          buttons: {
+              Cancel: function() {
+                dialogComment.dialog( "close" );
+              }
+          }
+        });
+
+        // Open dialog when user clicks change button
+        $( "a.comment-change" ).button().on( "click", function() {
+            var current_comment = $(this).text();
+            $('#commentForm #memberComment').text($.trim(current_comment));
+            var member_id = $(this).attr('id');
+            $('#commentForm #memberId').val(member_id);
+            dialogComment.dialog( "open" );
+        });
+    });
+</script>
+{% endblock %}
