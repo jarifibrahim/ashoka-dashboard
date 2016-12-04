@@ -1,6 +1,7 @@
-from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
 from datetime import datetime as dt
+
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 
 class Dashboard(models.Model):
@@ -27,7 +28,10 @@ class Dashboard(models.Model):
 
     @property
     def team_count(self):
-        """ Returns total number of teams in the Dashboard """
+        """
+        Returns total number of teams in the Dashboard
+        :returns: Total teams count
+        """
         return len(self.teams.all())
 
     total_weeks = property(_get_total_weeks)
@@ -40,6 +44,14 @@ class Team(models.Model):
     dashboard = models.ForeignKey(
         Dashboard, on_delete=models.CASCADE, related_name="teams")
     name = models.CharField("Team Name", max_length=200, unique=True)
+    lrp_comment = models.CharField("LRP Comment", max_length=4000, blank=True)
+    STATUS_CHOICES = (
+        ('RED', 'Major issues!!!'),
+        ('YELLOW', 'Some minor issues!'),
+        ('GREEN',  'All good!')
+    )
+    status = models.CharField(
+        "Team Status", choices=STATUS_CHOICES, max_length=7)
 
     def __str__(self):
         return self.name
@@ -59,6 +71,58 @@ class Team(models.Model):
         member_string = ', '.join([str(i) for i in role_members])
         return member_string
 
+    @property
+    def last_response(self):
+        """
+        Returns the last consultant form response belonging to the team
+        :returns: Last consultant survey model belonging to the team or
+                  empty string if no response exists
+        """
+        try:
+            return ConsultantSurvey.objects.filter(team=self.id).latest(
+                'call_date')
+        except ConsultantSurvey.DoesNotExist:
+            return None
+
+    @property
+    def working_document(self):
+        """
+        Returns last working document url
+        :return: Working document url
+        """
+
+        entry = self.consultant_surveys.values('document_link').exclude(
+            document_link__isnull=True).exclude(
+            document_link__exact='').order_by('-call_date')
+        if entry:
+            return entry[0]['document_link']
+        return ""
+
+    @property
+    def consultant_request(self):
+        """
+        Returns last consultant request
+        :return: Last request
+        """
+        entry = self.consultant_surveys.values('help').exclude(
+            help__isnull=True).exclude(help__exact="").order_by('-call_date')
+        if entry:
+            return entry[0]['help']
+        return ""
+
+    @property
+    def fellow_request(self):
+        """
+        Returns last fellow request
+        :return: Last fellow request
+        """
+        entry = self.fellow_surveys.values('comments').exclude(
+            comments__isnull=True).exclude(comments__exact="").order_by(
+            '-submit_date')
+        if entry:
+            return entry[0]['comments']
+        return ""
+
 
 class Role(models.Model):
     """
@@ -71,7 +135,7 @@ class Role(models.Model):
         return self.long_name
 
     @classmethod
-    def get_role_id(self, role_name):
+    def get_role_id(cls, role_name):
         """
         Returns the ID of the role_name. Useful when trying to find members
         belonging to specific role.
@@ -98,6 +162,7 @@ class Member(models.Model):
     role = models.ForeignKey(Role, related_name="role")
     receives_survey_reminder_emails = models.BooleanField(
         "Receives reminder emails?")
+    comment = models.CharField("comment", max_length=4000, blank=True)
 
     def __str__(self):
         return self.name
@@ -144,6 +209,12 @@ class ConsultantSurvey(models.Model):
     def __str__(self):
         return "ID: {0}, Team: {1}, Date: {2}".format(
             self.id, self.team, dt.date(self.submit_date))
+
+    @property
+    def missing_member_names(self):
+        missing_member_list = list(
+            self.missing_member.all().values_list('name', flat=True))
+        return ", ".join(missing_member_list)
 
 
 class FellowSurvey(models.Model):

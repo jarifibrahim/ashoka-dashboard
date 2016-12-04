@@ -62,7 +62,7 @@ class MemberAdmin(admin.ModelAdmin):
 
 class ConsultantSurveyAdmin(admin.ModelAdmin):
     filter_horizontal = ["missing_member"]
-
+    list_display = ['id', 'team', 'submit_date', 'call_date']
 
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
     list_display = ['phase', 'reached_in_week', 'expected_calls']

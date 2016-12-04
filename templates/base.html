@@ -40,20 +40,20 @@
         {% if form.errors %}
             {% for field in form %}
                 {% for error in field.errors %}
-                    <h4 class="alert alert-danger">
+                    <h4 class="form-field-error alert alert-danger">
                         <strong>{{ error|escape }}</strong>
                     </h4>
                 {% endfor %}
             {% endfor %}
             {% for error in form.non_field_errors %}
-                <h4 class="alert-danger alert">
+                <h4 class="alert-danger alert form-non-field-error">
                     <strong>{{ error|escape }}</strong>
                 </h4>
             {% endfor %}
         {% endif %}
         {% if messages %}
             {% for message in messages %}
-            <div {% if message.tags %} class="alert alert-{{ message.tags }}
+            <div {% if message.tags %} class="message alert alert-{{ message.tags }}
                     {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
                         alert-danger
                     {% endif %}"
@@ -76,6 +76,11 @@
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
                 crossorigin="anonymous"></script>
 
+
+        <script>
+            // Hide messages after 5000 ms
+            $('.message').delay(5000).fadeOut('slow');
+        </script>
         {% block javascript %}
         {% endblock %}
     </body>

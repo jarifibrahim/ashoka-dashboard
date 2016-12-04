@@ -1,20 +1,33 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
+{% block stylesheet %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <style type="text/css">
     td, th {
         text-align: center;
         min-width: 200px
     }
-</style>
+    label, input { display:block; }
+    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+    fieldset { padding:0; border:0; margin-top:25px; }
+    h1 { font-size: 1.2em; margin: .6em 0; }
+    div#users-contain { width: 350px; margin: 20px 0; }
+    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+    .ui-dialog .ui-state-error { padding: .3em; }
+    .validateTips { border: 1px solid transparent; padding: 0.3em; }
 
+</style>
+{% endblock %}
+{% block content %}
 <div class="container-fluid " style="overflow-x: auto; position: absolute;">
     <table class="table table-responsive table-striped table-bordered table-hover" >
         <thead>
         <tr class="bg-primary">
             <th>Team ID: Team Name</th>
             {% for team in teams %}
-                <th> {{ team }} </th>
+                <th><a href="{% url 'team_display' team.teamid%}" style="color:#FFF;"> {{ team.teamid }}: {{ team.name }} </a></th>
             {% endfor %}
             </tr>
         </thead>
@@ -39,40 +52,44 @@
             </tr>
             <tr>
                 <td>Comment (Globalizer LRP)</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for comment in lrp_comment %}
+                <td>
+                    <a href="#" id={{comment.teamid}} class="comment-change">
+                        {{comment.comment}}
+                    </a>
+                </td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Working document</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for document in working_document %}
+                    <td>{{ document }} </td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Requests (Consultants)</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for request in consultant_request %}
+                    <td> {{ request }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Requests (Fellow)</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for request in fellow_requests %}
+                    <td> {{ request }}</td>
                 {% endfor %}
             </tr>
 
             <tr>
                 <td>Team STATUS</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for s in status %}
+                    <td class={{s.status}}> {{ s.status }}</td>
                 {% endfor %}
             </tr>
 
             <tr>
                 <td>Change Team status</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                {% for s in status %}
+                    <td><button id={{s.teamid}} class="btn status-change">Change Status</button> </td>
                 {% endfor %}
             </tr>
 
@@ -84,16 +101,97 @@
             </tr>
         </tbody>
     </table>
+
+    <!-- Dialog box to handle team status color change -->
+    <div id="dialog-status" title="Change Team Status Color">
+      <form id="statusForm" action="{% url 'update' %}" class="form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="teamId" name="teamId" class="form-control">
+          <div class="form-group">
+              <label for="newStatusColor" class="form-label">Change Status Color to</label>
+              <select type="text" name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
+                  <option value="RED">Red. (Major issues)</option>
+                  <option value="YELLOW">Yellow. (Some minor issues)</option>
+                  <option value="GREEN">Green. (All good)</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <input type="submit" class="form-control btn btn-primary">
+          </div>
+      </form>
+    </div>
+
+    <!-- Dialog to change LRP comments -->
+    <div id="dialog-comment" title="Change LRP Comment">
+      <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="teamId" name="teamId" class="form-control">
+          <div class="form-group">
+              <label for="LRPComment" class="form-label">LRP Comment</label>
+              <textarea type="text" id="LRPComment" class="form-control" name="LRPComment"></textarea>
+          </div>
+          <div class="form-group">
+              <input type="submit" class="form-control btn btn-primary">
+          </div>
+      </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block javascript %}
-<!--    <script src="{% static 'dashboard/js/jquery.stickytableheaders.min.js' %}"></script>
- -->   <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}"></script>
     <script>
-/*        $('table').stickyTableHeaders(); */
-        $(function(){
-            $("table").colResizable({resizeMode:'overflow'});
+    $(function() {
+        $("table").colResizable({resizeMode: 'overflow'});
+        $('.GREEN').addClass('bg-success');
+        $('.YELLOW').addClass('bg-warning');
+        $('.RED').addClass('bg-danger');
+
+        // Register a dialog box for status color change
+        var dialogStatus = $( "#dialog-status" ).dialog({
+          autoOpen: false,
+          height: 250,
+          width: 350,
+          modal: true,
+          buttons: {
+              Cancel: function() {
+                dialogStatus.dialog( "close" );
+              }
+          }
         });
+        // Open dialog when user clicks change button
+        $( "button.status-change" ).button().on( "click", function() {
+            var id = $(this).attr("id");
+            // Fill the teamId field in the form
+            $('#statusForm > #teamId').val(id);
+            dialogStatus.dialog( "open" );
+        });
+
+
+        // Register a dialog box for LRP change
+        var dialogComment = $( "#dialog-comment" ).dialog({
+          autoOpen: false,
+          height: 300,
+          width: 400,
+          modal: true,
+          buttons: {
+              Cancel: function() {
+                dialogComment.dialog( "close" );
+              }
+          }
+        });
+
+        // Open dialog when user clicks change button
+        $( "a.comment-change" ).button().on( "click", function() {
+            var id = $(this).attr("id");
+            var current_comment = $(this).text();
+            // Fill the teamId field in the form
+            $('#commentForm > #teamId').val(id);
+            $('#commentForm #LRPComment').text($.trim(current_comment));
+            dialogComment.dialog( "open" );
+        });
+
+    });
     </script>
 {% endblock %}
