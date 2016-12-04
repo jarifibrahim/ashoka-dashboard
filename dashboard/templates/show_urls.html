@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+	<h3 class="text-center text-Primary"> Fellow Survey Urls <small>One per Dashboard</small>
+	<table class="table-bordered table table-stripped">
+		{% for u in f_urls %}
+		<tr>
+			<td> {{ u.name }} <a href= ' {% url "fellow_survey" u.url %}'>
+			{{ request.META.HTTP_HOST }}{% url 'fellow_survey' u.url %}</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+	<h3 class="text-center text-Primary"> Consultant Survey Urls <small>One per Team</small>
+	<table class="table-bordered table table-stripped">
+		{% for u in c_urls %}
+		<tr>
+			<td>{{ u.name }} <a href= ' {% url "consultant_survey" u.url %}'>
+			{{ request.META.HTTP_HOST }}{% url 'consultant_survey' u.url %}</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}
