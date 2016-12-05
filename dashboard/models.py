@@ -48,10 +48,10 @@ class Team(models.Model):
     STATUS_CHOICES = (
         ('RED', 'Major issues!!!'),
         ('YELLOW', 'Some minor issues!'),
-        ('GREEN',  'All good!')
+        ('GREEN', 'All good!')
     )
     status = models.CharField(
-        "Team Status", choices=STATUS_CHOICES, max_length=7)
+        "Team Status", choices=STATUS_CHOICES, max_length=7, default='GREEN')
 
     def __str__(self):
         return self.name
