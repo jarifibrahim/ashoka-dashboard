@@ -144,13 +144,13 @@ def show_urls(request):
                            'c_urls': consultant_survey_urls})
 
 
-def update_team_value(request, change_name, change_field_id):
+def update_team_value(request, change_type, change_field_id):
     """
     Updates the team value. This function is called only by update_value when
     a value related to the team is to be updated. The value is sent by a dialog
     form.
     :param request:         Request object that contains all the required values
-    :param change_name:     Type of change to be done.
+    :param change_type:     Type of change to be done.
                             Possible values are "status" and "comment"
     :param change_field_id: Id of the form field that contains the new value
     :return:                True is successful else False
@@ -164,37 +164,38 @@ def update_team_value(request, change_name, change_field_id):
         return False
 
     # Change Team status color
-    if change_name.lower() == "status":
+    if change_type.lower() == "status":
         try:
             team_object.status = request.POST[change_field_id]
             team_object.save()
             messages.success(request, "Team status updated successfully.")
+            return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
             return False
 
     # Change Team comment
-    elif change_name.lower() == "comment":
+    elif change_type.lower() == "comment":
         try:
             team_object.lrp_comment = request.POST[change_field_id]
             team_object.save()
             messages.success(request, "Team LRP comment updated successfully")
+            return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
             return False
     else:
-        messages.debug(request, "Unknown action " + change_name)
+        messages.debug(request, "Unknown action " + change_type)
         return False
-    return True
 
 
-def update_member_value(request, change_name, change_field_id):
+def update_member_value(request, change_type, change_field_id):
     """
     Updates the member object value. This function is called only by
     update_value when a value related to a member is to be updated. The value
     is sent by a dialog box which contains the form.
     :param request:         Request object that contains all the required values
-    :param change_name:     Type of change to be done.
+    :param change_type:     Type of change to be done.
                             Possible value is "comment"
     :param change_field_id: Id of the form field that contains the new value
     :return:                True is successful else False
@@ -205,20 +206,34 @@ def update_member_value(request, change_name, change_field_id):
 
     try:
         member_object = Member.objects.get(pk=member_id)
-    except Team.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid team id")
+    except Member.DoesNotExist:
+        messages.error(request, "Failed to update value. Invalid Member id")
+        messages.error(request, request.POST)
         return False
 
-    # Change Team comment
-    if change_name.lower() == "comment":
+    # Change Member comment
+    if change_type.lower() == "comment":
         try:
             member_object.comment = request.POST[change_field_id]
             member_object.save()
             messages.success(request, "Member comment updated successfully")
+            return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
             return False
-        return True
+
+    elif change_type.lower() == "receives_reminder_email":
+        try:
+            member_object.receives_survey_reminder_emails = (
+                request.POST[change_field_id].lower() == 'true')
+            member_object.save()
+            messages.success(request, "Member's receives reminder email "
+                                      "setting updated successfully")
+            return True
+        except Exception as e:
+            messages.debug(request, "Failed to update value. " + str(e))
+            return False
+
     return False
 
 
@@ -234,14 +249,19 @@ def update_value(request):
 
     # Contains possible fields that can be changed
     # Format:
-    #    change name: form field id
+    #    field to be changed: form field id
     possible_field_change = {
         'status': 'newStatusColor',
         'LRP_comment': 'LRPComment',
-        'Member_comment': 'memberComment',
+        'Member_comment': 'member_comment',
+        'receives_reminder_email': 'receives_reminder_emails',
+        'automatic_reminder_status': 'automatic_reminder_status',
+        'kick_off_status': 'kick_off_status',
+        'mid_term_status': 'mid_term_status',
+        'kick_off_comment': 'kick_off_comment',
+        'mid_term_comment': 'mid_term_comment',
     }
     response_url = request.META.get('HTTP_REFERER', 'index')
-    messages.debug(request, request.POST)
 
     # Change team status color
     if possible_field_change['status'] in request.POST:
@@ -264,8 +284,19 @@ def update_value(request):
         if not status:
             messages.error(request, "Failed to update Member Comment value.")
 
+    # Change email reminder status
+    elif possible_field_change['receives_reminder_email'] in request.POST:
+        status = update_member_value(
+            request, 'receives_reminder_email',
+            possible_field_change['receives_reminder_email'])
+        if not status:
+            messages.error(request, "Failed to update Receives Reminder Email "
+                                    "value.")
+
     else:
+        messages.debug(request, request.POST)
         messages.error(request, "Error: Unknown action.")
+
     return HttpResponseRedirect(response_url)
 
 
@@ -277,5 +308,6 @@ def team_detail(request, team_id):
         'team_name': team_object.name,
         'team_members': team_object.members.all(),
         'consultant_responses': team_object.consultant_surveys.all(),
+        'fellow_responses': team_object.fellow_surveys.all(),
     }
     return render(request, "team_display.html", context=context)
