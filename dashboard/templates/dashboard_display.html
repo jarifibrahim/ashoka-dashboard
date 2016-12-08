@@ -8,15 +8,6 @@
         text-align: center;
         min-width: 200px
     }
-    label, input { display:block; }
-    input.text { margin-bottom:12px; width:95%; padding: .4em; }
-    fieldset { padding:0; border:0; margin-top:25px; }
-    h1 { font-size: 1.2em; margin: .6em 0; }
-    div#users-contain { width: 350px; margin: 20px 0; }
-    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
-    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
-    .ui-dialog .ui-state-error { padding: .3em; }
-    .validateTips { border: 1px solid transparent; padding: 0.3em; }
 
 </style>
 {% endblock %}
@@ -89,7 +80,23 @@
             <tr>
                 <td>Change Team status</td>
                 {% for s in status %}
-                    <td><button id={{s.teamid}} class="btn status-change">Change Status</button> </td>
+                    <td><form class="form statusForm" action="{% url 'update' %}"  method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="teamId" class="form-control" value="{{s.teamid}}">
+                        <select name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
+                          <option value="RED"
+                              {% ifequal s.status "RED" %} selected {% endifequal %}>
+                            Red. (Major issues)
+                          </option>
+                          <option value="YELLOW"
+                              {% ifequal s.status "YELLOW" %} selected {% endifequal %}>
+                              Yellow. (Some minor issues)
+                          <option value="GREEN"
+                              {% ifequal s.status "GREEN" %} selected {% endifequal %}>
+                            Green. (All good)</option>
+                          </option>
+                      </select>
+                    </form></td>
                 {% endfor %}
             </tr>
 
@@ -102,38 +109,14 @@
         </tbody>
     </table>
 
-    <!-- Dialog box to handle team status color change -->
-    <div id="dialog-status" title="Change Team Status Color">
-      <form id="statusForm" action="{% url 'update' %}" class="form" method="POST">
-          {% csrf_token %}
-          <input type="hidden" id="teamId" name="teamId" class="form-control">
-          <div class="form-group">
-              <label for="newStatusColor" class="form-label">Change Status Color to</label>
-              <select type="text" name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
-                  <option value="RED">Red. (Major issues)</option>
-                  <option value="YELLOW">Yellow. (Some minor issues)</option>
-                  <option value="GREEN">Green. (All good)</option>
-              </select>
-          </div>
-          <div class="form-group">
-              <input type="submit" class="form-control btn btn-primary">
-          </div>
-      </form>
-    </div>
-
     <!-- Dialog to change LRP comments -->
     <div id="dialog-comment" title="Change LRP Comment">
-      <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
-          {% csrf_token %}
-          <input type="hidden" id="teamId" name="teamId" class="form-control">
-          <div class="form-group">
-              <label for="LRPComment" class="form-label">LRP Comment</label>
-              <textarea type="text" id="LRPComment" class="form-control" name="LRPComment"></textarea>
-          </div>
-          <div class="form-group">
-              <input type="submit" class="form-control btn btn-primary">
-          </div>
-      </form>
+        <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="teamId" name="teamId" class="form-control">
+            <label for="LRPComment" class="form-label">LRP Comment</label>
+            <textarea id="LRPComment" class="form-control" name="LRPComment" style="height: 106px;"></textarea>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -148,34 +131,20 @@
         $('.YELLOW').addClass('bg-warning');
         $('.RED').addClass('bg-danger');
 
-        // Register a dialog box for status color change
-        var dialogStatus = $( "#dialog-status" ).dialog({
-          autoOpen: false,
-          height: 250,
-          width: 350,
-          modal: true,
-          buttons: {
-              Cancel: function() {
-                dialogStatus.dialog( "close" );
-              }
-          }
+        $('.statusForm').change(function () {
+            $(this).submit();
         });
-        // Open dialog when user clicks change button
-        $( "button.status-change" ).button().on( "click", function() {
-            var id = $(this).attr("id");
-            // Fill the teamId field in the form
-            $('#statusForm > #teamId').val(id);
-            dialogStatus.dialog( "open" );
-        });
-
 
         // Register a dialog box for LRP change
         var dialogComment = $( "#dialog-comment" ).dialog({
           autoOpen: false,
-          height: 300,
+          height: 250,
           width: 400,
           modal: true,
           buttons: {
+              Submit: function () {
+                  $('#commentForm').submit();
+              },
               Cancel: function() {
                 dialogComment.dialog( "close" );
               }

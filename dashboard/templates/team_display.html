@@ -4,7 +4,19 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <style type="text/css">
-    #dialog-comment{ display:none;}
+    #dialog-comment{
+        display:none;
+    }
+    .well {
+        margin-bottom:0;
+    }
+    .show-hide-div {
+        width: 100%;
+    }
+    .show-hide-div-title {
+        margin: 0;
+        display: inline;
+    }
 </style>
 {% endblock %}
 
@@ -13,11 +25,11 @@
     <h2 class="text-primary text-center"> {{ team.name }}</h2>
 
     <!-- Team member information -->
-    <a class="show-hide-div" href="#" style="width: 100%; text-decoration: none;" >
-        <div class="well row" style="padding: 10px;">
+    <a class="show-hide-div btn" >
+        <div class="well row">
             <span class="glyphicon glyphicon-arrow-down" style="display: none;"></span>
             <span class="glyphicon glyphicon-arrow-up"></span>
-            <h4 style="margin: 0; display: inline;" class="text-danger"> Team Information</h4>
+            <h4 class="text-danger show-hide-div-title"> Team Information</h4>
         </div>
     </a>
     <div id="team-info-div">
@@ -40,7 +52,7 @@
                     <td>{{ member.email }}</td>
                     <td></td>
                     <td>
-                        <a href="#" class="change-comment" id={{member.id}}>
+                        <a href="#" class="change-comment" id={{ member.id }}>
                            {% if member.comment %}
                             {{ member.comment }}
                             {% else %}
@@ -67,222 +79,168 @@
                     </td>
                 </tr>
                 {% endfor %}
-            <tr>
-                <td>Document Link</td>
-                <td colspan="2">{{ team.working_document }}</td>
-                <td>Consultant Survey URL</td>
-                <td colspan="2">url</td>
-            </tr>
+                <tr>
+                    <td>Document Link</td>
+                    <td colspan="2">
+                        <a href="{{ team.working_document }}">{{ team.working_document }}</a>
+                    </td>
+                    <td>Consultant Survey URL</td>
+                    <td colspan="2">
+                        <a href="{{ team.consultant_form_url }}" target="_blank">
+                            {{ request.META.HTTP_HOST }}{{ team.consultant_form_url}}
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div> <!-- Team member info -->
 
     <!-- Team management -->
-    <a class="show-hide-div" href="#" style="width: 100%; text-decoration: none;" >
-        <div class="well row" style="padding: 10px;">
+    <a class="show-hide-div btn">
+        <div class="well row">
             <span class="glyphicon glyphicon-arrow-down" ></span>
             <span class="glyphicon glyphicon-arrow-up" style="display: none;" ></span>
-            <h4 style="margin: 0; display: inline;" class="text-success"> Team Management</h4>
+            <h4 class="text-success show-hide-div-title"> Team Management</h4>
         </div>
     </a>
     <div id="team-management-div">
-        <table class="table table-bordered table-striped">
-            <thead>
+        <div class="col-xs-9">
+            <table class="table table-bordered table-striped" >
+                <thead>
+                    <tr>
+                        <th>Calls</th>
+                        <th>Received Reminder Emails</th>
+                        <th>Kick Off</th>
+                        <th>Mid Term</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td> 2 calls / 15 expected</td>
+                        <td>Automatic Reminders</td>
+                        <td>Status</td>
+                        <td>Status</td>
+                    </tr>
+                    <tr>
+                        <td> Add/Subtract calls
+                            <form class="form" method="post" id="#change-calls-count-form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <select name="change_calls_count"
+                                            id="change-calls-value"
+                                            class="form-control">
+                                        <option value="1"> 1</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="" method="post" class="form" id="change-automatic-reminder-form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <select name="automatic_reminder_status"
+                                            id="automatic-reminder-status"
+                                            class="form-control">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="" method="post" class="form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <select name="kick_off_status" id="change-kick-off-status"
+                                            class="form-control">
+                                        <option value="not-started">Not Started</option>
+                                        <option value="intro-mail-sent">Intro Mail Sent</option>
+                                        <option value="date-arranged">Date Arranged</option>
+                                        <option value="call-happened">Call happened</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="" method="post" class="form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <select name="mid_term_status" id="change-mid-term-status"
+                                            class="form-control">
+                                        <option value="not-started">Not Started</option>
+                                        <option value="intro-mail-sent">Intro Mail Sent</option>
+                                        <option value="date-arranged">Date Arranged</option>
+                                        <option value="call-happened">Call happened</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Last email was sent on 22/11/2016</td>
+                        <td>
+                            <a href="#" class="change-comment" id="change-kick-off">
+                               {% if member.comment %}
+                                {{ member.comment }}
+                                {% else %}
+                                New Comment
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="change-comment" id="change-mid-term">
+                               {% if member.comment %}
+                                {{ member.comment }}
+                                {% else %}
+                                New Comment
+                                {% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-3">
+            <table class="table">
                 <tr>
-                    <th>Calls</th>
-                    <th>Received Reminder Emails</th>
-                    <th>Kick Off</th>
-                    <th>Mid Term</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td> 2 calls / 15 expected</td>
-                    <td>Automatic Reminders</td>
-                    <td>Status</td>
-                    <td>Status</td>
-                </tr>
-                <tr>
-                    <td> Add/Subtract calls
-                        <form class="form" method="post" id="#change-calls-count-form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="change_calls_count"
-                                        id="change-calls-value"
-                                        class="form-control">
-                                    <option value="1"> 1</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
                     <td>
-                        <form action="" method="post" class="form" id="change-automatic-reminder-form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="automatic_reminder_status"
-                                        id="automatic-reminder-status"
-                                        class="form-control">
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="" method="post" class="form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="kick_off_status" id="change-kick-off-status"
-                                        class="form-control">
-                                    <option value="not-started">Not Started</option>
-                                    <option value="intro-mail-sent">Intro Mail Sent</option>
-                                    <option value="date-arranged">Date Arranged</option>
-                                    <option value="call-happened">Call happened</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="" method="post" class="form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="mid_term_status" id="change-mid-term-status"
-                                        class="form-control">
-                                    <option value="not-started">Not Started</option>
-                                    <option value="intro-mail-sent">Intro Mail Sent</option>
-                                    <option value="date-arranged">Date Arranged</option>
-                                    <option value="call-happened">Call happened</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Last email was sent on 22/11/2016</td>
-                    <td>
-                        <a href="#" class="change-comment" id="change-kick-off">
-                           {% if member.comment %}
-                            {{ member.comment }}
-                            {% else %}
-                            New Comment
-                            {% endif %}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="#" class="change-comment" id="change-mid-term">
-                           {% if member.comment %}
-                            {{ member.comment }}
-                            {% else %}
-                            New Comment
-                            {% endif %}
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-
-            <!--
-            <tbody>
-                <tr><td colspan="3"><strong>Calls</strong></td></tr>
-                <tr>
-                    <td> 2 calls / 15 expected</td>
-                    <td> Add/Subtract calls
-                        <form class="form" method="post" id="#change-calls-count-form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="change_calls_count"
-                                        id="change-calls-value"
-                                        class="form-control">
-                                    <option value="1"> 1</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3"><strong>Reminder Emails to pulse checker</strong></td>
-                </tr>
-                <tr>
-                    <td>Automatic Reminders</td>
-                    <td>
-                        <form action="" method="post" class="form" id="change-automatic-reminder-form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="automatic_reminder_status"
-                                        id="automatic-reminder-status"
-                                        class="form-control">
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>Last email was sent on 22/11/2016</td>
-                </tr>
-                <tr><td colspan="3"><strong>Kick-off</strong></td></tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <form action="" method="post" class="form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="kick_off_status" id="change-kick-off-status"
-                                        class="form-control">
-                                    <option value="not-started">Not Started</option>
-                                    <option value="intro-mail-sent">Intro Mail Sent</option>
-                                    <option value="date-arranged">Date Arranged</option>
-                                    <option value="call-happened">Call happened</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <a href="#" class="change-comment-kick-off" id="#">
-                           {% if member.comment %}
-                            {{ member.comment }}
-                            {% else %}
-                            New Comment
-                            {% endif %}
+                        <a class="btn btn-warning email-button" id="send-instruction-email">
+                            Send Instruction Mail
                         </a>
                     </td>
                 </tr>
-                <tr><td colspan="3"><strong>Mid-Term</strong></td></tr>
                 <tr>
-                    <td>Status</td>
                     <td>
-                        <form action="" method="post" class="form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <select name="mid_term_status" id="change-mid-term-status"
-                                        class="form-control">
-                                    <option value="not-started">Not Started</option>
-                                    <option value="intro-mail-sent">Intro Mail Sent</option>
-                                    <option value="date-arranged">Date Arranged</option>
-                                    <option value="call-happened">Call happened</option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <a href="#" class="change-comment-mid-term">
-                           {% if member.comment %}
-                            {{ member.comment }}
-                            {% else %}
-                            New Comment
-                            {% endif %}
+                        <a class="btn btn-success email-button" id="send-reminder-email">
+                            Send Reminder Mail
                         </a>
                     </td>
                 </tr>
-            </tbody>-->
-        </table>
+                <tr>
+                    <td>
+                        <a class="btn btn-primary email-button" id="send-message-fellows">
+                            Send Message to Fellows
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="btn btn-info email-button" id="send-message-team">
+                            Send Message to Team
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div> <!-- Team management -->
 
     <!-- Fellow responses -->
-    <a class="show-hide-div" href="#" style="width: 100%; text-decoration: none;" >
-        <div class="well row" style="padding: 10px;">
+    <a class="show-hide-div btn">
+        <div class="well row">
             <span class="glyphicon glyphicon-arrow-down"></span>
             <span class="glyphicon glyphicon-arrow-up" style="display: none;"></span>
-            <h4 style="margin: 0; display: inline;" class="text-success" > Fellow Responses</h4>
+            <h4 class="text-success show-hide-div-title"> Fellow Responses</h4>
         </div>
     </a>
     <div id="fellow-responses-div">
@@ -298,10 +256,10 @@
             <tbody>
                 {% for response in fellow_responses %}
                 <tr>
-                    <td>{{response.submit_date|date:"d/M"}}</td>
-                    <td>{{response.phase_rating|default:""}}</td>
-                    <td>{{response.comments}}</td>
-                    <td>{{response.other_help}}</td>
+                    <td>{{ response.submit_date|date:"d/M" }}</td>
+                    <td>{{ response.phase_rating|default:"" }}</td>
+                    <td>{{ response.comments }}</td>
+                    <td>{{ response.other_help }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -309,11 +267,11 @@
     </div> <!-- Fellow Responses -->
 
     <!-- Consultant responses -->
-    <a class="show-hide-div" href="#" style="width: 100%; text-decoration: none;" >
-        <div class="well row" style="padding: 10px;">
+    <a class="show-hide-div btn">
+        <div class="well row">
             <span class="glyphicon glyphicon-arrow-down"></span>
             <span class="glyphicon glyphicon-arrow-up" style="display: none;"></span>
-            <h4 style="margin: 0; display: inline;" class="text-success" > Consultant Responses</h4>
+            <h4 class="text-success show-hide-div-title"> Consultant Responses</h4>
         </div>
     </a>
     <div id="consultant-responses-div">
@@ -335,36 +293,55 @@
             <tbody>
                 {% for response in consultant_responses %}
                 <tr>
-                    <td>{{response.submit_date|date:"d/M"}}</td>
-                    <td>{{response.call_date|date:"d/M"}}</td>
-                    <td>{{response.missing_member_names}}</td>
-                    <td>{{response.all_prepared|yesno}}</td>
-                    <td>{{response.current_phase}}</td>
-                    <td>{{response.topic_discussed}}</td>
-                    <td>{{response.help}}</td>
-                    <td>{{response.phase_rating|default:""}}</td>
-                    <td>{{response.other_comments}}</td>
-                    <td>{{response.document_link}}</td>
+                    <td>{{ response.submit_date|date:"d/M" }}</td>
+                    <td>{{ response.call_date|date:"d/M" }}</td>
+                    <td>{{ response.missing_member_names }}</td>
+                    <td>{{ response.all_prepared|yesno }}</td>
+                    <td>{{ response.current_phase }}</td>
+                    <td>{{ response.topic_discussed }}</td>
+                    <td>{{ response.help }}</td>
+                    <td>{{ response.phase_rating|default:"" }}</td>
+                    <td>{{ response.other_comments }}</td>
+                    <td>{{ response.document_link }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div> <!-- Consultant Responses -->
 
-
     <!-- Dialog to change comments -->
     <div id="dialog-comment" title="Change Comment">
-      <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
-          {% csrf_token %}
-          <input type="hidden" class="form-control" id="memberId" name="memberId">
-          <div class="form-group">
-              <label class="form-label">Comment</label>
-              <textarea class="form-control"></textarea>
-          </div>
-          <div class="form-group">
-              <input type="submit" class="form-control btn btn-primary">
-          </div>
-      </form>
+        <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" class="form-control" id="memberId" name="memberId">
+            <label class="form-label">Comment</label>
+            <textarea class="form-control" style="height: 106px;"></textarea>
+        </form>
+    </div>
+
+    <div id="dialog-email" title="Send Email">
+        <form class="form" id="email-form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" class="form-control" name="teamId" value="{{team.id}}">
+            Send to:
+            <div class="form-group">
+                {% for member in team_members %}
+                    <label><input type="checkbox" value="{{ member.name }}">{{ member.name }}</label>
+                {% endfor %}
+                <label><input type="checkbox" value="">Option 1</label>
+                <label><input type="checkbox" value="">Option 1</label>
+                <label><input type="checkbox" value="">Option 1</label>
+                <label><input type="checkbox" value="">Option 1</label>
+                <label><input type="checkbox" value="">Option 1</label>
+                <label><input type="checkbox" value="">Option 1</label>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="email_subject" placeholder="Email Subject">
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" name="email_body" placeholder="Email Text" style="height: 230px;"></textarea>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -374,13 +351,27 @@
 <script>
     $(function() {
 
+        commentDialogSetup();
+        showHideSetup();
+        sendEmailSetup();
+
+        // Submit form on receives reminder email value change
+        $(".receives-reminder-email-form").change(function() {
+            $(this).submit();
+       });
+    });
+
+    function commentDialogSetup(){
         // Register a dialog box for LRP change
         var dialogComment = $("#dialog-comment").dialog({
           autoOpen: false,
-          height: 300,
+          height: 250,
           width: 400,
           modal: true,
           buttons: {
+              Submit: function(){
+                  $('#commentForm').submit();
+              },
               Cancel: function() {
                 dialogComment.dialog( "close" );
               }
@@ -409,8 +400,8 @@
             $('#commentForm textarea').text($.trim(current_comment));
             dialogComment.dialog( "open" );
         });
-
-
+    }
+    function showHideSetup(){
         // Hide all sections except team info
         $('#consultant-responses-div').hide();
         $('#fellow-responses-div').hide();
@@ -421,11 +412,28 @@
             $(this).next().slideToggle();
             $(this).find(".glyphicon-arrow-up, .glyphicon-arrow-down").toggle();
         });
+    }
+    function sendEmailSetup(){
+        // Register a dialog box for LRP change
+        var dialogEmail = $("#dialog-email").dialog({
+          autoOpen: false,
+          height: 500,
+          width: 500,
+          modal: true,
+          buttons: {
+              Send: function(){
+                  console.log("Clicked");
+              },
+              Cancel: function() {
+                dialogEmail.dialog( "close" );
+              }
+          }
+        });
 
-        // Submit form on receives reminder email value change
-        $(".receives-reminder-email-form").change(function() {
-            $(this).submit();
-       });
-    });
+        $('.email-button').click(function(){
+            var id = $(this).attr('id');
+            dialogEmail.dialog("open");
+        });
+    }
 </script>
 {% endblock %}

@@ -108,19 +108,6 @@ def show_urls(request):
     fellow_survey_urls = list()
     for d in dashboards:
         fellow_survey_urls.append(dict(name=d.name, url=d.fellow_form_url))
-    '''
-    fellow_survey_urls = [{
-                              'url': encode_data(d_id),
-                              'name': name
-                          } for d_id, name in dashboard_list]
-
-    team_list = list(
-        Team.objects.values_list('id', 'name'))
-    consultant_survey_urls = [{
-                                  'url': encode_data(t_id),
-                                  'name': name
-                              } for t_id, name in team_list]
-    '''
     teams = Team.objects.all()
     consultant_survey_urls = list()
     for t in teams:
@@ -217,7 +204,7 @@ def update_member_value(request, change_type, change_field_id):
             member_object.receives_survey_reminder_emails = (
                 request.POST[change_field_id].lower() == 'true')
             member_object.save()
-            flash_message = "{}'s receives reminder email setting updated " \
+            flash_message = "{}'s Reminder Email setting updated " \
                             "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
