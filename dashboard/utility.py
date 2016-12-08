@@ -22,4 +22,3 @@ class Data:
         :returns: original data
         """
         return int(data, 16) * 3513180409 % 4000000000
-
