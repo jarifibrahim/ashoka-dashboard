@@ -3,19 +3,19 @@
 <div class="container">
 	<h3 class="text-center text-Primary"> Fellow Survey Urls <small>One per Dashboard</small>
 	<table class="table-bordered table table-stripped">
-		{% for u in f_urls %}
+		{% for f in f_urls %}
 		<tr>
-			<td> {{ u.name }} <a href= ' {% url "fellow_survey" u.url %}'>
-			{{ request.META.HTTP_HOST }}{% url 'fellow_survey' u.url %}</a></td>
+			<td> {{ f.name }} <a href= '{{ f.url}}'>
+			{{ request.META.HTTP_HOST }}{{ f.url }}</a></td>
 		</tr>
 		{% endfor %}
 	</table>
 	<h3 class="text-center text-Primary"> Consultant Survey Urls <small>One per Team</small>
 	<table class="table-bordered table table-stripped">
-		{% for u in c_urls %}
+		{% for c in c_urls %}
 		<tr>
-			<td>{{ u.name }} <a href= ' {% url "consultant_survey" u.url %}'>
-			{{ request.META.HTTP_HOST }}{% url 'consultant_survey' u.url %}</a></td>
+			<td>{{ c.name }} <a href= '{{ c.url}}'>
+			{{ request.META.HTTP_HOST }}{{ c.url }}</a></td>
 		</tr>
 		{% endfor %}
 	</table>
