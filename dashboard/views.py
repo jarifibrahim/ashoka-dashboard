@@ -5,6 +5,7 @@ from django.urls import reverse
 from .models import Dashboard, Team, Member
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import Data
+from django.core.mail import send_mail
 
 
 @login_required
@@ -52,6 +53,7 @@ def dashboard_overview(request, dashboard_id):
     return render(request, "dashboard_display.html", context=context)
 
 
+@login_required
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
     team_id = Data.decode_data(hash_value)
@@ -277,7 +279,12 @@ def update_value(request):
     return redirect(response_url)
 
 
+@login_required
 def team_detail(request, team_id):
+    """
+    Display details about the team
+    :param team_id: Id of the team
+    """
     team_object = get_object_or_404(Team, pk=team_id)
 
     context = {
@@ -287,3 +294,27 @@ def team_detail(request, team_id):
         'fellow_responses': team_object.fellow_surveys.all(),
     }
     return render(request, "team_display.html", context=context)
+
+
+def send_email(request):
+    """
+    Sends email to a list of recipients. All required data is received
+    from a Form.
+    """
+    if request.method == "GET":
+        return redirect(reverse(home))
+    messages.success(request, request.POST)
+    subject = request.POST.get('email_subject', '')
+    body = request.POST.get('email_body', '')
+    to = request.POST.getlist('send_to')
+    if not to:
+        messages.error(request, "Please select at least one recipient")
+        return redirect(request.META.get('HTTP_REFERER', 'index'))
+    elif not subject:
+        messages.error(request, "Cannot send email without Subject")
+        return redirect(request.META.get('HTTP_REFERER', 'index'))
+    elif not body:
+        messages.error(request, "Cannot send email without Email Body")
+        return redirect(request.META.get('HTTP_REFERER', 'index'))
+    send_mail(subject, body, "admin@ashoka.org", to, fail_silently=False)
+    return redirect(request.META.get('HTTP_REFERER', 'index'))

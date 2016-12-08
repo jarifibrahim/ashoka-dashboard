@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^thanks/$', views.thanks, name='thanks'),
     url(r'^urls/$', views.show_urls, name='show_urls'),
     url(r'^update/$', views.update_value, name='update'),
-    url(r'^teams/(?P<team_id>[0-9]+)/$', views.team_detail, name='team_display'),
+    url(r'^teams/(?P<team_id>[0-9]+)/$', views.team_detail,
+        name='team_display'),
+    url(r'email/', views.send_email, name='send_email'),
     url(r'^$', views.home, name='index'),
 ]

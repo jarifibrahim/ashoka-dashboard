@@ -17,6 +17,9 @@
         margin: 0;
         display: inline;
     }
+    #dialog-email label {
+        margin-right: 5px;
+    }
 </style>
 {% endblock %}
 
@@ -104,8 +107,8 @@
         </div>
     </a>
     <div id="team-management-div">
-        <div class="col-xs-9">
-            <table class="table table-bordered table-striped" >
+        <div class="col-xs-8 col-md-9">
+            <table class="table table-responsive table-bordered table-striped" >
                 <thead>
                     <tr>
                         <th>Calls</th>
@@ -201,8 +204,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-xs-3">
-            <table class="table">
+        <div class="col-xs-4 col-md-3">
+            <table class="table table-responsive">
                 <tr>
                     <td>
                         <a class="btn btn-warning email-button" id="send-instruction-email">
@@ -320,26 +323,20 @@
     </div>
 
     <div id="dialog-email" title="Send Email">
-        <form class="form" id="email-form" method="POST">
+        <form class="form" id="email-form" method="POST" action="{% url 'send_email' %}">
             {% csrf_token %}
             <input type="hidden" class="form-control" name="teamId" value="{{team.id}}">
             Send to:
-            <div class="form-group">
-                {% for member in team_members %}
-                    <label><input type="checkbox" value="{{ member.name }}">{{ member.name }}</label>
-                {% endfor %}
-                <label><input type="checkbox" value="">Option 1</label>
-                <label><input type="checkbox" value="">Option 1</label>
-                <label><input type="checkbox" value="">Option 1</label>
-                <label><input type="checkbox" value="">Option 1</label>
-                <label><input type="checkbox" value="">Option 1</label>
-                <label><input type="checkbox" value="">Option 1</label>
+            <div class="form-group" id="memberChoice">
+            {% for member in team_members %}
+                <label><input type="checkbox" name="send_to" value="{{ member.email }}">{{ member.name }}</label>
+            {% endfor %}
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" name="email_subject" placeholder="Email Subject">
+                <input type="text" class="form-control" name="email-subject" id="email-subject" placeholder="Email Subject">
             </div>
             <div class="form-group">
-                <textarea class="form-control" name="email_body" placeholder="Email Text" style="height: 230px;"></textarea>
+                <textarea class="form-control" name="email_body" id="email-body" placeholder="Email Text" style="height: 230px;"></textarea>
             </div>
         </form>
     </div>
@@ -413,25 +410,58 @@
             $(this).find(".glyphicon-arrow-up, .glyphicon-arrow-down").toggle();
         });
     }
-    function sendEmailSetup(){
-        // Register a dialog box for LRP change
+    function sendEmailSetup() {
+        // Register a dialog box for email
         var dialogEmail = $("#dialog-email").dialog({
-          autoOpen: false,
-          height: 500,
-          width: 500,
-          modal: true,
-          buttons: {
-              Send: function(){
-                  console.log("Clicked");
-              },
-              Cancel: function() {
-                dialogEmail.dialog( "close" );
-              }
-          }
+            autoOpen: false,
+            height: 500,
+            width: 500,
+            modal: true,
+            buttons: {
+                Send: function () {
+                    $('#email-form').submit();
+                },
+                Cancel: function () {
+                    dialogEmail.dialog("close");
+                }
+            }
         });
 
-        $('.email-button').click(function(){
+        $('.email-button').click(function () {
             var id = $(this).attr('id');
+            var name_email = [];
+            $('#team-info-div table tbody tr').each(function () {
+                name_email.push({
+                    'name': $(this).find('td:nth-child(2)').text(),
+                    'email': $(this).find('td:nth-child(3)').text()
+                });
+            });
+            // Remove last entry (link to the document)
+            name_email.pop();
+
+            /*
+             Instruction Email
+             It should be sent to all members
+             */
+            if (id == "send-instruction-email") {
+                var form = $('#email-form');
+                form.find('#memberChoice input').prop('checked', true);
+                form.find('#email-subject').val("This is an Instruction Email");
+                form.find('#email-body').text("Instruction Email Text");
+            }
+
+
+
+            /*
+                var i;
+                for (i in name_email) {
+                    var select_box = $('#dialog-email #memberChoice');
+                    var item = '<label><input type="checkbox" name="send_to"' +
+                               ' value="' + name_email[i]['email'] + '">' +
+                                name_email[i]['name'] + '</label>';
+                    select_box.append(item);
+                }
+            }*/
             dialogEmail.dialog("open");
         });
     }
