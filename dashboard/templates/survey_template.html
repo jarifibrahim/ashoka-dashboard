@@ -24,7 +24,17 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-<h3><span class="text-primary">{{ team|upper }}</span> Team Survey</h3>
+<h3>
+    <span class="text-primary">
+    {% if team %}
+    {{ team|upper }}
+    </span>
+     Team
+    {% else %}
+     Fellow
+    {% endif %}
+     Survey
+</h3>
   <form class="form-horizontal" method="POST" autocomplete="off">
     {% csrf_token %}
     <table class="table">

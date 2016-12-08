@@ -4,6 +4,7 @@ from datetime import datetime as dt
 from .utility import Data
 from django.shortcuts import reverse
 
+
 class Dashboard(models.Model):
     """
     Represents a Dashboard. Dashboard contains
@@ -35,6 +36,15 @@ class Dashboard(models.Model):
         return len(self.teams.all())
 
     total_weeks = property(_get_total_weeks)
+
+    @property
+    def fellow_form_url(self):
+        """
+        Returns the encrypted form url for the Fellow Survey
+        :return: Encrypted URL
+        """
+        hash_value = Data.encode_data(self.id)
+        return reverse('fellow_survey', kwargs={'hash_value': hash_value})
 
 
 class Team(models.Model):
@@ -122,6 +132,15 @@ class Team(models.Model):
         if entry:
             return entry[0]['comments']
         return ""
+
+    @property
+    def consultant_form_url(self):
+        """
+        Returns encrypted form url for the Consultant Survey
+        :return: Encrypted url
+        """
+        hash_value = Data.encode_data(self.id)
+        return reverse('consultant_survey', kwargs={'hash_value': hash_value})
 
 
 class Role(models.Model):
@@ -212,18 +231,13 @@ class ConsultantSurvey(models.Model):
 
     @property
     def missing_member_names(self):
+        """
+        Returns str containing names of missing members
+        :return: missing member string
+        """
         missing_member_list = list(
             self.missing_member.all().values_list('name', flat=True))
         return ", ".join(missing_member_list)
-
-    @property
-    def form_url(self):
-        """
-        Returns encrypted form url for the Consultant Survey
-        :return: Encrypted url
-        """
-        hash_value = Data.encode_data(self.id)
-        return reverse('consultant_survey', kwargs={'hash_value': hash_value})
 
 
 class FellowSurvey(models.Model):
@@ -247,12 +261,3 @@ class FellowSurvey(models.Model):
     def __str__(self):
         return "ID: {0}, Team: {1}, Date: {2}".format(
             self.id, self.team, dt.date(self.submit_date))
-
-    @property
-    def form_url(self):
-        """
-        Returns the encrypted form url for the Fellow Survey
-        :return: Encrypted URL
-        """
-        hash_value = Data.encode_data(self.id)
-        return reverse('fellow_survey', kwargs={'hash_value': hash_value})

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from .models import Dashboard, Team, Member
 from .forms import ConsultantSurveyForm, FellowSurveyForm
+from .utility import Data
 
 
 @login_required
@@ -53,7 +54,7 @@ def dashboard_overview(request, dashboard_id):
 
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
-    team_id = decode_data(hash_value)
+    team_id = Data.decode_data(hash_value)
     team_object = get_object_or_404(Team, pk=team_id)
     if request.method == 'POST':
         form = ConsultantSurveyForm(request.POST, team=team_id)
@@ -73,7 +74,7 @@ def consultant_submit(request, hash_value):
             return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)
-    return render(request, "consultant_survey.html",
+    return render(request, "survey_template.html",
                   context={'team': team_object.name,
                            'form': form})
 
@@ -85,7 +86,7 @@ def thanks(request):
 
 def fellow_submit(request, hash_value):
     """ Fellow Survey from request and response """
-    dashboard_id = decode_data(hash_value)
+    dashboard_id = Data.decode_data(hash_value)
     get_object_or_404(Dashboard, pk=dashboard_id)
     if request.method == "POST":
         form = FellowSurveyForm(request.POST)
@@ -97,14 +98,17 @@ def fellow_submit(request, hash_value):
             return redirect(reverse(thanks))
     else:
         form = FellowSurveyForm()
-    return render(request, "consultant_survey.html", context={'form': form})
+    return render(request, "survey_template.html", context={'form': form})
 
 
 @login_required
 def show_urls(request):
     """ Show all form urls """
-    dashboard_list = list(
-        Dashboard.objects.values_list('id', 'name'))
+    dashboards = Dashboard.objects.all()
+    fellow_survey_urls = list()
+    for d in dashboards:
+        fellow_survey_urls.append(dict(name=d.name, url=d.fellow_form_url))
+    '''
     fellow_survey_urls = [{
                               'url': encode_data(d_id),
                               'name': name
@@ -116,6 +120,12 @@ def show_urls(request):
                                   'url': encode_data(t_id),
                                   'name': name
                               } for t_id, name in team_list]
+    '''
+    teams = Team.objects.all()
+    consultant_survey_urls = list()
+    for t in teams:
+        consultant_survey_urls.append(
+            dict(name=t.name, url=t.consultant_form_url))
 
     return render(request, "show_urls.html",
                   context={'f_urls': fellow_survey_urls,
