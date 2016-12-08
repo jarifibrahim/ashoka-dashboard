@@ -1,8 +1,8 @@
-from datetime import datetime as dt
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
+from datetime import datetime as dt
+from .utility import Data
+from django.shortcuts import reverse
 
 class Dashboard(models.Model):
     """
@@ -216,6 +216,15 @@ class ConsultantSurvey(models.Model):
             self.missing_member.all().values_list('name', flat=True))
         return ", ".join(missing_member_list)
 
+    @property
+    def form_url(self):
+        """
+        Returns encrypted form url for the Consultant Survey
+        :return: Encrypted url
+        """
+        hash_value = Data.encode_data(self.id)
+        return reverse('consultant_survey', kwargs={'hash_value': hash_value})
+
 
 class FellowSurvey(models.Model):
     """
@@ -238,3 +247,12 @@ class FellowSurvey(models.Model):
     def __str__(self):
         return "ID: {0}, Team: {1}, Date: {2}".format(
             self.id, self.team, dt.date(self.submit_date))
+
+    @property
+    def form_url(self):
+        """
+        Returns the encrypted form url for the Fellow Survey
+        :return: Encrypted URL
+        """
+        hash_value = Data.encode_data(self.id)
+        return reverse('fellow_survey', kwargs={'hash_value': hash_value})

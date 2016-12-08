@@ -51,27 +51,6 @@ def dashboard_overview(request, dashboard_id):
     return render(request, "dashboard_display.html", context=context)
 
 
-def encode_data(data):
-    """
-    Encodes data to generate a hash.
-    This hash is used to generate urls
-
-    :param data: The data to be encoded.
-    :returns: hash value
-    """
-    return "%08x" % (data * 387420489 % 4000000000)
-
-
-def decode_data(data):
-    """
-    Decodes the data encoded by 'encode_data' function.
-
-    :param data: The hash value to be decoded.
-    :returns: original data
-    """
-    return int(data, 16) * 3513180409 % 4000000000
-
-
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
     team_id = decode_data(hash_value)
