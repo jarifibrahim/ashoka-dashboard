@@ -1,8 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from django.http import HttpResponseRedirect
 from .models import Dashboard, Team, Member
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 
@@ -92,7 +91,7 @@ def consultant_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
-            return HttpResponseRedirect(reverse(thanks))
+            return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)
     return render(request, "consultant_survey.html",
@@ -116,7 +115,7 @@ def fellow_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
-            return HttpResponseRedirect(reverse(thanks))
+            return redirect(reverse(thanks))
     else:
         form = FellowSurveyForm()
     return render(request, "consultant_survey.html", context={'form': form})
@@ -201,7 +200,7 @@ def update_member_value(request, change_type, change_field_id):
     :return:                True is successful else False
     """
 
-    # Extract member id from the memebrId string
+    # Extract member id from the memeberId string
     member_id = request.POST.get('memberId')
 
     try:
@@ -216,7 +215,9 @@ def update_member_value(request, change_type, change_field_id):
         try:
             member_object.comment = request.POST[change_field_id]
             member_object.save()
-            messages.success(request, "Member comment updated successfully")
+            flash_message = "Comment for member {} updated successfully".format(
+                member_object.name)
+            messages.success(request, flash_message)
             return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
@@ -227,8 +228,9 @@ def update_member_value(request, change_type, change_field_id):
             member_object.receives_survey_reminder_emails = (
                 request.POST[change_field_id].lower() == 'true')
             member_object.save()
-            messages.success(request, "Member's receives reminder email "
-                                      "setting updated successfully")
+            flash_message = "{}'s receives reminder email setting updated " \
+                            "successfully".format(member_object.name)
+            messages.success(request, flash_message)
             return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
@@ -243,9 +245,8 @@ def update_value(request):
     Update dashboard values. Request is sent via dialogue boxes on the
     dashboard page.
     """
-
-    if request.method != "POST":
-        HttpResponseRedirect(reverse("index"))
+    if request.method == "GET":
+        return redirect('index')
 
     # Contains possible fields that can be changed
     # Format:
@@ -297,15 +298,14 @@ def update_value(request):
         messages.debug(request, request.POST)
         messages.error(request, "Error: Unknown action.")
 
-    return HttpResponseRedirect(response_url)
+    return redirect(response_url)
 
 
 def team_detail(request, team_id):
     team_object = get_object_or_404(Team, pk=team_id)
 
     context = {
-        'teamid': team_object.id,
-        'team_name': team_object.name,
+        'team': team_object,
         'team_members': team_object.members.all(),
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
