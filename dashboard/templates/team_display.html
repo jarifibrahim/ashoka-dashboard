@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load myFilters %}
 {% block stylesheet %}
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
@@ -119,21 +120,26 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td> 2 calls / 15 expected</td>
+                        <td>2 calls / 15 expected</td>
                         <td>Automatic Reminders</td>
                         <td>Status</td>
                         <td>Status</td>
                     </tr>
                     <tr>
-                        <td> Add/Subtract calls
-                            <form class="form" method="post" id="#change-calls-count-form">
+                        <td>
+                            <form class="form-inline" method="post" id="change-calls-count-form" action="{% url 'update' %}">
+                                <input type="text" hidden value="{{ team.id }}" name="teamId">
                                 {% csrf_token %}
                                 <div class="form-group">
-                                    <select name="change_calls_count"
+                                    <label for="change-calls-value">Add/Subtract calls</label>
+                                    <input type="number" name="change_calls_count"
                                             id="change-calls-value"
-                                            class="form-control">
-                                        <option value="1"> 1</option>
-                                    </select>
+                                            class="form-control"
+                                            style="width: 70px;">
+                                    </input>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary">
                                 </div>
                             </form>
                         </td>
@@ -238,6 +244,109 @@
         </div>
     </div> <!-- Team management -->
 
+    <!-- Secondary Roles -->
+    <a class="show-hide-div btn">
+        <div class="well row">
+            <span class="glyphicon glyphicon-arrow-down"></span>
+            <span class="glyphicon glyphicon-arrow-up" style="display: none;"></span>
+            <h4 class="text-success show-hide-div-title"> Role Management</h4>
+        </div>
+    </a>
+    <div id="secondary-roles-div">
+    <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Name (Role)</th>
+                    <th>Process Manager</th>
+                    <th>Keeper of the Minutes</th>
+                    <th>Pulse Checker* </th>
+                    <th>Conference Convener</th>
+                    <th>Conference Host</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for member in team_members %}
+                <tr>
+                    <td>{{ member.name }} ({{ member.role }})</td>
+                    <td>
+                        <form method="post" id="process-manager-form" class="secondary-role-change form" action={% url 'update' %}>
+                            {% csrf_token %}
+                            <input type="text" value={{ member.id }} name="memberId" hidden>
+                            <input type="text" value="PM" name="secondary_role_change" hidden>
+                            <div class="form-group">
+                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                                {% if member.secondary_role.all|has_secondary_role:"PM" %}
+                                    checked
+                                {% endif %}>
+                                <input type='hidden' value='no' name='value' id='backup'>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" id="keeper-of-minutes-form" class="secondary-role-change form" action={% url 'update' %}>
+                            {% csrf_token %}
+                            <input type="text" value={{ member.id }} name="memberId" hidden>
+                            <input type="text" value="KOM" name="secondary_role_change" hidden>
+                            <div class="form-group">
+                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                                {% if member.secondary_role.all|has_secondary_role:"KOM" %}
+                                    checked
+                                {% endif %}>
+                                <input type='hidden' value='no' name='value' id='backup'>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" id="pulse-checker-form" class="secondary-role-change form" action={% url 'update' %}>
+                            {% csrf_token %}
+                            <input type="text" value={{ member.id }} name="memberId" hidden>
+                            <input type="text" value="PC" name="secondary_role_change" hidden>
+                            <div class="form-group">
+                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                                {% if member.secondary_role.all|has_secondary_role:"PC" %}
+                                    checked
+                                {% endif %}>
+                                <input type='hidden' value='no' name='value' id='backup'>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" id="conference-convener-form" class="secondary-role-change form" action={% url 'update' %}>
+                            {% csrf_token %}
+                            <input type="text" value={{ member.id }} name="memberId" hidden>
+                            <input type="text" value="CC" name="secondary_role_change" hidden>
+                            <div class="form-group">
+                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                                {% if member.secondary_role.all|has_secondary_role:"CC" %}
+                                    checked
+                                {% endif %}>
+                                <input type='hidden' value='no' name='value' id='backup'>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" id="conference-host-form" class="secondary-role-change form" action={% url 'update' %}>
+                            {% csrf_token %}
+                            <input type="text" value={{ member.id }} name="memberId" hidden>
+                            <input type="text" value="CH" name="secondary_role_change" hidden>
+                            <div class="form-group">
+                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                                {% if member.secondary_role.all|has_secondary_role:"CH" %}
+                                    checked
+                                {% endif %}>
+                                <input type='hidden' value='no' name='value' id='backup'>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            {%  endfor %}
+                <tr>
+                    <td colspan="6">*Pulse Checker will receive reminder emails</td>
+                </tr>
+            </tbody>
+        </table>
+    </div> <!-- Secondary Role -->
+
     <!-- Fellow responses -->
     <a class="show-hide-div btn">
         <div class="well row">
@@ -329,7 +438,7 @@
             Send to:
             <div class="form-group" id="memberChoice">
             {% for member in team_members %}
-                <label><input type="checkbox" name="send_to" value="{{ member.email }}">{{ member.name }}</label>
+                <label><input type="checkbox" name="send_to" value="{{ member.email }}">{{ member.name }} ({{ member.role }})</label>
             {% endfor %}
             </div>
             <div class="form-group">
@@ -352,10 +461,22 @@
         showHideSetup();
         sendEmailSetup();
 
+        // Show call count change submit button
+        $('#change-calls-count-form').change(function() {
+            $(this).find('#submit-button').show();
+        });
         // Submit form on receives reminder email value change
         $(".receives-reminder-email-form").change(function() {
             $(this).submit();
        });
+
+        // Submit secondary role change form
+        $(".secondary-role-change").change(function(){
+            if($(this).find('#main').prop('checked')){
+                $(this).find('#backup').prop('disabled', true)
+            }
+            $(this).submit();
+        });
     });
 
     function commentDialogSetup(){
@@ -403,6 +524,7 @@
         $('#consultant-responses-div').hide();
         $('#fellow-responses-div').hide();
         $('#team-management-div').hide();
+        $('#secondary-roles-div').hide();
 
         // Show/Hide sections
         $('a.show-hide-div').click(function(){

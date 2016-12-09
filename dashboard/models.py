@@ -54,7 +54,7 @@ class Team(models.Model):
     dashboard = models.ForeignKey(
         Dashboard, on_delete=models.CASCADE, related_name="teams")
     name = models.CharField("Team Name", max_length=200, unique=True)
-    lrp_comment = models.CharField("LRP Comment", max_length=4000, blank=True)
+    lrp_comment = models.TextField("LRP Comment", blank=True)
     STATUS_CHOICES = (
         ('RED', 'Major issues!!!'),
         ('YELLOW', 'Some minor issues!'),
@@ -170,6 +170,17 @@ class Role(models.Model):
                 "Invalid role name. Possible Values are: " + str(values))
 
 
+class SecondaryRole(models.Model):
+    """
+    Represents secondary roles such as Process Manager, Pulse Checker, etc
+    """
+    short_name = models.CharField("Short Name", max_length=100)
+    role = models.CharField("Role", max_length=200)
+
+    def __str__(self):
+        return self.role
+
+
 class Member(models.Model):
     """
     Represents Members of a Team.
@@ -179,9 +190,11 @@ class Member(models.Model):
     name = models.CharField("Name", max_length=200)
     email = models.CharField("Email", max_length=200)
     role = models.ForeignKey(Role, related_name="role")
+    secondary_role = models.ManyToManyField(SecondaryRole,
+                                            related_name="secondary_role")
     receives_survey_reminder_emails = models.BooleanField(
         "Receives reminder emails?")
-    comment = models.CharField("comment", max_length=4000, blank=True)
+    comment = models.TextField("comment", blank=True)
 
     def __str__(self):
         return self.name
@@ -212,16 +225,14 @@ class ConsultantSurvey(models.Model):
     all_prepared = models.BooleanField("All participants prepared for call?")
     current_phase = models.ForeignKey(AdvisoryPhase, related_name="surveys")
     topic_discussed = models.CharField("Topic Discussed", max_length=200)
-    help = models.CharField("Ashoka team should help with",
-                            max_length=3000,
+    help = models.TextField("Ashoka team should help with",
                             blank=True)
     phase_rating = models.IntegerField("How is the advisory phase going?",
                                        blank=True, null=True,
                                        validators=[MinValueValidator(1),
                                                    MaxValueValidator(10)]
                                        )
-    other_comments = models.CharField("Any other comments?",
-                                      max_length=3000,
+    other_comments = models.TextField("Any other comments?",
                                       blank=True)
     document_link = models.URLField("Link to current document", blank=True)
 
@@ -251,13 +262,56 @@ class FellowSurvey(models.Model):
                                        validators=[MinValueValidator(1),
                                                    MaxValueValidator(10)]
                                        )
-    comments = models.CharField("Any other comments?",
-                                max_length=3000,
+    comments = models.TextField("Any other comments?",
                                 blank=True)
-    other_help = models.CharField("Any other Ashoka should help with?",
-                                  max_length=3000,
+    other_help = models.TextField("Any other Ashoka should help with?",
                                   blank=True)
 
     def __str__(self):
         return "ID: {0}, Team: {1}, Date: {2}".format(
             self.id, self.team, dt.date(self.submit_date))
+
+
+class Email(models.Model):
+    """
+    Represents an email.
+    """
+    TYPE_CHOICES = (
+        ('IM', 'Instruction Mail'),
+        ('RM', 'Reminder Mail'),
+    )
+    type = models.CharField("Type of Email", choices=TYPE_CHOICES, max_length=5)
+    subject = models.CharField("Subject of the Email", max_length=200)
+    message = models.TextField("Body of the Email")
+
+    def __str__(self):
+        return self.subject
+
+
+class TeamStatus(models.Model):
+    """
+    Represents various team settings
+    """
+    team = models.ForeignKey(Team, related_name='team_status')
+    call_change_count = models.IntegerField("Add/Subtract Total Calls count",
+                                            null=True)
+    automatic_reminder = models.BooleanField("Send Automatic Reminders?",
+                                             default=True)
+    last_automatic_reminder = models.DateTimeField("Last automatic reminder "
+                                                   "sent on", default=None,
+                                                   null=True)
+    KICK_OFF_CHOICES = (
+        ('NS', 'Not Started'),
+        ('IMS', 'IMS'),
+        ('DA', 'Date Arranged'),
+        ('CH', 'Call Happened')
+    )
+    kick_off = models.CharField(
+        "Kick Off Status", choices=KICK_OFF_CHOICES, default='NS', max_length=5)
+    kick_off_comment = models.TextField("Kick Off Comment", blank=True)
+    mid_term = models.CharField(
+        "Mid Term Status", choices=KICK_OFF_CHOICES, default='NS', max_length=5)
+    mid_term_comment = models.TextField("Mid Term Comment", blank=True)
+
+    def __str__(self):
+        return str(self.team)

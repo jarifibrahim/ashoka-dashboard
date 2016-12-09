@@ -58,11 +58,13 @@ class MemberAdmin(admin.ModelAdmin):
     search_fields = ['name', 'team__name', 'role__long_name']
     list_filter = ['team__name', 'role__long_name',
                    'receives_survey_reminder_emails']
+    filter_horizontal = ["secondary_role"]
 
 
 class ConsultantSurveyAdmin(admin.ModelAdmin):
     filter_horizontal = ["missing_member"]
     list_display = ['id', 'team', 'submit_date', 'call_date']
+
 
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
     list_display = ['phase', 'reached_in_week', 'expected_calls']
@@ -75,3 +77,6 @@ admin.site.register(Role)
 admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
 admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
 admin.site.register(FellowSurvey)
+admin.site.register(SecondaryRole)
+admin.site.register(Email)
+admin.site.register(TeamStatus)
