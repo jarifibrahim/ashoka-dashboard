@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Dashboard, Team, Member
+from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import Data
 from django.core.mail import send_mail
@@ -161,9 +161,22 @@ def update_team_value(request, change_type, change_field_id):
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
             return False
-    else:
-        messages.debug(request, "Unknown action " + change_type)
-        return False
+
+    # Change team call count
+    elif change_type.lower() == "change_calls_count":
+        try:
+            status_object = TeamStatus.objects.get(team=team_object)
+            status_object.call_change_count = int(
+                request.POST.get('change_calls_count', ''))
+            status_object.save()
+            messages.success(request, "Successfully changed call count value.")
+            return True
+        except Exception as e:
+            messages.error(request, "Failed to change call count value.")
+            messages.debug(request, str(e))
+            return False
+    messages.debug(request, "Unknown action " + change_type)
+    return False
 
 
 def update_member_value(request, change_type, change_field_id):
@@ -212,8 +225,28 @@ def update_member_value(request, change_type, change_field_id):
             return True
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
-            return False
 
+    elif change_type.lower() == 'secondary_role_change':
+        try:
+            short_name = request.POST.get('secondary_role_change')
+            sr_object = SecondaryRole.objects.get(short_name=short_name)
+            # If member already has role remove it
+            if member_object.secondary_role.filter(
+                    short_name=short_name).exists():
+                member_object.secondary_role.remove(sr_object)
+                messages.success(request, "Removed role {} from {}".format(
+                    sr_object.role, member_object.name))
+            else:
+                member_object.secondary_role.add(sr_object)
+                messages.success(request, "Added role {} from {}".format(
+                    sr_object.role, member_object.name
+                ))
+            member_object.save()
+            return True
+        except Exception as e:
+            messages.debug(request, "Failed to update value. " + str(e))
+
+    messages.debug(request, request.POST)
     return False
 
 
@@ -239,6 +272,8 @@ def update_value(request):
         'mid_term_status': 'mid_term_status',
         'kick_off_comment': 'kick_off_comment',
         'mid_term_comment': 'mid_term_comment',
+        'secondary_role_change': 'secondary_role_change',
+        'change_calls_count': 'change_calls_count',
     }
     response_url = request.META.get('HTTP_REFERER', 'index')
 
@@ -272,6 +307,23 @@ def update_value(request):
             messages.error(request, "Failed to update Receives Reminder Email "
                                     "value.")
 
+    # Change secondary role
+    elif possible_field_change['secondary_role_change'] in request.POST:
+        status = update_member_value(
+            request, 'secondary_role_change',
+            possible_field_change['secondary_role_change'])
+        if not status:
+            messages.error(request, "Failed to update Secondary Role "
+                                    "value.")
+
+    elif possible_field_change['change_calls_count'] in request.POST:
+        status = update_team_value(
+            request, 'change_calls_count',
+            possible_field_change['change_calls_count'])
+        if not status:
+            messages.error(request, "Failed to update call count "
+                                    "value.")
+
     else:
         messages.debug(request, request.POST)
         messages.error(request, "Error: Unknown action.")
@@ -290,6 +342,7 @@ def team_detail(request, team_id):
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
+        'team_status': team_object.team_status.all().values()[0],
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
     }
