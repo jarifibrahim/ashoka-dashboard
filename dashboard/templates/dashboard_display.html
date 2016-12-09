@@ -18,7 +18,7 @@
         <tr class="bg-primary">
             <th>Team ID: Team Name</th>
             {% for team in teams %}
-                <th><a href="{% url 'team_display' team.teamid%}" style="color:#FFF;"> {{ team.teamid }}: {{ team.name }} </a></th>
+                <th><a href="{% url 'team_display' team.teamid %}" style="color:#FFF;"> {{ team.teamid }}: {{ team.name }} </a></th>
             {% endfor %}
             </tr>
         </thead>
@@ -45,9 +45,16 @@
                 <td>Comment (Globalizer LRP)</td>
                 {% for comment in lrp_comment %}
                 <td>
-                    <a href="#" id={{comment.teamid}} class="comment-change">
-                        {{comment.comment}}
-                    </a>
+                    <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
+                        {% csrf_token %}
+                        <input type="text" hidden name="teamId" value="{{ comment.teamid }}">
+                        <div class="form-group">
+                            <textarea class="form-control" name="LRPComment">{{comment.comment}}</textarea>
+                        </div>
+                        <div class="form-group" id="submit-button" style="display: none;">
+                            <input type="submit" class="form-control btn-primary" value="Save" >
+                        </div>
+                    </form>
                 </td>
                 {% endfor %}
             </tr>
@@ -80,23 +87,28 @@
             <tr>
                 <td>Change Team status</td>
                 {% for s in status %}
-                    <td><form class="form statusForm" action="{% url 'update' %}"  method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="teamId" class="form-control" value="{{s.teamid}}">
-                        <select name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
-                          <option value="RED"
-                              {% ifequal s.status "RED" %} selected {% endifequal %}>
-                            Red. (Major issues)
-                          </option>
-                          <option value="YELLOW"
-                              {% ifequal s.status "YELLOW" %} selected {% endifequal %}>
-                              Yellow. (Some minor issues)
-                          <option value="GREEN"
-                              {% ifequal s.status "GREEN" %} selected {% endifequal %}>
-                            Green. (All good)</option>
-                          </option>
-                      </select>
-                    </form></td>
+                    <td>
+                        <form class="form hidden-submit-form" action="{% url 'update' %}"  method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="teamId" class="form-control" value="{{s.teamid}}">
+                            <select name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
+                                <option value="RED"
+                                  {% ifequal s.status "RED" %} selected {% endifequal %}>
+                                Red. (Major issues)
+                                </option>
+                                <option value="YELLOW"
+                                  {% ifequal s.status "YELLOW" %} selected {% endifequal %}>
+                                  Yellow. (Some minor issues)
+                                <option value="GREEN"
+                                  {% ifequal s.status "GREEN" %} selected {% endifequal %}>
+                                Green. (All good)</option>
+                                </option>
+                            </select>
+                            <div class="form-group" id="submit-button" style="display: none;">
+                                <input type="submit" class="form-control btn-primary" value="Save" >
+                            </div>
+                        </form>
+                    </td>
                 {% endfor %}
             </tr>
 
@@ -108,16 +120,6 @@
             </tr>
         </tbody>
     </table>
-
-    <!-- Dialog to change LRP comments -->
-    <div id="dialog-comment" title="Change LRP Comment">
-        <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
-            {% csrf_token %}
-            <input type="hidden" id="teamId" name="teamId" class="form-control">
-            <label for="LRPComment" class="form-label">LRP Comment</label>
-            <textarea id="LRPComment" class="form-control" name="LRPComment" style="height: 106px;"></textarea>
-        </form>
-    </div>
 </div>
 {% endblock %}
 
@@ -131,34 +133,8 @@
         $('.YELLOW').addClass('bg-warning');
         $('.RED').addClass('bg-danger');
 
-        $('.statusForm').change(function () {
-            $(this).submit();
-        });
-
-        // Register a dialog box for LRP change
-        var dialogComment = $( "#dialog-comment" ).dialog({
-          autoOpen: false,
-          height: 250,
-          width: 400,
-          modal: true,
-          buttons: {
-              Submit: function () {
-                  $('#commentForm').submit();
-              },
-              Cancel: function() {
-                dialogComment.dialog( "close" );
-              }
-          }
-        });
-
-        // Open dialog when user clicks change button
-        $( "a.comment-change" ).button().on( "click", function() {
-            var id = $(this).attr("id");
-            var current_comment = $(this).text();
-            // Fill the teamId field in the form
-            $('#commentForm > #teamId').val(id);
-            $('#commentForm #LRPComment').text($.trim(current_comment));
-            dialogComment.dialog( "open" );
+        $('.hidden-submit-form').change(function(){
+            $(this).find('#submit-button').show();
         });
 
     });

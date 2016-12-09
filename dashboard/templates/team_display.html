@@ -46,6 +46,11 @@
                     <th>Missed Calls</th>
                     <th>Comments</th>
                     <th style="max-width: 103px;">Receives reminder emails?</th>
+                    <th>Process Manager</th>
+                    <th>Keeper of the Minutes</th>
+                    <th>Pulse Checker* </th>
+                    <th>Conference Convener</th>
+                    <th>Conference Host</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,13 +61,16 @@
                     <td>{{ member.email }}</td>
                     <td></td>
                     <td>
-                        <a href="#" class="change-comment" id={{ member.id }}>
-                           {% if member.comment %}
-                            {{ member.comment }}
-                            {% else %}
-                            New Comment
-                            {% endif %}
-                        </a>
+                        <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
+                            {% csrf_token %}
+                            <input type="text" hidden name="memberId" value="{{ member.id }}">
+                            <div class="form-group">
+                                <textarea class="form-control" name="member_comment">{{ member.comment }}</textarea>
+                            </div>
+                            <div class="form-group" id="submit-button" style="display: none;">
+                                <input type="submit" class="form-control btn-primary" value="Save" >
+                            </div>
+                        </form>
                     </td>
                     <td>
                         <form method="post" class="receives-reminder-email-form form" action={% url 'update' %}>
@@ -81,193 +89,6 @@
                             </div>
                         </form>
                     </td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td>Document Link</td>
-                    <td colspan="2">
-                        <a href="{{ team.working_document }}">{{ team.working_document }}</a>
-                    </td>
-                    <td>Consultant Survey URL</td>
-                    <td colspan="2">
-                        <a href="{{ team.consultant_form_url }}" target="_blank">
-                            {{ request.META.HTTP_HOST }}{{ team.consultant_form_url}}
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div> <!-- Team member info -->
-
-    <!-- Team management -->
-    <a class="show-hide-div btn">
-        <div class="well row">
-            <span class="glyphicon glyphicon-arrow-down" ></span>
-            <span class="glyphicon glyphicon-arrow-up" style="display: none;" ></span>
-            <h4 class="text-success show-hide-div-title"> Team Management</h4>
-        </div>
-    </a>
-    <div id="team-management-div">
-        <div class="col-xs-8 col-md-9">
-            <table class="table table-responsive table-bordered table-striped" >
-                <thead>
-                    <tr>
-                        <th>Calls</th>
-                        <th>Received Reminder Emails</th>
-                        <th>Kick Off</th>
-                        <th>Mid Term</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2 calls / 15 expected</td>
-                        <td>Automatic Reminders</td>
-                        <td>Status</td>
-                        <td>Status</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <form class="form-inline" method="post" id="change-calls-count-form" action="{% url 'update' %}">
-                                <input type="text" hidden value="{{ team.id }}" name="teamId">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="change-calls-value">Add/Subtract calls</label>
-                                    <input type="number" name="change_calls_count"
-                                            id="change-calls-value"
-                                            class="form-control"
-                                            style="width: 70px;">
-                                    </input>
-                                </div>
-                                <div class="form-group" id="submit-button" style="display: none;">
-                                    <input type="submit" class="form-control btn-primary">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form action="" method="post" class="form" id="change-automatic-reminder-form">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <select name="automatic_reminder_status"
-                                            id="automatic-reminder-status"
-                                            class="form-control">
-                                        <option value="true">Yes</option>
-                                        <option value="false">No</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form action="" method="post" class="form">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <select name="kick_off_status" id="change-kick-off-status"
-                                            class="form-control">
-                                        <option value="not-started">Not Started</option>
-                                        <option value="intro-mail-sent">Intro Mail Sent</option>
-                                        <option value="date-arranged">Date Arranged</option>
-                                        <option value="call-happened">Call happened</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form action="" method="post" class="form">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <select name="mid_term_status" id="change-mid-term-status"
-                                            class="form-control">
-                                        <option value="not-started">Not Started</option>
-                                        <option value="intro-mail-sent">Intro Mail Sent</option>
-                                        <option value="date-arranged">Date Arranged</option>
-                                        <option value="call-happened">Call happened</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>Last email was sent on 22/11/2016</td>
-                        <td>
-                            <a href="#" class="change-comment" id="change-kick-off">
-                               {% if member.comment %}
-                                {{ member.comment }}
-                                {% else %}
-                                New Comment
-                                {% endif %}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" class="change-comment" id="change-mid-term">
-                               {% if member.comment %}
-                                {{ member.comment }}
-                                {% else %}
-                                New Comment
-                                {% endif %}
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-xs-4 col-md-3">
-            <table class="table table-responsive">
-                <tr>
-                    <td>
-                        <a class="btn btn-warning email-button" id="send-instruction-email">
-                            Send Instruction Mail
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <a class="btn btn-success email-button" id="send-reminder-email">
-                            Send Reminder Mail
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <a class="btn btn-primary email-button" id="send-message-fellows">
-                            Send Message to Fellows
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <a class="btn btn-info email-button" id="send-message-team">
-                            Send Message to Team
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div> <!-- Team management -->
-
-    <!-- Secondary Roles -->
-    <a class="show-hide-div btn">
-        <div class="well row">
-            <span class="glyphicon glyphicon-arrow-down"></span>
-            <span class="glyphicon glyphicon-arrow-up" style="display: none;"></span>
-            <h4 class="text-success show-hide-div-title"> Role Management</h4>
-        </div>
-    </a>
-    <div id="secondary-roles-div">
-    <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Name (Role)</th>
-                    <th>Process Manager</th>
-                    <th>Keeper of the Minutes</th>
-                    <th>Pulse Checker* </th>
-                    <th>Conference Convener</th>
-                    <th>Conference Host</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for member in team_members %}
-                <tr>
-                    <td>{{ member.name }} ({{ member.role }})</td>
                     <td>
                         <form method="post" id="process-manager-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
@@ -339,13 +160,220 @@
                         </form>
                     </td>
                 </tr>
-            {%  endfor %}
+                {% endfor %}
                 <tr>
+                    <td>Document Link</td>
+                    <td colspan="2">
+                        <a href="{{ team.working_document }}">{{ team.working_document }}</a>
+                    </td>
+                    <td>Consultant Survey URL</td>
+                    <td colspan="2">
+                        <a href="{{ team.consultant_form_url }}" target="_blank">
+                            {{ request.META.HTTP_HOST }}{{ team.consultant_form_url}}
+                        </a>
+                    </td>
                     <td colspan="6">*Pulse Checker will receive reminder emails</td>
                 </tr>
             </tbody>
         </table>
-    </div> <!-- Secondary Role -->
+    </div> <!-- Team member info -->
+
+    <!-- Team management -->
+    <a class="show-hide-div btn">
+        <div class="well row">
+            <span class="glyphicon glyphicon-arrow-down" ></span>
+            <span class="glyphicon glyphicon-arrow-up" style="display: none;" ></span>
+            <h4 class="text-success show-hide-div-title"> Team Management</h4>
+        </div>
+    </a>
+    <div id="team-management-div">
+        <div class="col-xs-8 col-md-9">
+            <table class="table table-responsive table-bordered table-striped" >
+                <thead>
+                    <tr>
+                        <th>Calls</th>
+                        <th>Received Reminder Emails</th>
+                        <th>Kick Off</th>
+                        <th>Mid Term</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2 calls / 15 expected</td>
+                        <td>Automatic Reminders</td>
+                        <td>Status</td>
+                        <td>Status</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <form class="form hidden-submit-form" method="post" id="change-calls-count-form" action="{% url 'update' %}">
+                                <input type="text" hidden value="{{ team.id }}" name="teamId">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="change-calls-value">Add/Subtract calls</label>
+                                    <input type="number" name="change_calls_count"
+                                            id="change-calls-value"
+                                            class="form-control"
+                                            value={{ team_status.call_change_count }}>
+                                    </input>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save">
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{% url 'update' %}" method="post" class="form hidden-submit-form" id="change-automatic-reminder-form">
+                                {% csrf_token %}
+                                <input type="text" value="{{ team.id }}" name="teamId" hidden>
+                                <div class="form-group">
+                                    <select name="automatic_reminder_status"
+                                            id="automatic-reminder-status"
+                                            class="form-control">
+                                        <option value="true"
+                                        {% if team_status.automatic_reminder == True %}
+                                            selected="selected"
+                                        {% endif %}
+                                        >Yes</option>
+                                        <option value="false"
+                                        {% if team_status.automatic_reminder == False%}
+                                            selected="selected"
+                                        {% endif %}
+                                        >No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save">
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{% url 'update' %}" method="post" class="form hidden-submit-form">
+                                {% csrf_token %}
+                                <input type="text" value="{{ team.id }}" name="teamId" hidden>
+                                <div class="form-group">
+                                    <select name="kick_off_status" id="change-kick-off-status"
+                                            class="form-control">
+                                        <option value="NS"
+                                        {% ifequal team_status.kick_off "NS" %}
+                                            selected
+                                        {% endifequal %}>Not Started</option>
+                                        <option value="IMS"
+                                        {% ifequal team_status.kick_off "IMS" %}
+                                            selected
+                                        {% endifequal %}>Intro Mail Sent</option>
+                                        <option value="DA"
+                                        {% ifequal team_status.kick_off "DA" %}
+                                            selected
+                                        {% endifequal %}>Date Arranged</option>
+                                        <option value="CH"
+                                        {% ifequal team_status.kick_off "CH" %}
+                                            selected
+                                        {% endifequal %}>Call happened</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save">
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{% url 'update' %}" method="post" class="form hidden-submit-form">
+                                {% csrf_token %}
+                                <input type="text" value="{{ team.id }}" name="teamId" hidden>
+                                <div class="form-group">
+                                    <select name="mid_term_status" id="change-mid-term-status"
+                                            class="form-control">
+                                        <option value="NS"
+                                        {% ifequal team_status.mid_term "NS" %}
+                                            selected
+                                        {% endifequal %}>Not Started</option>
+                                        <option value="IMS"
+                                        {% ifequal team_status.mid_term "IMS" %}
+                                            selected
+                                        {% endifequal %}>Intro Mail Sent</option>
+                                        <option value="DA"
+                                        {% ifequal team_status.mid_term "DA" %}
+                                            selected
+                                        {% endifequal %}>Date Arranged</option>
+                                        <option value="CH"
+                                        {% ifequal team_status.mid_term "CH" %}
+                                            selected
+                                        {% endifequal %}>Call happened</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save">
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Last email was sent on 22/11/2016</td>
+                        <td>
+                            <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
+                                {% csrf_token %}
+                                <input type="text" hidden name="teamId" value="{{ team.id }}">
+                                <div class="form-group">
+                                    <label class="form-label">Comment</label>
+                                    <textarea class="form-control" name="kick_off_comment">{{ team_status.kick_off_comment }}</textarea>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save" >
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
+                                {% csrf_token %}
+                                <input type="text" hidden name="teamId" value="{{ team.id }}">
+                                <div class="form-group">
+                                    <label class="form-label">Comment</label>
+                                    <textarea class="form-control" name="mid_term_comment">{{ team_status.mid_term_comment }}</textarea>
+                                </div>
+                                <div class="form-group" id="submit-button" style="display: none;">
+                                    <input type="submit" class="form-control btn-primary" value="Save" >
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-4 col-md-3">
+            <table class="table table-responsive">
+                <tr>
+                    <td>
+                        <a class="btn btn-warning email-button" id="send-instruction-email">
+                            Send Instruction Mail
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="btn btn-success email-button" id="send-reminder-email">
+                            Send Reminder Mail
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="btn btn-primary email-button" id="send-message-fellows">
+                            Send Message to Fellows
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="btn btn-info email-button" id="send-message-team">
+                            Send Message to Team
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div> <!-- Team management -->
 
     <!-- Fellow responses -->
     <a class="show-hide-div btn">
@@ -421,16 +449,6 @@
         </table>
     </div> <!-- Consultant Responses -->
 
-    <!-- Dialog to change comments -->
-    <div id="dialog-comment" title="Change Comment">
-        <form id="commentForm" action="{% url 'update' %}" class="form" method="POST">
-            {% csrf_token %}
-            <input type="hidden" class="form-control" id="memberId" name="memberId">
-            <label class="form-label">Comment</label>
-            <textarea class="form-control" style="height: 106px;"></textarea>
-        </form>
-    </div>
-
     <div id="dialog-email" title="Send Email">
         <form class="form" id="email-form" method="POST" action="{% url 'send_email' %}">
             {% csrf_token %}
@@ -457,12 +475,11 @@
 <script>
     $(function() {
 
-        commentDialogSetup();
         showHideSetup();
         sendEmailSetup();
 
         // Show call count change submit button
-        $('#change-calls-count-form').change(function() {
+        $('.hidden-submit-form').change(function() {
             $(this).find('#submit-button').show();
         });
         // Submit form on receives reminder email value change
@@ -479,46 +496,6 @@
         });
     });
 
-    function commentDialogSetup(){
-        // Register a dialog box for LRP change
-        var dialogComment = $("#dialog-comment").dialog({
-          autoOpen: false,
-          height: 250,
-          width: 400,
-          modal: true,
-          buttons: {
-              Submit: function(){
-                  $('#commentForm').submit();
-              },
-              Cancel: function() {
-                dialogComment.dialog( "close" );
-              }
-          }
-        });
-
-        // Open dialog when user clicks change button
-        $("a.change-comment").button().on("click", function(){
-            // Change kick off comment
-            if($(this).attr('id') == 'change-kick-off'){
-                $('#commentForm textarea').attr('name', 'kick_off_comment');
-            }
-            // Change mid term comment
-            else if ($(this).attr('id') == 'change-mid-term'){
-                $('#commentForm textarea').attr('name', 'mid_term_comment');
-            }
-
-            // Change Team member comment
-            else {
-                $('#commentForm textarea').attr('name', 'member_comment');
-                var member_id = $(this).attr('id');
-                $('#commentForm input#memberId').val(member_id);
-            }
-
-            var current_comment = $(this).text();
-            $('#commentForm textarea').text($.trim(current_comment));
-            dialogComment.dialog( "open" );
-        });
-    }
     function showHideSetup(){
         // Hide all sections except team info
         $('#consultant-responses-div').hide();
