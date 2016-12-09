@@ -405,11 +405,15 @@ def team_detail(request, team_id):
     :param team_id: Id of the team
     """
     team_object = get_object_or_404(Team, pk=team_id)
-
+    try:
+        team_status = team_object.team_status
+    except Team.team_status.RelatedObjectDoesNotExist:
+        team_status = TeamStatus.objects.create(team=team_object)
+        team_status.save()
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
-        'team_status': team_object.team_status.all().values()[0],
+        'team_status': team_object.team_status,
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
     }
