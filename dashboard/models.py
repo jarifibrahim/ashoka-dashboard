@@ -280,7 +280,8 @@ class Email(models.Model):
         ('IM', 'Instruction Mail'),
         ('RM', 'Reminder Mail'),
     )
-    type = models.CharField("Type of Email", choices=TYPE_CHOICES, max_length=5)
+    type = models.CharField(
+        "Type of Email", choices=TYPE_CHOICES, max_length=5)
     subject = models.CharField("Subject of the Email", max_length=200)
     message = models.TextField("Body of the Email")
 
@@ -292,13 +293,13 @@ class TeamStatus(models.Model):
     """
     Represents various team settings
     """
-    team = models.ForeignKey(Team, related_name='team_status')
+    team = models.OneToOneField(Team, related_name='team_status')
     call_change_count = models.IntegerField("Add/Subtract Total Calls count",
-                                            null=True)
+                                            default=0)
     automatic_reminder = models.BooleanField("Send Automatic Reminders?",
                                              default=True)
     last_automatic_reminder = models.DateTimeField("Last automatic reminder "
-                                                   "sent on", default=None,
+                                                   "sent on", blank=True,
                                                    null=True)
     KICK_OFF_CHOICES = (
         ('NS', 'Not Started'),
@@ -306,11 +307,11 @@ class TeamStatus(models.Model):
         ('DA', 'Date Arranged'),
         ('CH', 'Call Happened')
     )
-    kick_off = models.CharField(
-        "Kick Off Status", choices=KICK_OFF_CHOICES, default='NS', max_length=5)
+    kick_off = models.CharField("Kick Off Status", choices=KICK_OFF_CHOICES,
+                                default='NS', max_length=5)
     kick_off_comment = models.TextField("Kick Off Comment", blank=True)
-    mid_term = models.CharField(
-        "Mid Term Status", choices=KICK_OFF_CHOICES, default='NS', max_length=5)
+    mid_term = models.CharField("Mid Term Status", choices=KICK_OFF_CHOICES,
+                                default='NS', max_length=5)
     mid_term_comment = models.TextField("Mid Term Comment", blank=True)
 
     def __str__(self):
