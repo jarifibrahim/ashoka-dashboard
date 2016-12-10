@@ -1,0 +1,42 @@
+[
+  {
+    "model": "dashboard.secondaryrole",
+    "pk": 1,
+    "fields": {
+      "short_name": "PM",
+      "role": "Process Manager"
+    }
+  },
+  {
+    "model": "dashboard.secondaryrole",
+    "pk": 2,
+    "fields": {
+      "short_name": "KOM",
+      "role": "Keeper of the Minutes"
+    }
+  },
+  {
+    "model": "dashboard.secondaryrole",
+    "pk": 3,
+    "fields": {
+      "short_name": "PC",
+      "role": "Pulse Checker"
+    }
+  },
+  {
+    "model": "dashboard.secondaryrole",
+    "pk": 4,
+    "fields": {
+      "short_name": "CC",
+      "role": "Conference Convener"
+    }
+  },
+  {
+    "model": "dashboard.secondaryrole",
+    "pk": 5,
+    "fields": {
+      "short_name": "CH",
+      "role": "Conference Host"
+    }
+  }
+]

@@ -3,6 +3,8 @@ from django.db import models
 from datetime import datetime as dt
 from .utility import Data
 from django.shortcuts import reverse
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 
 class Dashboard(models.Model):
@@ -193,9 +195,12 @@ class AdvisoryPhase(models.Model):
     """
     Represents all the possible Advisory Phases.
     """
-    phase = models.CharField("Phases", max_length=200)
-    reached_in_week = models.IntegerField("Reached in Week")
-    expected_calls = models.IntegerField("Expected calls")
+    phase = models.CharField("Phase", max_length=200)
+    phase_number = models.PositiveIntegerField(
+        "Phase number", help_text="Phase are sorted according to this number. "
+                                  "If phase 'A' should happen before phase "
+                                  "'B' then 'A' should have lower phase number "
+                                  "value than 'B'.", unique=True)
 
     def __str__(self):
         return self.phase
@@ -270,31 +275,35 @@ class Email(models.Model):
         ('RM', 'Reminder Mail'),
     )
     help_text = "Template name to uniquely identify it."
-    name = models.CharField("Template Name", max_length=200,
+    name = models.CharField("Name", max_length=200,
                             unique=True, help_text=help_text)
     help_text = "Type of the template. Currently Instruction Email template " \
                 "and Reminder Email template are supported."
     type = models.CharField(
-        "Type of Email", choices=TYPE_CHOICES, max_length=5,
+        "Type", choices=TYPE_CHOICES, max_length=5,
         help_text=help_text)
     help_text = "If this field is set to ON all the emails of the specified " \
                 "type will use this template. Each type of email can have " \
                 "only one default"
-    active = models.BooleanField("Use this as default template of its type?",
+    active = models.BooleanField("Default",
                                  default=False, help_text=help_text)
-    subject = models.CharField("Subject of the Email", max_length=200)
+    subject = models.CharField("Subject", max_length=200)
     help_text = "If you wish to include the url to consultant form in the " \
                 "email, please add 'FORM_URL' (without quotes) placeholder. " \
                 "It will be replaced by the actual consultant url in the email."
     message = models.TextField("Body of the Email", help_text=help_text)
 
+    # Overwrite save method to update default template
     def save(self, *args, **kwargs):
         if self.active:
             # Get current default object
-            email_object = Email.objects.get(type=self.type, active=True)
-            # Set default value to false
-            email_object.active = False
-            email_object.save()
+            try:
+                email_object = Email.objects.get(type=self.type, active=True)
+                # Set default value to false
+                email_object.active = False
+                email_object.save()
+            except Email.DoesNotExist:
+                pass
         super(Email, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -303,7 +312,7 @@ class Email(models.Model):
 
 class TeamStatus(models.Model):
     """
-    Represents various team settings
+    Represents team's current status
     """
     team = models.OneToOneField(Team, related_name='team_status')
     help_text = "This value will be added to total calls count."
@@ -331,3 +340,113 @@ class TeamStatus(models.Model):
 
     def __str__(self):
         return str(self.team)
+
+
+class WeekWarning(models.Model):
+    """
+    Represents a week in WeeklyWarning model
+    """
+    week_number = models.PositiveIntegerField("Week Number", unique=True)
+
+    # Call count warnings
+    help_text = "Number of calls less than this value leads to Yellow warning."
+    calls_yellow_warning = models.PositiveIntegerField(
+        "Call count - Yellow warning", help_text=help_text)
+    help_text = "Number of calls less than this value leads to Red warning (" \
+                "Should be greater than yellow warning call count) "
+    calls_red_warning = models.PositiveIntegerField(
+        "Call count - Red warning", help_text=help_text)
+
+    # Unprepared calls warning
+    help_text = "If percentage of unprepared calls is less than this " \
+                "threshold, Yellow warning will be raised. "
+    unprepared_calls_yellow_warning = models.IntegerField(
+        "% unprepared call threshold", help_text=help_text)
+    help_text = "If percentage of unprepared calls is less than this " \
+                "threshold, Red warning will be raised. "
+    unprepared_calls_red_warning = models.IntegerField(
+        "% unprepared call threshold", help_text=help_text)
+
+    # Member missing call warnings
+    help_text = "Person missing calls: > leads to Yellow warning"
+    member_call_yellow_warning = models.PositiveIntegerField(
+        "Member missing call count - Yellow warning", help_text=help_text)
+    help_text = "Person missing calls: > leads to Red warning (Should be " \
+                "greater than yellow warning member call count) "
+    member_call_red_warning = models.PositiveIntegerField(
+        "Member missing call count - Red warning", help_text=help_text)
+    help_text = "Kick-off not happened in this week leads to Yellow warning."
+
+    # Kick off warnings
+    kick_off_yellow_warning = models.BooleanField(
+        "Kick Off - Yellow warning", help_text=help_text)
+    help_text = "Kick-off not happened in this week leads to Red warning."
+    kick_off_red_warning = models.BooleanField(
+        "Kick Off - Red warning", help_text=help_text)
+
+    # Mid term warnings
+    help_text = "Mid-term not happened in this week leads to Yellow warning"
+    mid_term_yellow_warning = models.BooleanField(
+        "Mid Term - Yellow warning", help_text=help_text)
+    help_text = "Mid-term not happened in this week leads to Red warning"
+    mid_term_red_warning = models.BooleanField(
+        "Mid Term - Red warning", help_text=help_text)
+    help_text = "Phases: Progress expected"
+
+    # Phase related warnings
+    phase = models.ForeignKey(
+        AdvisoryPhase, help_text=help_text, related_name="expected_phase")
+    help_text = "Yellow warning if in this Phase"
+    phase_yellow_warning = models.ForeignKey(AdvisoryPhase,
+                                             help_text=help_text,
+                                             null=True,
+                                             blank=True,
+                                             related_name="yellow_warning_phase")
+    help_text = "Red warning if in less than this Phase"
+    phase_red_warning = models.ForeignKey(AdvisoryPhase,
+                                          help_text=help_text,
+                                          null=True,
+                                          blank=True,
+                                          related_name="red_warning_phase")
+
+    def clean(self):
+        if self.calls_red_warning > self.calls_yellow_warning:
+            raise ValidationError(_('Call count for Red warning should be '
+                                    'less than or equal to Call count for '
+                                    'Yellow warning'))
+        if self.member_call_red_warning < self.member_call_yellow_warning:
+            raise ValidationError(_('Member missing call count for Red '
+                                    'warning should be greater than Member '
+                                    'missing call count for Yellow warning'))
+
+    def __str__(self):
+        return "Week {}".format(self.week_number)
+
+
+class TeamWarnings(models.Model):
+    """
+    Represents the set of warnings related to each team
+    """
+    WARNING_TYPES = (
+        ('Y', 'Yellow'),
+        ('R', 'Red')
+    )
+    team = models.OneToOneField(Team, related_name="warnings")
+    call_count = models.CharField("Call count warning Type",
+                                  choices=WARNING_TYPES,
+                                  blank=True, max_length=3)
+    phase = models.CharField("Current Phase warning type",
+                             choices=WARNING_TYPES, blank=True, max_length=3)
+    kick_off = models.CharField("Kick Off warning type",
+                                choices=WARNING_TYPES, blank=True, max_length=3)
+    mid_term = models.CharField("Mid Term warning type",
+                                choices=WARNING_TYPES, blank=True, max_length=3)
+    unprepared_call = models.CharField("Unprepared calls warning type",
+                                       choices=WARNING_TYPES,
+                                       blank=True, max_length=3)
+    consultant_rating = models.CharField("Consultant rating warning type",
+                                         choices=WARNING_TYPES,
+                                         blank=True, max_length=3)
+    fellow_rating = models.CharField("Fellow rating warning type",
+                                     choices=WARNING_TYPES,
+                                     blank=True, max_length=3)
