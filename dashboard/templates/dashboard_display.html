@@ -8,6 +8,15 @@
         text-align: center;
         min-width: 200px
     }
+    .GREEN {
+        background-color: #00FF00;
+    }
+    .YELLOW {
+        background-color: #FFFF00;
+    }
+    .RED {
+        background-color: #FF0000;
+    }
 
 </style>
 {% endblock %}
@@ -129,10 +138,6 @@
     <script>
     $(function() {
         $("table").colResizable({resizeMode: 'overflow'});
-        $('.GREEN').addClass('bg-success');
-        $('.YELLOW').addClass('bg-warning');
-        $('.RED').addClass('bg-danger');
-
         $('.hidden-submit-form').change(function(){
             $(this).find('#submit-button').show();
         });
