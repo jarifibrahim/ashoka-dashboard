@@ -69,7 +69,6 @@ class ConsultantSurveyAdmin(admin.ModelAdmin):
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
     list_display = ['phase', 'reached_in_week', 'expected_calls']
 
-
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)

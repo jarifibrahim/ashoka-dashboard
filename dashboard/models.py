@@ -74,10 +74,15 @@ class Team(models.Model):
         """
         Returns names of team members belonging to a specific role.
 
-        :param role: Members should be belonging to this role.
+        :param role:Members should be belonging to this role.
+        :returns:   Comma separated string to member belonging to specified role
         """
-        role_id = Role.get_role_id(role)
-        role_members = self.members.filter(role=role_id)
+        role = Role.objects.filter(long_name=role).values("id")
+        if not role:
+            values = [r.long_name for r in Role.objects.all()]
+            raise ValueError(
+                "Invalid role name. Possible Values are: " + str(values))
+        role_members = self.members.filter(role=role[0]['id'])
         member_string = ', '.join([str(i) for i in role_members])
         return member_string
 
@@ -152,22 +157,6 @@ class Role(models.Model):
 
     def __str__(self):
         return self.long_name
-
-    @classmethod
-    def get_role_id(cls, role_name):
-        """
-        Returns the ID of the role_name. Useful when trying to find members
-        belonging to specific role.
-
-        :param role_name:   Role name whose id is to be found.
-        :raises ValueError: If no role represented by role_name is found.
-        """
-        try:
-            return Role.objects.filter(long_name=role_name)[0].id
-        except:
-            values = [r.long_name for r in Role.objects.all()]
-            raise ValueError(
-                "Invalid role name. Possible Values are: " + str(values))
 
 
 class SecondaryRole(models.Model):
@@ -280,13 +269,36 @@ class Email(models.Model):
         ('IM', 'Instruction Mail'),
         ('RM', 'Reminder Mail'),
     )
+    help_text = "Template name to uniquely identify it."
+    name = models.CharField("Template Name", max_length=200,
+                            unique=True, help_text=help_text)
+    help_text = "Type of the template. Currently Instruction Email template " \
+                "and Reminder Email template are supported."
     type = models.CharField(
-        "Type of Email", choices=TYPE_CHOICES, max_length=5)
+        "Type of Email", choices=TYPE_CHOICES, max_length=5,
+        help_text=help_text)
+    help_text = "If this field is set to ON all the emails of the specified " \
+                "type will use this template. Each type of email can have " \
+                "only one default"
+    active = models.BooleanField("Use this as default template of its type?",
+                                 default=False, help_text=help_text)
     subject = models.CharField("Subject of the Email", max_length=200)
-    message = models.TextField("Body of the Email")
+    help_text = "If you wish to include the url to consultant form in the " \
+                "email, please add 'FORM_URL' (without quotes) placeholder. " \
+                "It will be replaced by the actual consultant url in the email."
+    message = models.TextField("Body of the Email", help_text=help_text)
+
+    def save(self, *args, **kwargs):
+        if self.active:
+            # Get current default object
+            email_object = Email.objects.get(type=self.type, active=True)
+            # Set default value to false
+            email_object.active = False
+            email_object.save()
+        super(Email, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.subject
+        return self.name
 
 
 class TeamStatus(models.Model):
@@ -294,16 +306,19 @@ class TeamStatus(models.Model):
     Represents various team settings
     """
     team = models.OneToOneField(Team, related_name='team_status')
+    help_text = "This value will be added to total calls count."
     call_change_count = models.IntegerField("Add/Subtract Total Calls count",
-                                            default=0)
+                                            default=0, help_text=help_text)
+    help_text = "Should periodic Automatic Reminders Emails be sent?"
     automatic_reminder = models.BooleanField("Send Automatic Reminders?",
-                                             default=True)
+                                             default=True, help_text=help_text)
+    help_text = "Last automatic reminder email was sent on this date"
     last_automatic_reminder = models.DateTimeField("Last automatic reminder "
                                                    "sent on", blank=True,
-                                                   null=True)
+                                                   null=True, editable=False)
     KICK_OFF_CHOICES = (
         ('NS', 'Not Started'),
-        ('IMS', 'IMS'),
+        ('IMS', 'Intro Mail Sent'),
         ('DA', 'Date Arranged'),
         ('CH', 'Call Happened')
     )

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus
+from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import Data
 from django.core.mail import send_mail
@@ -405,17 +405,24 @@ def team_detail(request, team_id):
     :param team_id: Id of the team
     """
     team_object = get_object_or_404(Team, pk=team_id)
+
+    # Get team status object.
+    # Create new object if none found.
     try:
         team_status = team_object.team_status
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
+    intro_email_object = Email.objects.get(type="IM")
+    reminder_email_object = Email.objects.get(type="RM")
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
-        'team_status': team_object.team_status,
+        'team_status': team_status,
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
+        'intro_email': intro_email_object,
+        'reminder_email': reminder_email_object
     }
     return render(request, "team_display.html", context=context)
 

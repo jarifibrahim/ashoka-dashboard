@@ -5,9 +5,6 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <style type="text/css">
-    #dialog-comment{
-        display:none;
-    }
     .well {
         margin-bottom:0;
     }
@@ -20,6 +17,15 @@
     }
     #dialog-email label {
         margin-right: 5px;
+    }
+    .secondary-role-td {
+        width:50px;
+    }
+    td {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 </style>
 {% endblock %}
@@ -89,7 +95,7 @@
                             </div>
                         </form>
                     </td>
-                    <td>
+                    <td class="secondary-role-td">
                         <form method="post" id="process-manager-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
@@ -103,7 +109,7 @@
                             </div>
                         </form>
                     </td>
-                    <td>
+                    <td class="secondary-role-td">
                         <form method="post" id="keeper-of-minutes-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
@@ -117,7 +123,7 @@
                             </div>
                         </form>
                     </td>
-                    <td>
+                    <td class="secondary-role-td">
                         <form method="post" id="pulse-checker-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
@@ -131,7 +137,7 @@
                             </div>
                         </form>
                     </td>
-                    <td>
+                    <td class="secondary-role-td">
                         <form method="post" id="conference-convener-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
@@ -145,7 +151,7 @@
                             </div>
                         </form>
                     </td>
-                    <td>
+                    <td class="secondary-role-td">
                         <form method="post" id="conference-host-form" class="secondary-role-change form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
@@ -162,13 +168,11 @@
                 </tr>
                 {% endfor %}
                 <tr>
-                    <td>Document Link</td>
-                    <td colspan="2">
-                        <a href="{{ team.working_document }}">{{ team.working_document }}</a>
+                    <td colspan="3">
+                        Document Link: <a href="{{ team.working_document }}">{{ team.working_document }}</a>
                     </td>
-                    <td>Consultant Survey URL</td>
-                    <td colspan="2">
-                        <a href="{{ team.consultant_form_url }}" target="_blank">
+                    <td colspan="3">
+                        Consultant Survey URL: <a href="{{ team.consultant_form_url }}" target="_blank">
                             {{ request.META.HTTP_HOST }}{{ team.consultant_form_url}}
                         </a>
                     </td>
@@ -501,7 +505,6 @@
         $('#consultant-responses-div').hide();
         $('#fellow-responses-div').hide();
         $('#team-management-div').hide();
-        $('#secondary-roles-div').hide();
 
         // Show/Hide sections
         $('a.show-hide-div').click(function(){
@@ -544,9 +547,15 @@
              */
             if (id == "send-instruction-email") {
                 var form = $('#email-form');
+                var subject = "{{ intro_email.subject }}";
+                var message = "{{ intro_email.message|escapejs }}";
+                var url = "{{ request.META.HTTP_HOST }}{{ team.consultant_form_url|escapejs}}";
+                var link = "<a href='LINK'> LINK </a>".replace(/LINK/g, url);
+                // Add form url
+                message = message.replace(/FORM_URL/, link);
                 form.find('#memberChoice input').prop('checked', true);
-                form.find('#email-subject').val("This is an Instruction Email");
-                form.find('#email-body').text("Instruction Email Text");
+                form.find('#email-subject').val(subject);
+                form.find('#email-body').text(message);
             }
 
 
