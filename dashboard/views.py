@@ -413,8 +413,8 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-    intro_email_object = Email.objects.get(type="IM")
-    reminder_email_object = Email.objects.get(type="RM")
+    intro_email_object = Email.objects.get(type="IM", active=True)
+    reminder_email_object = Email.objects.get(type="RM", active=True)
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),

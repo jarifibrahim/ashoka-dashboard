@@ -1,16 +1,17 @@
 from django.contrib import admin
 from .models import *
-from .forms import ConsultantSurveyForm
 
 
 # Inline models can be edited from other model's change page
 # Team model can be modified from Dashboard model change page
 class TeamInline(admin.TabularInline):
     model = Team
+    extra = 1
 
 
 class MemberInline(admin.TabularInline):
     model = Member
+    extra = 1
 
 
 class DashboardAdmin(admin.ModelAdmin):
@@ -67,7 +68,13 @@ class ConsultantSurveyAdmin(admin.ModelAdmin):
 
 
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
-    list_display = ['phase', 'reached_in_week', 'expected_calls']
+    list_display = ['phase_number', 'phase']
+    ordering = ('phase_number',)
+
+
+class EmailAdmin(admin.ModelAdmin):
+    list_display = ['name', 'type', 'subject', 'active']
+    list_filter = ['type']
 
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
@@ -77,5 +84,6 @@ admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
 admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
 admin.site.register(FellowSurvey)
 admin.site.register(SecondaryRole)
-admin.site.register(Email)
+admin.site.register(Email, EmailAdmin)
 admin.site.register(TeamStatus)
+admin.site.register(WeekWarning)
