@@ -2,9 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email
+from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
+    WeekWarning, Data
 from .forms import ConsultantSurveyForm, FellowSurveyForm
-from .utility import Data
+from .utility import Warnings
 from django.core.mail import send_mail
 
 
@@ -32,15 +33,30 @@ def dashboard_overview(request, dashboard_id):
     lrp_comment_and_teamid, status_and_teamid = (list() for _ in range(2))
 
     for team in all_teams:
-        team_list.append({'teamid': team.id, 'name': team.name})
+        team_list.append({
+            'teamid': team.id,
+            'name': team.name
+        })
         lrp_list.append(team.get_members_with_role("LRP"))
         working_document.append(team.working_document)
         consultant_requests.append(team.consultant_request)
         fellow_requests.append(team.fellow_request)
-        status_and_teamid.append({'teamid': team.id, 'status': team.status})
-        lrp_comment_and_teamid.append(
-            {'teamid': team.id, 'comment': team.lrp_comment})
+        status_and_teamid.append({
+            'teamid': team.id,
+            'status': team.status
+        })
+        lrp_comment_and_teamid.append({
+            'teamid': team.id,
+            'comment': team.lrp_comment
+        })
 
+    dates = {
+        'start_date': dashboard.advisory_start_date,
+        'end_date': dashboard.advisory_end_date,
+        'total_weeks': dashboard.total_weeks,
+        'current_week': dashboard.current_week
+
+    }
     context = {
         'teams': team_list,
         'LRPs': lrp_list,
@@ -49,6 +65,7 @@ def dashboard_overview(request, dashboard_id):
         'fellow_requests': fellow_requests,
         'status': status_and_teamid,
         'lrp_comment': lrp_comment_and_teamid,
+        'dates': dates
     }
     return render(request, "dashboard_display.html", context=context)
 
@@ -413,6 +430,9 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
+
+    Warnings.check_warnings(team_object)
+
     intro_email_object = Email.objects.get(type="IM", active=True)
     reminder_email_object = Email.objects.get(type="RM", active=True)
     context = {
