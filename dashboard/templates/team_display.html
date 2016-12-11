@@ -25,7 +25,7 @@
         display: none;
     }
 
-    td {
+    #consultant-responses-div td {
         max-width: 100px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -217,37 +217,37 @@
                 <tr>
                     <td>Call Count</td>
                     <td class="{{ team_warnings.call_count }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.call_count_comment }}</td>
                 </tr>
                 <tr>
                     <td>Phase</td>
                     <td class="{{ team_warnings.phase }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.phase_comment }}</td>
                 </tr>
                 <tr>
                     <td>Kick Off</td>
                     <td class="{{ team_warnings.kick_off }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.kick_off_comment }}</td>
                 </tr>
                 <tr>
                     <td>Mid Term</td>
                     <td class="{{ team_warnings.mid_term }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.mid_term_comment }}</td>
                 </tr>
                 <tr>
                     <td>Unprepared Calls</td>
                     <td class="{{ team_warnings.unprepared_call }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.unprepared_call_comment }}</td>
                 </tr>
                 <tr>
                     <td>Consultant Rating</td>
                     <td class="{{ team_warnings.consultant_rating }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.consultant_rating_comment }}</td>
                 </tr>
                 <tr>
                     <td>Fellow Rating</td>
                     <td class="{{ team_warnings.fellow_rating }}"></td>
-                    <td></td>
+                    <td>{{ team_warnings.fellow_rating_comment }}</td>
                 </tr>
 
             </tbody>
