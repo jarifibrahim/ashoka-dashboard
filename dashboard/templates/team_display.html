@@ -27,6 +27,16 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+    .R {
+        background-color: #FF0000;
+    }
+    .Y {
+        background-color: #FFFF00;
+    }
+    .G {
+        background-color: #00FF00;
+    }
+
 </style>
 {% endblock %}
 
@@ -181,6 +191,64 @@
             </tbody>
         </table>
     </div> <!-- Team member info -->
+
+    <a class="show-hide-div btn">
+        <div class="well row">
+            <span class="glyphicon glyphicon-arrow-down" ></span>
+            <span class="glyphicon glyphicon-arrow-up" style="display: none;" ></span>
+            <h4 class="text-success show-hide-div-title"> Team Warnings</h4>
+        </div>
+    </a>
+    <div id="team-warnings-div">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Level</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Call Count</td>
+                    <td class="{{ team_warnings.call_count }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Phase</td>
+                    <td class="{{ team_warnings.phase }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Kick Off</td>
+                    <td class="{{ team_warnings.kick_off }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Mid Term</td>
+                    <td class="{{ team_warnings.mid_term }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Unprepared Calls</td>
+                    <td class="{{ team_warnings.unprepared_call }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Consultant Rating</td>
+                    <td class="{{ team_warnings.consultant_rating }}"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Fellow Rating</td>
+                    <td class="{{ team_warnings.fellow_rating }}"></td>
+                    <td></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div> <!-- Fellow Responses -->
+
 
     <!-- Team management -->
     <a class="show-hide-div btn">

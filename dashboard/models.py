@@ -205,9 +205,10 @@ class Team(models.Model):
         unprepared_calls = self.consultant_surveys.filter(all_prepared=False)
         total_calls = self.consultant_surveys.all().count()
         try:
-            return math.floor((unprepared_calls.count()/total_calls)*100)
+            return math.floor((unprepared_calls.count() / total_calls) * 100)
         except ZeroDivisionError:
             return None
+
 
 class Role(models.Model):
     """
@@ -489,6 +490,50 @@ class WeekWarning(models.Model):
                                     'warning should be greater than Member '
                                     'missing call count for Yellow warning'))
 
+    # Overwrite parent save method
+    def save(self, *args, **kwargs):
+
+        if self.kick_off_yellow_warning:
+            """
+            If a week has kick off yellow warning then all the weeks following
+            it should have the kick off yellow warning.
+            """
+            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            for week in weeks:
+                week.kick_off_yellow_warning = True
+                week.save()
+
+        if self.kick_off_red_warning:
+            """
+            If a week has kick off red warning then all the weeks following
+            it should have the kick off red warning.
+            """
+            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            for week in weeks:
+                week.kick_off_red_warning = True
+                week.save()
+
+        if self.mid_term_yellow_warning:
+            """
+            If a week has mid term yellow warning then all the weeks following
+            it should have the mid term yellow warning.
+            """
+            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            for week in weeks:
+                week.mid_term_yellow_warning = True
+                week.save()
+
+        if self.mid_term_red_warning:
+            """
+            If a week has mid term red warning then all the weeks following
+            it should have the mid term red warning.
+            """
+            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            for week in weeks:
+                week.mid_term_red_warning = True
+                week.save()
+        super(WeekWarning, self).save(*args, **kwargs)
+
     def __str__(self):
         return "Week {}".format(self.week_number)
 
@@ -503,26 +548,38 @@ class TeamWarning(models.Model):
         ('R', 'Red')
     )
     team = models.OneToOneField(Team, related_name="warnings")
-    call_count = models.CharField("Call count warning Type",
+    call_count = models.CharField("Warning - Call Count",
                                   choices=WARNING_TYPES,
                                   default="G", max_length=3)
-    phase = models.CharField("Current Phase warning type",
-                             choices=WARNING_TYPES, default="G", max_length=3)
-    kick_off = models.CharField("Kick Off warning type",
-                                choices=WARNING_TYPES, default="G",
-                                max_length=3)
-    mid_term = models.CharField("Mid Term warning type",
-                                choices=WARNING_TYPES, default="G",
-                                max_length=3)
-    unprepared_call = models.CharField("Unprepared calls warning type",
-                                       choices=WARNING_TYPES,
-                                       default="G", max_length=3)
-    consultant_rating = models.CharField("Consultant rating warning type",
-                                         choices=WARNING_TYPES,
-                                         default="G", max_length=3)
-    fellow_rating = models.CharField("Fellow rating warning type",
-                                     choices=WARNING_TYPES,
-                                     default="G", max_length=3)
+    call_count_comment = models.CharField("Comment - Call Count",
+                                          max_length=300, blank=True)
+    phase = models.CharField("Warning - Phase", choices=WARNING_TYPES,
+                             default="G", max_length=3)
+    phase_comment = models.CharField("Comment - Phase", max_length=300,
+                                     blank=True)
+    kick_off = models.CharField("Warning - Kick Off", choices=WARNING_TYPES,
+                                default="G", max_length=3)
+    kick_off_comment = models.CharField("Comment - Kick Off", max_length=300,
+                                        blank=True)
+    mid_term = models.CharField("Warning - Mid Term", choices=WARNING_TYPES,
+                                default="G", max_length=3)
+    mid_term_comment = models.CharField("Comment - Mid Term", max_length=300,
+                                        blank=True)
+    unprepared_call = models.CharField("Warning - Unprepared Calls",
+                                       choices=WARNING_TYPES, default="G",
+                                       max_length=3)
+    unprepared_call_comment = models.CharField("Comment - Unprepared Calls",
+                                               max_length=300, blank=True)
+    consultant_rating = models.CharField("Warning - Consultant Rating",
+                                         choices=WARNING_TYPES, default="G",
+                                         max_length=3)
+    consultant_rating_comment = models.CharField("Comment - Consultant Rating",
+                                                 max_length=300, blank=True)
+    fellow_rating = models.CharField("Warning - Fellow Rating",
+                                     choices=WARNING_TYPES, default="G",
+                                     max_length=3)
+    fellow_rating_comment = models.CharField("Comment - Fellow Rating",
+                                             max_length=300, blank=True)
 
     def __str__(self):
         return str(self.team) + " Warnings"

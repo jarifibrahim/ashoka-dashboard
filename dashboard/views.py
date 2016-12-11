@@ -5,7 +5,7 @@ from django.urls import reverse
 from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
         Data
 from .forms import ConsultantSurveyForm, FellowSurveyForm
-from .utility import Warnings
+from .utility import check_warnings
 from django.core.mail import send_mail
 
 
@@ -431,7 +431,7 @@ def team_detail(request, team_id):
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
 
-    Warnings.check_warnings(team_object)
+    check_warnings(team_object)
 
     intro_email_object = Email.objects.get(type="IM", default_template=True)
     reminder_email_object = Email.objects.get(type="RM", default_template=True)
@@ -442,7 +442,8 @@ def team_detail(request, team_id):
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
         'intro_email': intro_email_object,
-        'reminder_email': reminder_email_object
+        'reminder_email': reminder_email_object,
+        'team_warnings': team_object.warnings
     }
     return render(request, "team_display.html", context=context)
 
