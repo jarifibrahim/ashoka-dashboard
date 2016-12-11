@@ -73,7 +73,7 @@ class AdvisoryPhaseAdmin(admin.ModelAdmin):
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ['name', 'type', 'subject', 'active']
+    list_display = ['name', 'type', 'subject', 'default_template']
     list_filter = ['type']
 
 admin.site.register(Dashboard, DashboardAdmin)

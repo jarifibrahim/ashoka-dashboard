@@ -33,8 +33,7 @@ class Data:
 
 class Dashboard(models.Model):
     """
-    Represents a Dashboard. Dashboard contains
-    Teams and Teams contain Members
+    Represents a Dashboard. Dashboard contains Teams and Teams contain Members.
     """
     name = models.CharField("Dashboard Name", max_length=200, unique=True)
     create_date = models.DateTimeField(
@@ -53,14 +52,6 @@ class Dashboard(models.Model):
         delta = self.advisory_end_date - self.advisory_start_date
         return delta.days // 7
 
-    @property
-    def team_count(self):
-        """
-        Returns total number of teams in the Dashboard
-        :returns: Total teams count
-        """
-        return len(self.teams.all())
-
     total_weeks = property(_get_total_weeks)
 
     @property
@@ -76,7 +67,7 @@ class Dashboard(models.Model):
     def current_week(self):
         """
         Returns current week of advisory process
-        :return: Week number of advisor process
+        :return: Week number of advisory process
         """
         start_date = self.advisory_start_date
         return math.ceil(int((date.today() - start_date).days) / 7.0)
@@ -100,10 +91,6 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def member_count(self):
-        return len(self.member_set.all())
 
     def get_members_with_role(self, role):
         """
@@ -138,7 +125,7 @@ class Team(models.Model):
     def working_document(self):
         """
         Returns last working document url
-        :return: Working document url
+        :return: Working document url if present, else empty string.
         """
 
         entry = self.consultant_surveys.values('document_link').exclude(
@@ -152,7 +139,7 @@ class Team(models.Model):
     def consultant_request(self):
         """
         Returns last consultant request
-        :return: Last request
+        :return: Last request if present, else empty string
         """
         entry = self.consultant_surveys.values('help').exclude(
             help__isnull=True).exclude(help__exact="")
@@ -164,7 +151,7 @@ class Team(models.Model):
     def fellow_request(self):
         """
         Returns last fellow request
-        :return: Last fellow request
+        :return: Last fellow request if present, else empty string
         """
         entry = self.fellow_surveys.values('comments').exclude(
             comments__isnull=True).exclude(comments__exact="")
@@ -185,7 +172,8 @@ class Team(models.Model):
     def last_consultant_rating(self):
         """
         Returns last phase rating provided by the consultant
-        :return: Last phase rating by consultant
+        :return: None, if no consultant response with rating is found.
+                 Else, Last phase rating by consultant.
         """
 
         entry = self.consultant_surveys.values('rating').exclude(
@@ -198,15 +186,28 @@ class Team(models.Model):
     def last_fellow_rating(self):
         """
         Returns last phase rating provided by the fellow
-        :return: Last phase rating by fellow
+        :return: None, if there are no fellow responses.
+                 Else, Last phase rating by fellow.
         """
-
         entry = self.fellow_surveys.values('rating').exclude(
             rating__isnull=True)
         if entry:
             return entry.latest('submit_date')['rating']
         return None
 
+    @property
+    def unprepared_calls_percentage(self):
+        """
+        Returns percentage of unprepared calls.
+        :return: None, if there are no consultant responses.
+                 Else, percentage of unprepared calls.
+        """
+        unprepared_calls = self.consultant_surveys.filter(all_prepared=False)
+        total_calls = self.consultant_surveys.all().count()
+        try:
+            return math.floor((unprepared_calls.count()/total_calls)*100)
+        except ZeroDivisionError:
+            return None
 
 class Role(models.Model):
     """
@@ -232,7 +233,7 @@ class SecondaryRole(models.Model):
 
 class Member(models.Model):
     """
-    Represents Members of a Team.
+    Represents a Member of a Team.
     """
     team = models.ForeignKey(
         Team, on_delete=models.CASCADE, related_name="members")
@@ -343,22 +344,24 @@ class Email(models.Model):
     help_text = "If this field is set to ON all the emails of the specified " \
                 "type will use this template. Each type of email can have " \
                 "only one default"
-    active = models.BooleanField("Default",
-                                 default=False, help_text=help_text)
+    default_template = models.BooleanField("Default",
+                                           default=False,
+                                           help_text=help_text)
     subject = models.CharField("Subject", max_length=200)
     help_text = "If you wish to include the url to consultant form in the " \
                 "email, please add 'FORM_URL' (without quotes) placeholder. " \
                 "It will be replaced by the actual consultant url in the email."
     message = models.TextField("Body of the Email", help_text=help_text)
 
-    # Overwrite save method to update default template
+    # Overwrite save method to change default template
     def save(self, *args, **kwargs):
-        if self.active:
+        if self.default_template:
             # Get current default object
             try:
-                email_object = Email.objects.get(type=self.type, active=True)
+                email_object = Email.objects.get(type=self.type,
+                                                 default_template=True)
                 # Set default value to false
-                email_object.active = False
+                email_object.default_template = False
                 email_object.save()
             except Email.DoesNotExist:
                 pass
@@ -402,7 +405,7 @@ class TeamStatus(models.Model):
 
 class WeekWarning(models.Model):
     """
-    Represents a week in WeeklyWarning model
+    Represents warnings for a week. Each week has different warning criterion.
     """
     week_number = models.PositiveIntegerField("Week Number", unique=True)
 
@@ -471,7 +474,7 @@ class WeekWarning(models.Model):
                 "value "
     consultant_rating_red_warning = models.PositiveIntegerField(
         "Consultant Rating Red Warning", default=7, help_text=help_text)
-    help_text = "Red warning if last rating by consultant is less than this " \
+    help_text = "Red warning if last rating by fellow is less than this " \
                 "value "
     fellow_rating_red_warning = models.PositiveIntegerField(
         "Fellow Phase Rating Red Warning", default=7, help_text=help_text)
@@ -492,7 +495,7 @@ class WeekWarning(models.Model):
 
 class TeamWarning(models.Model):
     """
-    Represents the set of warnings related to each team
+    Represents the set of warnings related to a team
     """
     WARNING_TYPES = (
         ('G', 'Green'),
