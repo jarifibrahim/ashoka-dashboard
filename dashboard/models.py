@@ -412,46 +412,46 @@ class WeekWarning(models.Model):
 
     # Call count warnings
     help_text = "Number of calls less than this value leads to Yellow warning."
-    calls_yellow_warning = models.PositiveIntegerField(
+    calls_y = models.PositiveIntegerField(
         "Call count - Yellow warning", help_text=help_text)
     help_text = "Number of calls less than this value leads to Red warning (" \
                 "Should be less than yellow warning call count) "
-    calls_red_warning = models.PositiveIntegerField(
+    calls_r = models.PositiveIntegerField(
         "Call count - Red warning", help_text=help_text)
 
     # Unprepared calls warning
     help_text = "If percentage of unprepared calls is less than this " \
                 "threshold, Yellow warning will be raised. "
-    unprepared_calls_yellow_warning = models.IntegerField(
+    unprepared_calls_y = models.IntegerField(
         "% unprepared call threshold", help_text=help_text)
     help_text = "If percentage of unprepared calls is less than this " \
                 "threshold, Red warning will be raised. "
-    unprepared_calls_red_warning = models.IntegerField(
+    unprepared_calls_r = models.IntegerField(
         "% unprepared call threshold", help_text=help_text)
 
     # Member missing call warnings
     help_text = "Person missing calls: > leads to Yellow warning"
-    member_call_yellow_warning = models.PositiveIntegerField(
+    member_call_y = models.PositiveIntegerField(
         "Member missing call count - Yellow warning", help_text=help_text)
     help_text = "Person missing calls: > leads to Red warning (Should be " \
                 "greater than yellow warning member call count) "
-    member_call_red_warning = models.PositiveIntegerField(
+    member_call_r = models.PositiveIntegerField(
         "Member missing call count - Red warning", help_text=help_text)
 
     # Kick off warnings
     help_text = "Kick-off not happened in this week leads to Yellow warning."
-    kick_off_yellow_warning = models.BooleanField(
+    kick_off_y = models.BooleanField(
         "Kick Off - Yellow warning", help_text=help_text)
     help_text = "Kick-off not happened in this week leads to Red warning."
-    kick_off_red_warning = models.BooleanField(
+    kick_off_r = models.BooleanField(
         "Kick Off - Red warning", help_text=help_text)
 
     # Mid term warnings
     help_text = "Mid-term not happened in this week leads to Yellow warning"
-    mid_term_yellow_warning = models.BooleanField(
+    mid_term_y = models.BooleanField(
         "Mid Term - Yellow warning", help_text=help_text)
     help_text = "Mid-term not happened in this week leads to Red warning"
-    mid_term_red_warning = models.BooleanField(
+    mid_term_r = models.BooleanField(
         "Mid Term - Red warning", help_text=help_text)
 
     # Phase related warnings
@@ -459,79 +459,74 @@ class WeekWarning(models.Model):
     phase = models.ForeignKey(
         AdvisoryPhase, help_text=help_text, related_name="expected_phase")
     help_text = "Yellow warning if in this Phase"
-    phase_yellow_warning = models.ForeignKey(AdvisoryPhase,
-                                             help_text=help_text,
-                                             null=True,
-                                             blank=True,
-                                             related_name="yellow_warning_phase")
+    phase_y = models.ForeignKey(AdvisoryPhase,
+                                help_text=help_text,
+                                null=True,
+                                blank=True,
+                                related_name="yellow_warning_phase")
     help_text = "Red warning if in less than this Phase"
-    phase_red_warning = models.ForeignKey(AdvisoryPhase,
-                                          help_text=help_text,
-                                          null=True,
-                                          blank=True,
-                                          related_name="red_warning_phase")
+    phase_r = models.ForeignKey(AdvisoryPhase,
+                                help_text=help_text,
+                                null=True,
+                                blank=True,
+                                related_name="red_warning_phase")
     # Rating related warnings
     help_text = "Red warning if last rating by consultant is less than this " \
                 "value "
-    consultant_rating_red_warning = models.PositiveIntegerField(
+    consultant_rating_r = models.PositiveIntegerField(
         "Consultant Rating Red Warning", default=7, help_text=help_text)
     help_text = "Red warning if last rating by fellow is less than this " \
                 "value "
-    fellow_rating_red_warning = models.PositiveIntegerField(
+    fellow_rating_r = models.PositiveIntegerField(
         "Fellow Phase Rating Red Warning", default=7, help_text=help_text)
 
     def clean(self):
-        if self.calls_red_warning > self.calls_yellow_warning:
+        if self.calls_r > self.calls_y:
             raise ValidationError(_('Call count for Red warning should be '
                                     'less than or equal to Call count for '
                                     'Yellow warning'))
-        if self.member_call_red_warning < self.member_call_yellow_warning:
+        if self.member_call_r < self.member_call_y:
             raise ValidationError(_('Member missing call count for Red '
                                     'warning should be greater than Member '
                                     'missing call count for Yellow warning'))
 
     # Overwrite parent save method
     def save(self, *args, **kwargs):
+        orig = WeekWarning.objects.get(pk=self.id)
 
-        if self.kick_off_yellow_warning:
+        # Execute following code only if the value has changed
+        if self.kick_off_y is not orig.kick_off_y:
             """
             If a week has kick off yellow warning then all the weeks following
             it should have the kick off yellow warning.
             """
             weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
-            for week in weeks:
-                week.kick_off_yellow_warning = True
-                week.save()
+            weeks.update(kick_off_y=self.kick_off_y)
 
-        if self.kick_off_red_warning:
+        if self.kick_off_r is not orig.kick_off_r:
             """
             If a week has kick off red warning then all the weeks following
             it should have the kick off red warning.
             """
             weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
-            for week in weeks:
-                week.kick_off_red_warning = True
-                week.save()
+            weeks.update(kick_off_r=self.kick_off_r)
 
-        if self.mid_term_yellow_warning:
+        if self.mid_term_y is not orig.mid_term_y:
             """
             If a week has mid term yellow warning then all the weeks following
             it should have the mid term yellow warning.
             """
             weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
-            for week in weeks:
-                week.mid_term_yellow_warning = True
-                week.save()
+            weeks.update(mid_term_y=self.mid_term_y)
 
-        if self.mid_term_red_warning:
+        if self.mid_term_r is not orig.mid_term_r:
             """
             If a week has mid term red warning then all the weeks following
             it should have the mid term red warning.
             """
             weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
-            for week in weeks:
-                week.mid_term_red_warning = True
-                week.save()
+            weeks.update(mid_term_r=self.mid_term_r)
+
         super(WeekWarning, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -21,6 +21,10 @@
     .secondary-role-td {
         width:50px;
     }
+    #consultant-responses-div, #fellow-responses-div, #team-management-div, #team-warnings-div{
+        display: none;
+    }
+
     td {
         max-width: 100px;
         overflow: hidden;
@@ -200,6 +204,7 @@
         </div>
     </a>
     <div id="team-warnings-div">
+        <a class="btn btn-info" href="{% url 'show_warnings' %}">View Current Warning Settings</a>
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -247,8 +252,7 @@
 
             </tbody>
         </table>
-    </div> <!-- Fellow Responses -->
-
+    </div> <!-- Team Warnings -->
 
     <!-- Team management -->
     <a class="show-hide-div btn">
@@ -574,11 +578,6 @@
     });
 
     function showHideSetup(){
-        // Hide all sections except team info
-        $('#consultant-responses-div').hide();
-        $('#fellow-responses-div').hide();
-        $('#team-management-div').hide();
-
         // Show/Hide sections
         $('a.show-hide-div').click(function(){
             $(this).next().slideToggle();

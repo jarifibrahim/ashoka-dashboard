@@ -17,12 +17,12 @@ def check_warnings(team):
         response_count = team.consultant_surveys.all().count()
         change_count = team.team_status.call_change_count
         total_call_count = response_count + change_count
-        if total_call_count < week_warning.calls_red_warning:
+        if total_call_count < week_warning.calls_r:
             msg = "Total Calls ({0} + {1}): {2} < Expected Calls: {3}"
             msg.format(response_count, change_count, total_call_count,
-                       week_warning.calls_red_warning)
+                       week_warning.calls_r)
             return status['red'], msg
-        elif total_call_count < week_warning.calls_yellow_warning:
+        elif total_call_count < week_warning.calls_y:
             return status['yellow'], ""
         else:
             return status['green'], ""
@@ -33,8 +33,8 @@ def check_warnings(team):
         # If there are no responses skip the following section
         if last_response:
             current_phase = last_response.current_phase.phase_number
-            yellow = week_warning.phase_yellow_warning
-            red = week_warning.phase_red_warning
+            yellow = week_warning.phase_y
+            red = week_warning.phase_r
             green = week_warning.phase
             if yellow:
                 if yellow.phase_number == current_phase:
@@ -50,8 +50,8 @@ def check_warnings(team):
     # Kick Off
     def _kick_off_check():
         if team.team_status.kick_off == "NS":
-            yellow = week_warning.kick_off_yellow_warning
-            red = week_warning.kick_off_red_warning
+            yellow = week_warning.kick_off_y
+            red = week_warning.kick_off_r
             if yellow:
                 return status['yellow'], ""
             if red:
@@ -61,8 +61,8 @@ def check_warnings(team):
     # Mid Term
     def _mid_term_check():
         if team.team_status.mid_term == "NS":
-            yellow = week_warning.mid_term_yellow_warning
-            red = week_warning.mid_term_red_warning
+            yellow = week_warning.mid_term_y
+            red = week_warning.mid_term_r
             if yellow:
                 return status['yellow'], ""
             elif red:
@@ -74,7 +74,7 @@ def check_warnings(team):
     def _consultant_rating_check():
         c_last_rating = team.last_consultant_rating
         if c_last_rating:
-            if c_last_rating < week_warning.consultant_rating_red_warning:
+            if c_last_rating < week_warning.consultant_rating_r:
                 return status['red'], ""
             else:
                 return status['green'], ""
@@ -86,7 +86,7 @@ def check_warnings(team):
     def _fellow_rating_check():
         f_last_rating = team.last_fellow_rating
         if f_last_rating:
-            if f_last_rating < week_warning.fellow_rating_red_warning:
+            if f_last_rating < week_warning.fellow_rating_r:
                 return status['red'], ""
             else:
                 return status['green'], ""
@@ -98,9 +98,9 @@ def check_warnings(team):
     def _unprepared_calls_check():
         percentage = team.unprepared_calls_percentage
         if percentage:
-            if percentage < week_warning.unprepared_calls_red_warning:
+            if percentage < week_warning.unprepared_calls_r:
                 return status['red'], ""
-            elif percentage < week_warning.unprepared_calls_yellow_warning:
+            elif percentage < week_warning.unprepared_calls_y:
                 return status['yellow'], ""
         return status['green'], ""
 

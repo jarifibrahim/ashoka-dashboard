@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block stylesheet %}
+    <style>
+        td {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }</style>
+{% endblock %}
+{% block content %}
+    <div class="text-center">Following table displays the current warning
+        settings in use. To change settings please use <span
+                class="text-danger">Dashboard Management</span>
+        button on the navigation bar.
+    </div>
+    <div class="container">
+        <table class="table table-responsive table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Warning\Week Number</th>
+                {% for w in warnings %}
+                    <th>{{ w.week_number }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><strong># of calls: < leads to yellow warning</strong></td>
+                {% for w in warnings %}
+                    <td> {{ w.calls_y }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong># of calls: < leads to red warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.calls_r }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>% of unprepared calls < leads to yellow
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.unprepared_calls_y }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>% of unprepared calls: < leads to red
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.unprepared_calls_r }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>Person missing calls: > leads to yellow
+                    warning</strong>
+                </td>
+                {% for w in warnings %}
+                    <td>{{ w.member_call_y }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Person missing calls: > leads to red
+                    warning</strong>
+                </td>
+                {% for w in warnings %}
+                    <td>{{ w.member_call_r }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>Consultant Rating: < leads to Red warning </strong>
+                </td>
+                {% for w in warnings %}
+                    <td>{{ w.consultant_rating_r }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Fellow Rating: < leads to Red warning </strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.fellow_rating_r }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>kick-off not happened in this week leads to yellow
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.kick_off_y|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+
+            <tr>
+                <td><strong>kick-off not happened in this week leads to red
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.kick_off_r|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>mid-term not happened in this week leads to yellow
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.mid_term_y|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>mid-term not happened in this week leads to red
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.mid_term_r|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>Phases: Progress expected</strong></td>
+                {% for w in warnings %}
+                    <td class="truncate">{{ w.phase.phase_number }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Leads to yellow warning if in this Phase </strong>
+                </td>
+                {% for w in warnings %}
+                    <td class="truncate">{{ w.phase_y.phase_number }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Leads to red warning if in ≤ this Phase </strong>
+                </td>
+                {% for w in warnings %}
+                    <td class="truncate">{{ w.phase_r.phase_number }}</td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <table class="table table-responsive">
+                <thead>
+                <tr>
+                    <td><strong>Week Number</strong></td>
+                    <td><strong>Phase</strong></td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in phases %}
+                    <tr>
+                        <td>{{ p.phase_number }}</td>
+                        <td>{{ p }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+{% endblock %}
