@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
-    WeekWarning, Data
+        Data
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import Warnings
 from django.core.mail import send_mail
@@ -343,7 +343,7 @@ def update_member_value(request, field_name):
                     sr_object.role, member_object.name))
             else:
                 member_object.secondary_role.add(sr_object)
-                messages.success(request, "Added role {} from {}".format(
+                messages.success(request, "Added role {} to {}".format(
                     sr_object.role, member_object.name
                 ))
             member_object.save()
@@ -433,8 +433,8 @@ def team_detail(request, team_id):
 
     Warnings.check_warnings(team_object)
 
-    intro_email_object = Email.objects.get(type="IM", active=True)
-    reminder_email_object = Email.objects.get(type="RM", active=True)
+    intro_email_object = Email.objects.get(type="IM", default_template=True)
+    reminder_email_object = Email.objects.get(type="RM", default_template=True)
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
