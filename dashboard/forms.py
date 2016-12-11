@@ -94,7 +94,7 @@ class ConsultantSurveyForm(forms.ModelForm):
         help_texts = {
             'call_date': 'When did the call take place?',
             'topic_discussed': 'What topics did you discuss?',
-            'phase_rating': 'Enter number between 1-10 where 1 represents \
+            'rating': 'Enter number between 1-10 where 1 represents \
                             "Not Working at all" and 10 represents \
                             "Working Great".',
             'other_comments': 'Is there any other thing you would \
@@ -116,7 +116,7 @@ class FellowSurveyForm(forms.ModelForm):
             'other_help': forms.Textarea(attrs={'class': 'form-control'}),
         }
         help_texts = {
-            'phase_rating': 'Enter number between 1-10 where 1 represents \
+            'rating': 'Enter number between 1-10 where 1 represents \
                             "Not Working at all" and 10 represents \
                             "Working Great".',
             'comments': "What works? What doesn't work? Did you adapt the \

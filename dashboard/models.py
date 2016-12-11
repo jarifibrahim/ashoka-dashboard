@@ -1,10 +1,34 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from datetime import datetime as dt
-from .utility import Data
+from datetime import date
 from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+import math
+
+
+class Data:
+    @staticmethod
+    def encode_data(data):
+        """
+        Encodes data to generate a hash.
+        This hash is used to generate urls
+
+        :param data: The data to be encoded.
+        :returns: hash value
+        """
+        return "%08x" % (data * 387420489 % 4000000000)
+
+    @staticmethod
+    def decode_data(data):
+        """
+        Decodes the data encoded by 'encode_data' function.
+
+        :param data: The hash value to be decoded.
+        :returns: original data
+        """
+        return int(data, 16) * 3513180409 % 4000000000
 
 
 class Dashboard(models.Model):
@@ -47,6 +71,15 @@ class Dashboard(models.Model):
         """
         hash_value = Data.encode_data(self.id)
         return reverse('fellow_survey', kwargs={'hash_value': hash_value})
+
+    @property
+    def current_week(self):
+        """
+        Returns current week of advisory process
+        :return: Week number of advisor process
+        """
+        start_date = self.advisory_start_date
+        return math.ceil(int((date.today() - start_date).days) / 7.0)
 
 
 class Team(models.Model):
@@ -122,9 +155,9 @@ class Team(models.Model):
         :return: Last request
         """
         entry = self.consultant_surveys.values('help').exclude(
-            help__isnull=True).exclude(help__exact="").order_by('-call_date')
+            help__isnull=True).exclude(help__exact="")
         if entry:
-            return entry[0]['help']
+            return entry.latest('call_date')['help']
         return ""
 
     @property
@@ -134,10 +167,9 @@ class Team(models.Model):
         :return: Last fellow request
         """
         entry = self.fellow_surveys.values('comments').exclude(
-            comments__isnull=True).exclude(comments__exact="").order_by(
-            '-submit_date')
+            comments__isnull=True).exclude(comments__exact="")
         if entry:
-            return entry[0]['comments']
+            return entry.latest('submit_date')['comments']
         return ""
 
     @property
@@ -148,6 +180,32 @@ class Team(models.Model):
         """
         hash_value = Data.encode_data(self.id)
         return reverse('consultant_survey', kwargs={'hash_value': hash_value})
+
+    @property
+    def last_consultant_rating(self):
+        """
+        Returns last phase rating provided by the consultant
+        :return: Last phase rating by consultant
+        """
+
+        entry = self.consultant_surveys.values('rating').exclude(
+            rating__isnull=True)
+        if entry:
+            return entry.latest('call_date')['rating']
+        return None
+
+    @property
+    def last_fellow_rating(self):
+        """
+        Returns last phase rating provided by the fellow
+        :return: Last phase rating by fellow
+        """
+
+        entry = self.fellow_surveys.values('rating').exclude(
+            rating__isnull=True)
+        if entry:
+            return entry.latest('submit_date')['rating']
+        return None
 
 
 class Role(models.Model):
@@ -221,18 +279,18 @@ class ConsultantSurvey(models.Model):
     topic_discussed = models.CharField("Topic Discussed", max_length=200)
     help = models.TextField("Ashoka team should help with",
                             blank=True)
-    phase_rating = models.IntegerField("How is the advisory phase going?",
-                                       blank=True, null=True,
-                                       validators=[MinValueValidator(1),
-                                                   MaxValueValidator(10)]
-                                       )
+    rating = models.IntegerField("How is the advisory phase going?",
+                                 blank=True, null=True,
+                                 validators=[MinValueValidator(1),
+                                             MaxValueValidator(10)]
+                                 )
     other_comments = models.TextField("Any other comments?",
                                       blank=True)
     document_link = models.URLField("Link to current document", blank=True)
 
     def __str__(self):
-        return "ID: {0}, Team: {1}, Date: {2}".format(
-            self.id, self.team, dt.date(self.submit_date))
+        return "ID: {0}, Team: {1}, Submit Date: {2}, Call Date: {3}".format(
+            self.id, self.team, dt.date(self.submit_date), self.call_date)
 
     @property
     def missing_member_names(self):
@@ -251,11 +309,11 @@ class FellowSurvey(models.Model):
     """
     team = models.ForeignKey(Team, related_name='fellow_surveys')
     submit_date = models.DateTimeField("Submit date", auto_now_add=True)
-    phase_rating = models.IntegerField("How is the advisory phase going?",
-                                       blank=True, null=True,
-                                       validators=[MinValueValidator(1),
-                                                   MaxValueValidator(10)]
-                                       )
+    rating = models.IntegerField("How is the advisory phase going?",
+                                 blank=True, null=True,
+                                 validators=[MinValueValidator(1),
+                                             MaxValueValidator(10)]
+                                 )
     comments = models.TextField("Any other comments?",
                                 blank=True)
     other_help = models.TextField("Any other Ashoka should help with?",
@@ -353,7 +411,7 @@ class WeekWarning(models.Model):
     calls_yellow_warning = models.PositiveIntegerField(
         "Call count - Yellow warning", help_text=help_text)
     help_text = "Number of calls less than this value leads to Red warning (" \
-                "Should be greater than yellow warning call count) "
+                "Should be less than yellow warning call count) "
     calls_red_warning = models.PositiveIntegerField(
         "Call count - Red warning", help_text=help_text)
 
@@ -375,9 +433,9 @@ class WeekWarning(models.Model):
                 "greater than yellow warning member call count) "
     member_call_red_warning = models.PositiveIntegerField(
         "Member missing call count - Red warning", help_text=help_text)
-    help_text = "Kick-off not happened in this week leads to Yellow warning."
 
     # Kick off warnings
+    help_text = "Kick-off not happened in this week leads to Yellow warning."
     kick_off_yellow_warning = models.BooleanField(
         "Kick Off - Yellow warning", help_text=help_text)
     help_text = "Kick-off not happened in this week leads to Red warning."
@@ -391,9 +449,9 @@ class WeekWarning(models.Model):
     help_text = "Mid-term not happened in this week leads to Red warning"
     mid_term_red_warning = models.BooleanField(
         "Mid Term - Red warning", help_text=help_text)
-    help_text = "Phases: Progress expected"
 
     # Phase related warnings
+    help_text = "Phases: Progress expected"
     phase = models.ForeignKey(
         AdvisoryPhase, help_text=help_text, related_name="expected_phase")
     help_text = "Yellow warning if in this Phase"
@@ -408,6 +466,15 @@ class WeekWarning(models.Model):
                                           null=True,
                                           blank=True,
                                           related_name="red_warning_phase")
+    # Rating related warnings
+    help_text = "Red warning if last rating by consultant is less than this " \
+                "value "
+    consultant_rating_red_warning = models.PositiveIntegerField(
+        "Consultant Rating Red Warning", default=7, help_text=help_text)
+    help_text = "Red warning if last rating by consultant is less than this " \
+                "value "
+    fellow_rating_red_warning = models.PositiveIntegerField(
+        "Fellow Phase Rating Red Warning", default=7, help_text=help_text)
 
     def clean(self):
         if self.calls_red_warning > self.calls_yellow_warning:
@@ -423,30 +490,36 @@ class WeekWarning(models.Model):
         return "Week {}".format(self.week_number)
 
 
-class TeamWarnings(models.Model):
+class TeamWarning(models.Model):
     """
     Represents the set of warnings related to each team
     """
     WARNING_TYPES = (
+        ('G', 'Green'),
         ('Y', 'Yellow'),
         ('R', 'Red')
     )
     team = models.OneToOneField(Team, related_name="warnings")
     call_count = models.CharField("Call count warning Type",
                                   choices=WARNING_TYPES,
-                                  blank=True, max_length=3)
+                                  default="G", max_length=3)
     phase = models.CharField("Current Phase warning type",
-                             choices=WARNING_TYPES, blank=True, max_length=3)
+                             choices=WARNING_TYPES, default="G", max_length=3)
     kick_off = models.CharField("Kick Off warning type",
-                                choices=WARNING_TYPES, blank=True, max_length=3)
+                                choices=WARNING_TYPES, default="G",
+                                max_length=3)
     mid_term = models.CharField("Mid Term warning type",
-                                choices=WARNING_TYPES, blank=True, max_length=3)
+                                choices=WARNING_TYPES, default="G",
+                                max_length=3)
     unprepared_call = models.CharField("Unprepared calls warning type",
                                        choices=WARNING_TYPES,
-                                       blank=True, max_length=3)
+                                       default="G", max_length=3)
     consultant_rating = models.CharField("Consultant rating warning type",
                                          choices=WARNING_TYPES,
-                                         blank=True, max_length=3)
+                                         default="G", max_length=3)
     fellow_rating = models.CharField("Fellow rating warning type",
                                      choices=WARNING_TYPES,
-                                     blank=True, max_length=3)
+                                     default="G", max_length=3)
+
+    def __str__(self):
+        return str(self.team) + " Warnings"

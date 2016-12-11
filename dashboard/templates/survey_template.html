@@ -20,6 +20,9 @@
     .errorlist {
         color: #f00;
     }
+    span.helptext {
+        display: block;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -58,9 +61,11 @@
     $("label").addClass("form-label");
     $("td > input").addClass("form-control");
     $("td > select").addClass("form-control");
+    $("td > textarea").addClass("form-control");
     // Remove unnecessary <br>
     $("#id_missing_member").next().remove();
     $('#id_all_prepared').next().remove();
+    $('textarea#id_help').next().remove();
 
     // Move helptext above input field
     $('span.helptext').each(function(s){
