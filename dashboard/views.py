@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
-        Data
+        Data, WeekWarning, AdvisoryPhase
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import check_warnings
 from django.core.mail import send_mail
@@ -470,3 +470,10 @@ def send_email(request):
         return redirect(request.META.get('HTTP_REFERER', 'index'))
     send_mail(subject, body, "admin@ashoka.org", to, fail_silently=False)
     return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+def show_warnings(request):
+    warnings = list(WeekWarning.objects.all())
+    phases = list(AdvisoryPhase.objects.all())
+    return render(request, 'show_warnings.html', context={
+        'warnings': warnings, 'phases': phases})

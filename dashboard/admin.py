@@ -76,6 +76,11 @@ class EmailAdmin(admin.ModelAdmin):
     list_display = ['name', 'type', 'subject', 'default_template']
     list_filter = ['type']
 
+
+class WeekWarningAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'phase_y', 'phase_r']
+    ordering = ('week_number',)
+
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
@@ -86,5 +91,5 @@ admin.site.register(FellowSurvey)
 admin.site.register(SecondaryRole)
 admin.site.register(Email, EmailAdmin)
 admin.site.register(TeamStatus)
-admin.site.register(WeekWarning)
+admin.site.register(WeekWarning, WeekWarningAdmin)
 admin.site.register(TeamWarning)

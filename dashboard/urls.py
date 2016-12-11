@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^teams/(?P<team_id>[0-9]+)/$', views.team_detail,
         name='team_display'),
     url(r'email/', views.send_email, name='send_email'),
+    url(r'warnings/', views.show_warnings, name='show_warnings'),
     url(r'^$', views.home, name='index'),
 ]
