@@ -35,14 +35,14 @@
                 <td></td>
             </tr>
             <tr>
-                <td><strong>% of unprepared calls < leads to yellow
+                <td><strong>% of unprepared calls > leads to yellow
                     warning</strong></td>
                 {% for w in warnings %}
                     <td>{{ w.unprepared_calls_y }}</td>
                 {% endfor %}
             </tr>
             <tr>
-                <td><strong>% of unprepared calls: < leads to red
+                <td><strong>% of unprepared calls: > leads to red
                     warning</strong></td>
                 {% for w in warnings %}
                     <td>{{ w.unprepared_calls_r }}</td>
