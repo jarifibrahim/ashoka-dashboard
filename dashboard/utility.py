@@ -166,6 +166,7 @@ def check_warnings(team):
                   "No consultant responses found."
 
         return status['green'], msg
+
     tw.call_count, tw.call_count_comment = _total_calls_check()
     tw.phase, tw.phase_comment = _phase_check()
     tw.kick_off, tw.kick_off_comment = _kick_off_check()

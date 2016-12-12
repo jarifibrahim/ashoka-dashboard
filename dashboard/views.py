@@ -57,9 +57,9 @@ def dashboard_overview(request, dashboard_id):
         'start_date': dashboard.advisory_start_date,
         'end_date': dashboard.advisory_end_date,
         'total_weeks': dashboard.total_weeks,
-        'current_week': dashboard.current_week
-
+        'current_week': dashboard.current_week,
     }
+    progress_percentage = int((dates['current_week']/dates['total_weeks'])*100)
     context = {
         'teams': team_list,
         'LRPs': lrp_list,
@@ -69,7 +69,8 @@ def dashboard_overview(request, dashboard_id):
         'status': status_and_teamid,
         'lrp_comment': lrp_comment_and_teamid,
         'dates': dates,
-        'team_warnings': team_warnings
+        'team_warnings': team_warnings,
+        'progress_percentage': progress_percentage
     }
     return render(request, "dashboard_display.html", context=context)
 
@@ -94,6 +95,7 @@ def consultant_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
+            if form
             return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)

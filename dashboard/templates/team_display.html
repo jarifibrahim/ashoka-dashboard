@@ -31,13 +31,6 @@
             display: none;
         }
 
-        #consultant-responses-div td {
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
         .R {
             background-color: #FF0000;
         }
@@ -74,7 +67,8 @@
                     <th>Role</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th style="max-width: 40px;">Missed Calls</th>
+                    <th>Missed Calls</th>
+                    <th>Participates In Call</th>
                     <th>Comments</th>
                 </tr>
                 </thead>
@@ -85,42 +79,41 @@
                         <td>{{ member.name }}</td>
                         <td>{{ member.email }}</td>
                         <td></td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="memberId"
-                                       value="{{ member.id }}">
-                                <div class="form-group">
-                                    <textarea class="form-control"
-                                              name="member_comment">{{ member.comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <!--
                     <td>
-                        <form method="post" class="receives-reminder-email-form form" action={% url 'update' %}>
+                        <form method="post" class="participates-in-call-form form" action={% url 'update' %}>
                             {% csrf_token %}
                             <input type="text" value={{ member.id }} name="memberId" hidden>
                             <div class="form-group">
-                                <select class="form-control" name="receives_reminder_emails">
-                                    <option value={{ member.receives_survey_reminder_emails }}>
-                                        {{ member.receives_survey_reminder_emails|yesno|capfirst }}
+                                <select id="PIC" class="form-control" name="participates_in_call">
+                                    <option value={{ member.participates_in_call }}>
+                                        {{ member.participates_in_call|yesno|capfirst }}
                                     </option>
-                                    <option value={{ member.receives_survey_reminder_emails|yesno:"False, True" }}>
-                                        {{ member.receives_survey_reminder_emails|yesno:"No, Yes" }}
+                                    <option value={{ member.participates_in_call|yesno:"False, True" }}>
+                                        {{ member.participates_in_call|yesno:"No, Yes" }}
                                     </option>
                                 </select>
                             </div>
                         </form>
-                    </td> -->
-                    </tr>
+                    </td>
+                    <td>
+                        <form class="form hidden-submit-form" method="post"
+                              action="{% url 'update' %}">
+                            {% csrf_token %}
+                            <input type="text" hidden name="memberId"
+                                   value="{{ member.id }}">
+                            <div class="form-group">
+                                <textarea class="form-control"
+                                          name="member_comment">{{ member.comment }}</textarea>
+                            </div>
+                            <div class="form-group" id="submit-button"
+                                 style="display: none;">
+                                <input type="submit"
+                                       class="form-control btn-primary"
+                                       value="Save">
+                            </div>
+                        </form>
+                    </td>
+                </tr>
                 {% endfor %}
                 <tr>
                     <td colspan="3">
