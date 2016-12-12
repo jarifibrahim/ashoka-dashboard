@@ -98,15 +98,16 @@ def consultant_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
-            print(vars(form))
             if form.cleaned_data['help']:
                 email = Email.objects.get(type="CR", default_template=True)
+                all_emails = team_object.get_members_with_role(
+                    "LRP").all().values('email')
+                to = [email['email'] for email in all_emails]
                 msg = email.message.replace("#REQUEST#",
                                             form.cleaned_data['help'])
-                to = [team_object.get_members_with_role("LRP")]
-                send_mail(email.subject, msg, "ashoka@lj.com", to)
-
-            return redirect(reverse(thanks))
+                from_email = "jarifibrahim@gmail.com"
+                send_mail(email.subject, msg, from_email, to)
+        return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)
     return render(request, "survey_template.html",
@@ -131,13 +132,16 @@ def fellow_submit(request, hash_value):
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
             if form.cleaned_data['other_help']:
-                email = Email.objects.get(type="CR", default_template=True)
-                msg = email.message.replace("#REQUEST",
+                email = Email.objects.get(type="FR", default_template=True)
+                team_object = form.cleaned_data['team']
+                all_emails = team_object.get_members_with_role(
+                    "LRP").all().values('email')
+                to = [email['email'] for email in all_emails]
+                msg = email.message.replace("#REQUEST#",
                                             form.cleaned_data['other_help'])
-                team_object = Team.objects.get(pk=form.team)
-                to = [team_object.get_members_with_role("LRP")]
-                send_mail(email.subject, msg, "ashoka@lj.com", to)
-            return redirect(reverse(thanks))
+                from_email = "jarifibrahim@gmail.com"
+                send_mail(email.subject, msg, from_email, to)
+        return redirect(reverse(thanks))
     else:
         form = FellowSurveyForm()
     return render(request, "survey_template.html", context={'form': form})
@@ -491,12 +495,10 @@ def send_email(request):
     """
     if request.method == "GET":
         return redirect(reverse(home))
-    print(request.POST)
     messages.success(request, request.POST)
     subject = request.POST.get('email_subject', '')
     body = request.POST.get('email_body', '')
     to = request.POST.getlist('send_to')
-    print(subject)
     if not to:
         messages.error(request, "Please select at least one recipient")
         return redirect(request.META.get('HTTP_REFERER', 'index'))
