@@ -27,7 +27,7 @@ def dashboard_overview(request, dashboard_id):
         messages.error(
             request, 'No Teams found in this dashboard. Please create teams')
 
-    all_teams = dashboard.teams.all()
+    all_teams = dashboard.teams.order_by('id').all()
     team_list, lrp_list, working_document = (list() for _ in range(3))
     consultant_requests, fellow_requests = (list() for _ in range(2))
     lrp_comment_and_teamid, status_and_teamid = (list() for _ in range(2))
