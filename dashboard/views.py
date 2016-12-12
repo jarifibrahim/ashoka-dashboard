@@ -355,6 +355,18 @@ def update_member_value(request, field_name):
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
 
+    # Change Member role comment
+    elif field_name == "role_comment":
+        try:
+            member_object.role_comment = request.POST.get(field_name, "")
+            member_object.save()
+            flash_message = "Role Comment for member {} updated " \
+                            "successfully".format(member_object.name)
+            messages.success(request, flash_message)
+            return True
+        except Exception as e:
+            messages.debug(request, "Failed to update value. " + str(e))
+            return False
     messages.debug(request, request.POST)
     return False
 
@@ -380,6 +392,7 @@ def update_value(request):
         'Member_comment': 'member_comment',
         'receives_reminder_email': 'receives_reminder_emails',
         'secondary_role_change': 'secondary_role_change',
+        'role_comment': 'role_comment',
     }
     possible_status_change = {
         'kick_off_status': 'kick_off_status',

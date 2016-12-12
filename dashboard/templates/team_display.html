@@ -66,11 +66,6 @@
                     <th>Missed Calls</th>
                     <th>Comments</th>
                     <th style="max-width: 103px;">Receives reminder emails?</th>
-                    <th>Process Manager</th>
-                    <th>Keeper of the Minutes</th>
-                    <th>Pulse Checker* </th>
-                    <th>Conference Convener</th>
-                    <th>Conference Host</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,76 +104,6 @@
                             </div>
                         </form>
                     </td>
-                    <td class="secondary-role-td">
-                        <form method="post" id="process-manager-form" class="secondary-role-change form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <input type="text" value="PM" name="secondary_role_change" hidden>
-                            <div class="form-group">
-                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
-                                {% if member.secondary_role.all|has_secondary_role:"PM" %}
-                                    checked
-                                {% endif %}>
-                                <input type='hidden' value='no' name='value' id='backup'>
-                            </div>
-                        </form>
-                    </td>
-                    <td class="secondary-role-td">
-                        <form method="post" id="keeper-of-minutes-form" class="secondary-role-change form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <input type="text" value="KOM" name="secondary_role_change" hidden>
-                            <div class="form-group">
-                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
-                                {% if member.secondary_role.all|has_secondary_role:"KOM" %}
-                                    checked
-                                {% endif %}>
-                                <input type='hidden' value='no' name='value' id='backup'>
-                            </div>
-                        </form>
-                    </td>
-                    <td class="secondary-role-td">
-                        <form method="post" id="pulse-checker-form" class="secondary-role-change form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <input type="text" value="PC" name="secondary_role_change" hidden>
-                            <div class="form-group">
-                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
-                                {% if member.secondary_role.all|has_secondary_role:"PC" %}
-                                    checked
-                                {% endif %}>
-                                <input type='hidden' value='no' name='value' id='backup'>
-                            </div>
-                        </form>
-                    </td>
-                    <td class="secondary-role-td">
-                        <form method="post" id="conference-convener-form" class="secondary-role-change form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <input type="text" value="CC" name="secondary_role_change" hidden>
-                            <div class="form-group">
-                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
-                                {% if member.secondary_role.all|has_secondary_role:"CC" %}
-                                    checked
-                                {% endif %}>
-                                <input type='hidden' value='no' name='value' id='backup'>
-                            </div>
-                        </form>
-                    </td>
-                    <td class="secondary-role-td">
-                        <form method="post" id="conference-host-form" class="secondary-role-change form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <input type="text" value="CH" name="secondary_role_change" hidden>
-                            <div class="form-group">
-                                <input type="checkbox" class="form-control" id="main" value="yes" name="value"
-                                {% if member.secondary_role.all|has_secondary_role:"CH" %}
-                                    checked
-                                {% endif %}>
-                                <input type='hidden' value='no' name='value' id='backup'>
-                            </div>
-                        </form>
-                    </td>
                 </tr>
                 {% endfor %}
                 <tr>
@@ -190,8 +115,113 @@
                             {{ request.META.HTTP_HOST }}{{ team.consultant_form_url}}
                         </a>
                     </td>
-                    <td colspan="6">*Pulse Checker will receive reminder emails</td>
                 </tr>
+            </tbody>
+        </table>
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Name (Role)</th>
+                <th>Process Manager</th>
+                <th>Keeper of the Minutes</th>
+                <th>Pulse Checker</th>
+                <th>Conference Convener</th>
+                <th>Conference Host</th>
+                <th>Comment</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for member in team_members %}
+            <tr>
+                <td>{{ member.name }} ({{ member.role }})</td>
+                <td class="secondary-role-td">
+                    <form method="post" id="process-manager-form" class="secondary-role-change form" action={% url 'update' %}>
+                        {% csrf_token %}
+                        <input type="text" value={{ member.id }} name="memberId" hidden>
+                        <input type="text" value="PM" name="secondary_role_change" hidden>
+                        <div class="form-group">
+                            <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                            {% if member.secondary_role.all|has_secondary_role:"PM" %}
+                                checked
+                            {% endif %}>
+                            <input type='hidden' value='no' name='value' id='backup'>
+                        </div>
+                    </form>
+                </td>
+                <td class="secondary-role-td">
+                    <form method="post" id="keeper-of-minutes-form" class="secondary-role-change form" action={% url 'update' %}>
+                        {% csrf_token %}
+                        <input type="text" value={{ member.id }} name="memberId" hidden>
+                        <input type="text" value="KOM" name="secondary_role_change" hidden>
+                        <div class="form-group">
+                            <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                            {% if member.secondary_role.all|has_secondary_role:"KOM" %}
+                                checked
+                            {% endif %}>
+                            <input type='hidden' value='no' name='value' id='backup'>
+                        </div>
+                    </form>
+                </td>
+                <td class="secondary-role-td">
+                    <form method="post" id="pulse-checker-form" class="secondary-role-change form" action={% url 'update' %}>
+                        {% csrf_token %}
+                        <input type="text" value={{ member.id }} name="memberId" hidden>
+                        <input type="text" value="PC" name="secondary_role_change" hidden>
+                        <div class="form-group">
+                            <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                            {% if member.secondary_role.all|has_secondary_role:"PC" %}
+                                checked
+                            {% endif %}>
+                            <input type='hidden' value='no' name='value' id='backup'>
+                        </div>
+                    </form>
+                </td>
+                <td class="secondary-role-td">
+                    <form method="post" id="conference-convener-form" class="secondary-role-change form" action={% url 'update' %}>
+                        {% csrf_token %}
+                        <input type="text" value={{ member.id }} name="memberId" hidden>
+                        <input type="text" value="CC" name="secondary_role_change" hidden>
+                        <div class="form-group">
+                            <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                            {% if member.secondary_role.all|has_secondary_role:"CC" %}
+                                checked
+                            {% endif %}>
+                            <input type='hidden' value='no' name='value' id='backup'>
+                        </div>
+                    </form>
+                </td>
+                <td class="secondary-role-td">
+                    <form method="post" id="conference-host-form" class="secondary-role-change form" action={% url 'update' %}>
+                        {% csrf_token %}
+                        <input type="text" value={{ member.id }} name="memberId" hidden>
+                        <input type="text" value="CH" name="secondary_role_change" hidden>
+                        <div class="form-group">
+                            <input type="checkbox" class="form-control" id="main" value="yes" name="value"
+                            {% if member.secondary_role.all|has_secondary_role:"CH" %}
+                                checked
+                            {% endif %}>
+                            <input type='hidden' value='no' name='value' id='backup'>
+                        </div>
+                    </form>
+                </td>
+                <td>
+                    <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
+                        {% csrf_token %}
+                        <input type="text" hidden name="memberId" value="{{ member.id }}">
+                        <div class="form-group">
+                            <textarea class="form-control" name="role_comment">{{ member.role_comment }}</textarea>
+                        </div>
+                        <div class="form-group" id="submit-button" style="display: none;">
+                            <input type="submit" class="form-control btn-primary" value="Save" >
+                        </div>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="7">*Pulse Checker will receive reminder emails</td>
+            </tr>
             </tbody>
         </table>
     </div> <!-- Team member info -->
@@ -263,7 +293,7 @@
         </div>
     </a>
     <div id="team-management-div">
-        <div class="col-xs-8 col-md-9">
+        <div class="">
             <table class="table table-responsive table-bordered table-striped" >
                 <thead>
                     <tr>
@@ -385,7 +415,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <td></td>
+                        <td>
+                            <a class="btn btn-warning email-button" id="send-instruction-email">
+                                Send Instruction Mail
+                            </a>
+                            <div style="margin-top: 10px;"><a class="btn btn-success email-button" id="send-reminder-email">
+                                    Send Reminder Mail
+                                </a>
+                            </div>
+                        </td>
                         <td>{% if team_status.last_automatic_reminder %}
                                 Last email was sent on {{ team_status.last_automatic_reminder }}
                             {% else %}
@@ -422,6 +460,7 @@
                 </tbody>
             </table>
         </div>
+    <!-- Email div
         <div class="col-xs-4 col-md-3">
             <table class="table table-responsive">
                 <tr>
@@ -453,7 +492,7 @@
                     </td>
                 </tr>
             </table>
-        </div>
+        </div> Email Div -->
     </div> <!-- Team management -->
 
     <!-- Fellow responses -->

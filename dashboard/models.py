@@ -255,6 +255,7 @@ class Member(models.Model):
     receives_survey_reminder_emails = models.BooleanField(
         "Receives reminder emails?")
     comment = models.TextField("comment", blank=True)
+    role_comment = models.TextField("Role Comment", blank=True)
 
     def __str__(self):
         return self.name
