@@ -111,7 +111,7 @@ class Team(models.Model):
         Returns names of team members belonging to a specific role.
 
         :param role:Members should be belonging to this role.
-        :returns:   Comma separated string to member belonging to specified role
+        :returns:   List of members belonging to specified role
         """
         role = Role.objects.filter(long_name=role).values("id")
         if not role:
@@ -119,8 +119,7 @@ class Team(models.Model):
             raise ValueError(
                 "Invalid role name. Possible Values are: " + str(values))
         role_members = self.members.filter(role=role[0]['id'])
-        member_string = ', '.join([str(i) for i in role_members])
-        return member_string
+        return role_members
 
     @property
     def last_response(self):
@@ -348,12 +347,13 @@ class Email(models.Model):
     TYPE_CHOICES = (
         ('IM', 'Instruction Mail'),
         ('RM', 'Reminder Mail'),
+        ('CR', 'Consultant form Request Mail'),
+        ('FR', 'Fellow form Request Mail')
     )
     help_text = "Template name to uniquely identify it."
     name = models.CharField("Name", max_length=200,
                             unique=True, help_text=help_text)
-    help_text = "Type of the template. Currently Instruction Email template " \
-                "and Reminder Email template are supported."
+    help_text = "Type of the template."
     type = models.CharField(
         "Type", choices=TYPE_CHOICES, max_length=5,
         help_text=help_text)
@@ -365,8 +365,11 @@ class Email(models.Model):
                                            help_text=help_text)
     subject = models.CharField("Subject", max_length=200)
     help_text = "If you wish to include the url to consultant form in the " \
-                "email, please add 'FORM_URL' (without quotes) placeholder. " \
-                "It will be replaced by the actual consultant url in the email."
+                "email, please add '#FORM_URL#' (without quotes) placeholder." \
+                "It will be replaced by the actual consultant url in the" \
+                " email.\nIf you wish to include the fellow/consultant " \
+                "request in the email please add #REQUEST# placeholder in " \
+                "the email body."
     message = models.TextField("Body of the Email", help_text=help_text)
 
     # Overwrite save method to change default template
@@ -382,6 +385,22 @@ class Email(models.Model):
             except Email.DoesNotExist:
                 pass
         super(Email, self).save(*args, **kwargs)
+
+    def clean(self):
+        # Check if 'REQUEST' placeholder is in the email
+        if self.type == 'FR' or self.type == 'CR':
+            if '#REQUEST#' not in self.message:
+                raise ValidationError(_(
+                    "Could not find #REQUEST# placeholder in the message "
+                    "body. Please make sure email message has #REQUEST# in "
+                    "it."))
+        # Check if 'FORM_URL' is in email
+        if self.type == 'RM' or self.type == 'IM':
+            if '#FORM_URL#' not in self.message:
+                raise ValidationError(_(
+                    "Could not find #FORM_URL# placeholder in the message "
+                    "body. Please make sure email message has #FORM_URL# in "
+                    "it."))
 
     def __str__(self):
         return self.name

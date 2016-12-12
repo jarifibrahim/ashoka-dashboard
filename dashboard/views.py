@@ -38,7 +38,9 @@ def dashboard_overview(request, dashboard_id):
             'teamid': team.id,
             'name': team.name
         })
-        lrp_list.append(team.get_members_with_role("LRP"))
+
+        role_members = team.get_members_with_role("LRP")
+        lrp_list.append(', '.join([str(i) for i in role_members]))
         working_document.append(team.working_document)
         consultant_requests.append(team.consultant_request)
         fellow_requests.append(team.fellow_request)
@@ -59,7 +61,8 @@ def dashboard_overview(request, dashboard_id):
         'total_weeks': dashboard.total_weeks,
         'current_week': dashboard.current_week,
     }
-    progress_percentage = int((dates['current_week']/dates['total_weeks'])*100)
+    progress_percentage = int(
+        (dates['current_week'] / dates['total_weeks']) * 100)
     context = {
         'teams': team_list,
         'LRPs': lrp_list,
@@ -95,7 +98,14 @@ def consultant_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
-            if form
+            print(vars(form))
+            if form.cleaned_data['help']:
+                email = Email.objects.get(type="CR", default_template=True)
+                msg = email.message.replace("#REQUEST#",
+                                            form.cleaned_data['help'])
+                to = [team_object.get_members_with_role("LRP")]
+                send_mail(email.subject, msg, "ashoka@lj.com", to)
+
             return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)
@@ -120,6 +130,13 @@ def fellow_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
+            if form.cleaned_data['other_help']:
+                email = Email.objects.get(type="CR", default_template=True)
+                msg = email.message.replace("#REQUEST",
+                                            form.cleaned_data['other_help'])
+                team_object = Team.objects.get(pk=form.team)
+                to = [team_object.get_members_with_role("LRP")]
+                send_mail(email.subject, msg, "ashoka@lj.com", to)
             return redirect(reverse(thanks))
     else:
         form = FellowSurveyForm()
@@ -474,10 +491,12 @@ def send_email(request):
     """
     if request.method == "GET":
         return redirect(reverse(home))
+    print(request.POST)
     messages.success(request, request.POST)
     subject = request.POST.get('email_subject', '')
     body = request.POST.get('email_body', '')
     to = request.POST.getlist('send_to')
+    print(subject)
     if not to:
         messages.error(request, "Please select at least one recipient")
         return redirect(request.META.get('HTTP_REFERER', 'index'))
