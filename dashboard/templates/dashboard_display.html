@@ -1,43 +1,53 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block stylesheet %}
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet"
+          href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-<style type="text/css">
-    td, th {
-        text-align: center;
-        min-width: 200px
-    }
-    .GREEN, .G {
-        background-color: #00FF00;
-    }
-    .YELLOW, .Y {
-        background-color: #FFFF00;
-    }
-    .RED, .R {
-        background-color: #FF0000;
-    }
+    <style type="text/css">
+        td, th {
+            text-align: center;
+            min-width: 200px
+        }
 
-</style>
+        .GREEN, .G {
+            background-color: #00FF00;
+        }
+
+        .YELLOW, .Y {
+            background-color: #FFFF00;
+        }
+
+        .RED, .R {
+            background-color: #FF0000;
+        }
+
+    </style>
 {% endblock %}
 {% block content %}
-<div class="container-fluid " style="overflow-x: auto; position: absolute;">
-    <div class="row">
-        <div class="col-md-2 text-info" style="display: block;">Start Date: {{ dates.start_date }}</div>
-        <div class="col-md-2 text-info"> End Date: {{ dates.end_date }}</div>
-        <div class="col-md-2 text-info"> Currently in Week: {{ dates.current_week }}</div>
-        <div class="col-md-2 text-info"> Total Weeks: {{ dates.total_weeks }}</div>
-    </div>
-    <table class="table table-responsive table-striped table-bordered table-hover" >
-        <thead>
-        <tr class="bg-primary">
-            <th>Team ID: Team Name</th>
-            {% for team in teams %}
-                <th><a href="{% url 'team_display' team.teamid %}" style="color:#FFF;"> {{ team.teamid }}: {{ team.name }} </a></th>
-            {% endfor %}
+    <div class="container-fluid " style="overflow-x: auto; position: absolute;">
+        <div class="row">
+            <div class="col-md-2 text-info" style="display: block;">Start
+                Date: {{ dates.start_date }}</div>
+            <div class="col-md-2 text-info"> End
+                Date: {{ dates.end_date }}</div>
+            <div class="col-md-2 text-info"> Currently in
+                Week: {{ dates.current_week }}</div>
+            <div class="col-md-2 text-info"> Total
+                Weeks: {{ dates.total_weeks }}</div>
+        </div>
+        <table class="table table-responsive table-striped table-bordered table-hover">
+            <thead>
+            <tr class="bg-primary">
+                <th>Team ID: Team Name</th>
+                {% for team in teams %}
+                    <th><a href="{% url 'team_display' team.teamid %}"
+                           style="color:#FFF;"> {{ team.teamid }}: {{ team.name }} </a>
+                    </th>
+                {% endfor %}
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr>
                 <td>LRP</td>
                 {% for LRP in LRPs %}
@@ -45,32 +55,40 @@
                 {% endfor %}
             </tr>
             <tr>
-                <td>Advisor orientation<br>(to be deleted when all sessions happened)</td>
+                <td>Advisor orientation<br>(to be deleted when all sessions
+                    happened)
+                </td>
                 {% for LRP in LRPs %}
-                    <td> </td>
+                    <td></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Kick-off<br>(to be deleted when all teams are kick-off)</td>
                 {% for LRP in LRPs %}
-                    <td> </td>
+                    <td></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Comment (Globalizer LRP)</td>
                 {% for comment in lrp_comment %}
-                <td>
-                    <form class="form hidden-submit-form" method="post" action="{% url 'update' %}">
-                        {% csrf_token %}
-                        <input type="text" hidden name="teamId" value="{{ comment.teamid }}">
-                        <div class="form-group">
-                            <textarea class="form-control" name="LRPComment">{{comment.comment}}</textarea>
-                        </div>
-                        <div class="form-group" id="submit-button" style="display: none;">
-                            <input type="submit" class="form-control btn-primary" value="Save" >
-                        </div>
-                    </form>
-                </td>
+                    <td>
+                        <form class="form hidden-submit-form" method="post"
+                              action="{% url 'update' %}">
+                            {% csrf_token %}
+                            <input type="text" hidden name="teamId"
+                                   value="{{ comment.teamid }}">
+                            <div class="form-group">
+                                <textarea class="form-control"
+                                          name="LRPComment">{{ comment.comment }}</textarea>
+                            </div>
+                            <div class="form-group" id="submit-button"
+                                 style="display: none;">
+                                <input type="submit"
+                                       class="form-control btn-primary"
+                                       value="Save">
+                            </div>
+                        </form>
+                    </td>
                 {% endfor %}
             </tr>
             <tr>
@@ -97,7 +115,7 @@
                 {% for s in status %}
                     <td class="
                             {% ifequal s.status_choice "AUTO" %}
-                                {{s.status_color}}
+                                {{ s.status_color }}
                             {% else %}
                                 {{ s.status_choice }}
                                 {% endifequal %}
@@ -109,28 +127,39 @@
                 <td>Change Team status</td>
                 {% for s in status %}
                     <td>
-                        <form class="form hidden-submit-form" action="{% url 'update' %}"  method="POST">
+                        <form class="form hidden-submit-form"
+                              action="{% url 'update' %}" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="teamId" class="form-control" value="{{s.teamid}}">
-                            <select name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
+                            <input type="hidden" name="teamId"
+                                   class="form-control" value="{{ s.teamid }}">
+                            <select name="newStatusColor" id="newStatusColor"
+                                    class="text form-control ui-widget-content ui-corner-all">
                                 <option value="AUTO"
-                                  {% ifequal s.status_choice "AUTO" %} selected {% endifequal %}>
-                                Automatic
+                                        {% ifequal s.status_choice "AUTO" %}
+                                        selected {% endifequal %}>
+                                    Automatic
                                 </option>
                                 <option value="RED"
-                                  {% ifequal s.status_choice "RED" %} selected {% endifequal %}>
-                                Red. (Major issues)
+                                        {% ifequal s.status_choice "RED" %}
+                                        selected {% endifequal %}>
+                                    Red. (Major issues)
                                 </option>
                                 <option value="YELLOW"
-                                  {% ifequal s.status_choice "YELLOW" %} selected {% endifequal %}>
-                                  Yellow. (Some minor issues)
+                                        {% ifequal s.status_choice "YELLOW" %}
+                                        selected {% endifequal %}>
+                                    Yellow. (Some minor issues)
                                 <option value="GREEN"
-                                  {% ifequal s.status_choice "GREEN" %} selected {% endifequal %}>
-                                Green. (All good)</option>
+                                        {% ifequal s.status_choice "GREEN" %}
+                                        selected {% endifequal %}>
+                                    Green. (All good)
+                                </option>
                                 </option>
                             </select>
-                            <div class="form-group" id="submit-button" style="display: none;">
-                                <input type="submit" class="form-control btn-primary" value="Save" >
+                            <div class="form-group" id="submit-button"
+                                 style="display: none;">
+                                <input type="submit"
+                                       class="form-control btn-primary"
+                                       value="Save">
                             </div>
                         </form>
                     </td>
@@ -141,62 +170,62 @@
                 <td colspan="{{ LRPs|length|add:"1" }}">Team Warnings</td>
             </tr>
             <tr>
-            <td>Call Count</td>
+                <td>Call Count</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.call_count}}">{{ warning.call_count_comment}}</td>
+                    <td class="{{ warning.call_count }}">{{ warning.call_count_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Phase</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.phase }}">{{ warning.phase_comment }}</td>
+                    <td class="{{ warning.phase }}">{{ warning.phase_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Kick Off</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.kick_off }}">{{ warning.kick_off_comment }}</td>
+                    <td class="{{ warning.kick_off }}">{{ warning.kick_off_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Mid Term</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.mid_term }}">{{ warning.mid_term_comment }}</td>
+                    <td class="{{ warning.mid_term }}">{{ warning.mid_term_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Unprepared Calls</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.unprepared_call }}">{{ warning.unprepared_call_comment }}</td>
+                    <td class="{{ warning.unprepared_call }}">{{ warning.unprepared_call_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Consultant Rating</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.consultant_rating }}">{{ warning.consultant_rating_comment }}</td>
+                    <td class="{{ warning.consultant_rating }}">{{ warning.consultant_rating_comment }}</td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Fellow Rating</td>
                 {% for warning in team_warnings %}
-                <td class="{{ warning.fellow_rating }}">{{ warning.fellow_rating_comment }}</td>
+                    <td class="{{ warning.fellow_rating }}">{{ warning.fellow_rating_comment }}</td>
                 {% endfor %}
             </tr>
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
     <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}"></script>
     <script>
-    $(function() {
-        $("table").colResizable({resizeMode: 'overflow'});
-        $('.hidden-submit-form').change(function(){
-            $(this).find('#submit-button').show();
-        });
+        $(function () {
+            $("table").colResizable({resizeMode: 'overflow'});
+            $('.hidden-submit-form').change(function () {
+                $(this).find('#submit-button').show();
+            });
 
-    });
+        });
     </script>
 {% endblock %}
