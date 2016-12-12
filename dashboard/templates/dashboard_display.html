@@ -22,20 +22,31 @@
             background-color: #FF0000;
         }
 
+        .progress {
+            margin-bottom: 7px;
+        }
     </style>
 {% endblock %}
 {% block content %}
-    <div class="container-fluid " style="overflow-x: auto; position: absolute;">
-        <div class="row">
-            <div class="col-md-2 text-info" style="display: block;">Start
-                Date: {{ dates.start_date }}</div>
-            <div class="col-md-2 text-info"> End
-                Date: {{ dates.end_date }}</div>
-            <div class="col-md-2 text-info"> Currently in
-                Week: {{ dates.current_week }}</div>
-            <div class="col-md-2 text-info"> Total
-                Weeks: {{ dates.total_weeks }}</div>
+
+    <div class="container-fluid">
+        <div class="left pull-left">
+            <p style="margin-right: 5px">Week: 0</p>
         </div>
+        <p class="pull-right">Week: {{ dates.total_weeks }}</p>
+        <div class="progress" style="clear: both;">
+            <div class="progress-bar progress-bar-success" role="progressbar"
+                 aria-valuenow={{ progress_percentage }}
+                         aria-valuemin="0" aria-valuemax="100"
+                 style="width:{{ progress_percentage }}%">
+                Current Week {{ dates.current_week }}
+            </div>
+        </div>
+        <p style="display: inline;">Start Date: {{ dates.start_date }}</p>
+        <p class="pull-right">End Date: {{ dates.end_date }}</p>
+    </div>
+
+    <div class="container-fluid " style="overflow-x: auto; position: absolute;">
         <table class="table table-responsive table-striped table-bordered table-hover">
             <thead>
             <tr class="bg-primary">

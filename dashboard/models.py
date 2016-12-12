@@ -98,6 +98,11 @@ class Team(models.Model):
     status_color = models.CharField("Team status color", choices=COLOR_CHOICES,
                                     max_length=3, default='G')
 
+    # Create Team Status and Team Warning Models when a new Team is created
+    def save(self, *arg, **kwargs):
+        TeamStatus.objects.get_or_create(team=self.id, defaults={'team': self})
+        TeamWarning.objects.get_or_create(team=self.id, defaults={'team': self})
+
     def __str__(self):
         return self.name
 
@@ -254,6 +259,8 @@ class Member(models.Model):
                                             related_name="secondary_role")
     comment = models.TextField("comment", blank=True)
     role_comment = models.TextField("Role Comment", blank=True)
+    participates_in_call = models.BooleanField("Pariticipates in Calls",
+                                               default=True)
 
     def __str__(self):
         return self.name

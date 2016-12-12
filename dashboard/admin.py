@@ -44,6 +44,7 @@ class MemberAdmin(admin.ModelAdmin):
 
     def get_role(self, obj):
         return obj.role.long_name
+
     get_dashboard.short_description = "Dashboard"
     get_team.short_description = "Team"
     get_role.short_description = "Role"
@@ -74,6 +75,7 @@ class ConsultantSurveyAdmin(admin.ModelAdmin):
     form = ConsultantSurveyForm
     list_filter = ['team']
 
+
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
     list_display = ['phase_number', 'phase']
     ordering = ('phase_number',)
@@ -87,6 +89,7 @@ class EmailAdmin(admin.ModelAdmin):
 class WeekWarningAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'phase_y', 'phase_r']
     ordering = ('week_number',)
+
 
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
