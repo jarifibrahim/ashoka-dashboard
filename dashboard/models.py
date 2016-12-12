@@ -252,8 +252,6 @@ class Member(models.Model):
     role = models.ForeignKey(Role, related_name="role")
     secondary_role = models.ManyToManyField(SecondaryRole,
                                             related_name="secondary_role")
-    receives_survey_reminder_emails = models.BooleanField(
-        "Receives reminder emails?")
     comment = models.TextField("comment", blank=True)
     role_comment = models.TextField("Role Comment", blank=True)
 
@@ -430,14 +428,14 @@ class WeekWarning(models.Model):
         "Call count - Red warning", help_text=help_text)
 
     # Unprepared calls warning
-    help_text = "If percentage of unprepared calls is less than this " \
+    help_text = "If percentage of unprepared calls is greater than this " \
                 "threshold, Yellow warning will be raised. "
     unprepared_calls_y = models.IntegerField(
-        "% unprepared call threshold", help_text=help_text)
-    help_text = "If percentage of unprepared calls is less than this " \
+        "% unprepared call threshold - Yellow warning", help_text=help_text)
+    help_text = "If percentage of unprepared calls is greater than this " \
                 "threshold, Red warning will be raised. "
     unprepared_calls_r = models.IntegerField(
-        "% unprepared call threshold", help_text=help_text)
+        "% unprepared call threshold - Red warning", help_text=help_text)
 
     # Member missing call warnings
     help_text = "Person missing calls: > leads to Yellow warning"
@@ -499,6 +497,10 @@ class WeekWarning(models.Model):
             raise ValidationError(_('Member missing call count for Red '
                                     'warning should be greater than Member '
                                     'missing call count for Yellow warning'))
+        if self.unprepared_calls_r < self.unprepared_calls_y:
+            raise ValidationError(_('% Unprepared calls for Red Warning '
+                                    'should be greater than % unprepared '
+                                    'calls for Yellow Warning.'))
 
     # Overwrite parent save method
     def save(self, *args, **kwargs):

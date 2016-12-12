@@ -143,12 +143,12 @@ def check_warnings(team):
         if percentage:
             if percentage > week_warning.unprepared_calls_r:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Red " \
-                      "Threshold"
+                      "Threshold: {1}"
                 msg = msg.format(percentage, week_warning.unprepared_calls_r)
                 return status['red'], msg
             elif percentage > week_warning.unprepared_calls_y:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Yellow " \
-                      "Threshold"
+                      "Threshold: {1}"
                 msg = msg.format(percentage, week_warning.unprepared_calls_y)
                 return status['yellow'], msg
             else:

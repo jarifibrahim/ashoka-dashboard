@@ -63,9 +63,8 @@
                     <th>Role</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Missed Calls</th>
+                    <th style="max-width: 40px;">Missed Calls</th>
                     <th>Comments</th>
-                    <th style="max-width: 103px;">Receives reminder emails?</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,6 +86,7 @@
                             </div>
                         </form>
                     </td>
+                    <!--
                     <td>
                         <form method="post" class="receives-reminder-email-form form" action={% url 'update' %}>
                             {% csrf_token %}
@@ -96,14 +96,13 @@
                                     <option value={{ member.receives_survey_reminder_emails }}>
                                         {{ member.receives_survey_reminder_emails|yesno|capfirst }}
                                     </option>
-                                    <!--suppress HtmlUnknownAttribute -->
                                     <option value={{ member.receives_survey_reminder_emails|yesno:"False, True" }}>
                                         {{ member.receives_survey_reminder_emails|yesno:"No, Yes" }}
                                     </option>
                                 </select>
                             </div>
                         </form>
-                    </td>
+                    </td> -->
                 </tr>
                 {% endfor %}
                 <tr>
