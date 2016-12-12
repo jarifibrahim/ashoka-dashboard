@@ -102,7 +102,11 @@ class ConsultantSurveyForm(forms.ModelForm):
             'all_prepared': 'Were all participants prepared for the call?',
             'missing_member': 'Who was missing?',
             'document_link': 'Link to current working document.',
-            'help': 'Is there anything Ashoka Team can help you with?',
+            'help': 'Is there anything Ashoka Globalizer Team can help you'
+                    ' with? (If you fill out this field, an email will be '
+                    'sent to the Ashoka Globalizer team with a notification '
+                    'about your request. If you do not have any specific '
+                    'request, please leave this field empty.)'
         }
 
 
