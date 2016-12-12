@@ -783,9 +783,9 @@
                     var subject = "{{ intro_email.subject }}";
                     var message = "{{ intro_email.message|escapejs }}";
                     var url = "{{ request.META.HTTP_HOST }}{{ team.consultant_form_url|escapejs}}";
-                    var link = "<a href='LINK'> LINK </a>".replace(/LINK/g, url);
+                    url = "http://" + url;
                     // Add form url
-                    message = message.replace(/FORM_URL/, link);
+                    message = message.replace(/#FORM_URL#/, url);
                     form.find('#memberChoice input').prop('checked', true);
                     form.find('#email-subject').val(subject);
                     form.find('#email-body').text(message);
