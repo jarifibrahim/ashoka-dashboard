@@ -9,8 +9,13 @@ def check_warnings(team):
     }
 
     current_week = team.dashboard.current_week
-    week_warning = WeekWarning.objects.get(week_number=current_week)
-    tw = team.warnings
+    try:
+        week_warning = WeekWarning.objects.get(week_number=current_week)
+        tw = team.warnings
+    except WeekWarning.DoesNotExist:
+        raise
+    except team.RelatedObjectDoesNotExist:
+        raise
 
     # Total calls check
     def _total_calls_check():
@@ -72,7 +77,10 @@ def check_warnings(team):
                 return status['yellow'], msg
             if red:
                 return status['red'], msg
-        return status['green'], "Kick off done."
+            else:
+                return status['green'], "No kick off warnings found for this " \
+                                        "week. "
+        return status['green'], "Kick off Done."
 
     # Mid Term
     def _mid_term_check():
@@ -84,6 +92,9 @@ def check_warnings(team):
                 return status['yellow'], msg
             elif red:
                 return status['red'], msg
+            else:
+                return status['green'], "No mid term warnings found for this " \
+                                        "week. "
         return status['green'], "Mid Term Done"
 
     # Consultant Rating
@@ -146,10 +157,15 @@ def check_warnings(team):
                 msg = msg.format(percentage, week_warning.unprepared_calls_y,
                                  week_warning.unprepared_calls_r)
                 return status['green'], msg
-        return status['green'], "No unprepared calls found. (Either all " \
-                                "members were prepared for all the calls or " \
-                                "there are no consultant responses. "
+        msg = ""
+        if percentage is 0:
+            msg = "% Unprepared calls: 0. Members were prepared for all " \
+                  "the calls."
+        if percentage is None:
+            msg = "Could not calculate % Unprepared calls. " \
+                  "No consultant responses found."
 
+        return status['green'], msg
     tw.call_count, tw.call_count_comment = _total_calls_check()
     tw.phase, tw.phase_comment = _phase_check()
     tw.kick_off, tw.kick_off_comment = _kick_off_check()
