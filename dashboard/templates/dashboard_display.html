@@ -8,13 +8,13 @@
         text-align: center;
         min-width: 200px
     }
-    .GREEN {
+    .GREEN, .G {
         background-color: #00FF00;
     }
-    .YELLOW {
+    .YELLOW, .Y {
         background-color: #FFFF00;
     }
-    .RED {
+    .RED, .R {
         background-color: #FF0000;
     }
 
@@ -95,7 +95,14 @@
             <tr>
                 <td>Team STATUS</td>
                 {% for s in status %}
-                    <td class={{s.status}}> {{ s.status }}</td>
+
+                    <td class="
+                            {% ifequal s.status_choice "AUTO" %}
+                                {{s.status_color}}
+                            {% else %}
+                                {{ s.status_choice }}
+                                {% endifequal %}
+                     "></td>
                 {% endfor %}
             </tr>
 
@@ -107,15 +114,19 @@
                             {% csrf_token %}
                             <input type="hidden" name="teamId" class="form-control" value="{{s.teamid}}">
                             <select name="newStatusColor" id="newStatusColor" class="text form-control ui-widget-content ui-corner-all">
+                                <option value="AUTO"
+                                  {% ifequal s.status_choice "AUTO" %} selected {% endifequal %}>
+                                Automatic
+                                </option>
                                 <option value="RED"
-                                  {% ifequal s.status "RED" %} selected {% endifequal %}>
+                                  {% ifequal s.status_choice "RED" %} selected {% endifequal %}>
                                 Red. (Major issues)
                                 </option>
                                 <option value="YELLOW"
-                                  {% ifequal s.status "YELLOW" %} selected {% endifequal %}>
+                                  {% ifequal s.status_choice "YELLOW" %} selected {% endifequal %}>
                                   Yellow. (Some minor issues)
                                 <option value="GREEN"
-                                  {% ifequal s.status "GREEN" %} selected {% endifequal %}>
+                                  {% ifequal s.status_choice "GREEN" %} selected {% endifequal %}>
                                 Green. (All good)</option>
                                 </option>
                             </select>
@@ -128,9 +139,48 @@
             </tr>
 
             <tr>
-                <td>Team Warnings</td>
-                {% for LRP in LRPs %}
-                    <td> </td>
+                <td colspan="{{ LRPs|length|add:"1" }}">Team Warnings</td>
+            </tr>
+            <tr>
+            <td>Call Count</td>
+                {% for warning in team_warnings %}
+                    <td class="{{ warning.call_count}}">{{ warning.call_count_comment}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Phase</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.phase }}">{{ warning.phase_comment }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Kick Off</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.kick_off }}">{{ warning.kick_off_comment }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Mid Term</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.mid_term }}">{{ warning.mid_term_comment }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Unprepared Calls</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.unprepared_call }}">{{ warning.unprepared_call_comment }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Consultant Rating</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.consultant_rating }}">{{ warning.consultant_rating_comment }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Fellow Rating</td>
+                {% for warning in team_warnings %}
+                <td class="{{ warning.fellow_rating }}">{{ warning.fellow_rating_comment }}</td>
                 {% endfor %}
             </tr>
         </tbody>

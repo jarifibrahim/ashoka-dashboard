@@ -530,7 +530,7 @@
         </table>
     </div> <!-- Consultant Responses -->
 
-    <div id="dialog-email" title="Send Email">
+    <div id="dialog-email" title="Send Email" style="display: none;">
         <form class="form" id="email-form" method="POST" action="{% url 'send_email' %}">
             {% csrf_token %}
             <input type="hidden" class="form-control" name="teamId" value="{{team.id}}">

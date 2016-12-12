@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
-        Data, WeekWarning, AdvisoryPhase
+    Data, WeekWarning, AdvisoryPhase
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import check_warnings
 from django.core.mail import send_mail
@@ -31,8 +31,9 @@ def dashboard_overview(request, dashboard_id):
     team_list, lrp_list, working_document = (list() for _ in range(3))
     consultant_requests, fellow_requests = (list() for _ in range(2))
     lrp_comment_and_teamid, status_and_teamid = (list() for _ in range(2))
-
+    team_warnings = list()
     for team in all_teams:
+        check_warnings(team)
         team_list.append({
             'teamid': team.id,
             'name': team.name
@@ -43,12 +44,14 @@ def dashboard_overview(request, dashboard_id):
         fellow_requests.append(team.fellow_request)
         status_and_teamid.append({
             'teamid': team.id,
-            'status': team.status
+            'status_color': team.status_color,
+            'status_choice': team.status_choice,
         })
         lrp_comment_and_teamid.append({
             'teamid': team.id,
             'comment': team.lrp_comment
         })
+        team_warnings.append(team.warnings)
 
     dates = {
         'start_date': dashboard.advisory_start_date,
@@ -65,7 +68,8 @@ def dashboard_overview(request, dashboard_id):
         'fellow_requests': fellow_requests,
         'status': status_and_teamid,
         'lrp_comment': lrp_comment_and_teamid,
-        'dates': dates
+        'dates': dates,
+        'team_warnings': team_warnings
     }
     return render(request, "dashboard_display.html", context=context)
 
@@ -158,7 +162,7 @@ def update_team_value(request, field_name):
     # Change Team status color
     if field_name == "newStatusColor":
         try:
-            team_object.status = request.POST[field_name]
+            team_object.status_choice = request.POST[field_name]
             team_object.save()
             messages.success(request, "Team status updated successfully.")
             return True

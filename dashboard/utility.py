@@ -73,10 +73,10 @@ def check_warnings(team):
             yellow = week_warning.kick_off_y
             red = week_warning.kick_off_r
             msg = "Kick off not yet happened"
-            if yellow:
-                return status['yellow'], msg
             if red:
                 return status['red'], msg
+            if yellow:
+                return status['yellow'], msg
             else:
                 return status['green'], "No kick off warnings found for this " \
                                         "week. "
@@ -88,10 +88,10 @@ def check_warnings(team):
             yellow = week_warning.mid_term_y
             red = week_warning.mid_term_r
             msg = "Mid Term not yet happened"
+            if red:
+                return status['red'], msg
             if yellow:
                 return status['yellow'], msg
-            elif red:
-                return status['red'], msg
             else:
                 return status['green'], "No mid term warnings found for this " \
                                         "week. "
@@ -141,18 +141,18 @@ def check_warnings(team):
     def _unprepared_calls_check():
         percentage = team.unprepared_calls_percentage
         if percentage:
-            if percentage < week_warning.unprepared_calls_r:
-                msg = "% Unprepared calls: {0} < % Unprepared Calls Red " \
+            if percentage > week_warning.unprepared_calls_r:
+                msg = "% Unprepared calls: {0} > % Unprepared Calls Red " \
                       "Threshold"
                 msg = msg.format(percentage, week_warning.unprepared_calls_r)
                 return status['red'], msg
-            elif percentage < week_warning.unprepared_calls_y:
-                msg = "% Unprepared calls: {0} < % Unprepared Calls Yellow " \
+            elif percentage > week_warning.unprepared_calls_y:
+                msg = "% Unprepared calls: {0} > % Unprepared Calls Yellow " \
                       "Threshold"
                 msg = msg.format(percentage, week_warning.unprepared_calls_y)
                 return status['yellow'], msg
             else:
-                msg = "% Unprepared calls: {0} > % Unprepared calls " \
+                msg = "% Unprepared calls: {0} < % Unprepared calls " \
                       "Threshold Yellow:{1} and Red:{2}"
                 msg = msg.format(percentage, week_warning.unprepared_calls_y,
                                  week_warning.unprepared_calls_r)

@@ -1,16 +1,12 @@
 from django.contrib import admin
 from .models import *
+from django import forms
 
 
 # Inline models can be edited from other model's change page
 # Team model can be modified from Dashboard model change page
 class TeamInline(admin.TabularInline):
     model = Team
-    extra = 1
-
-
-class MemberInline(admin.TabularInline):
-    model = Member
     extra = 1
 
 
@@ -33,9 +29,6 @@ class TeamAdmin(admin.ModelAdmin):
         return obj.dashboard
 
     get_dashboard.short_description = 'Dashboard'
-    inlines = [
-        MemberInline
-    ]
     # Columns displayed on the model view page
     list_display = ['name', 'get_dashboard', ]
     search_fields = ['name', 'dashboard__name']
@@ -62,10 +55,26 @@ class MemberAdmin(admin.ModelAdmin):
     filter_horizontal = ["secondary_role"]
 
 
+class ConsultantSurveyForm(forms.ModelForm):
+    # Filter the missing member list to display only those members that
+    # belong to the team
+    def __init__(self, *args, **kwargs):
+        super(ConsultantSurveyForm, self).__init__(*args, **kwargs)
+
+        teamid = self.instance.team.id
+        members = Member.objects.filter(team=teamid)
+        w = self.fields['missing_member'].widget
+        choices = []
+        for choice in members:
+            choices.append((choice.id, choice.name))
+        w.choices = choices
+
+
 class ConsultantSurveyAdmin(admin.ModelAdmin):
     filter_horizontal = ["missing_member"]
     list_display = ['id', 'team', 'submit_date', 'call_date']
-
+    form = ConsultantSurveyForm
+    list_filter = ['team']
 
 class AdvisoryPhaseAdmin(admin.ModelAdmin):
     list_display = ['phase_number', 'phase']

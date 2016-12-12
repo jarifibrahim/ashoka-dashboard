@@ -82,12 +82,21 @@ class Team(models.Model):
     name = models.CharField("Team Name", max_length=200, unique=True)
     lrp_comment = models.TextField("LRP Comment", blank=True)
     STATUS_CHOICES = (
+        ('AUTO', 'Automatic'),
         ('RED', 'Major issues!!!'),
         ('YELLOW', 'Some minor issues!'),
         ('GREEN', 'All good!')
     )
-    status = models.CharField(
-        "Team Status", choices=STATUS_CHOICES, max_length=7, default='GREEN')
+    status_choice = models.CharField(
+        "Team status choices", choices=STATUS_CHOICES, max_length=7,
+        default='AUTO')
+    COLOR_CHOICES = (
+        ('G', 'Green'),
+        ('Y', 'Yellow'),
+        ('R', 'Red'),
+    )
+    status_color = models.CharField("Team status color", choices=COLOR_CHOICES,
+                                    max_length=3, default='G')
 
     def __str__(self):
         return self.name
