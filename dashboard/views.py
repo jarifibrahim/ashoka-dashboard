@@ -240,7 +240,7 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-
+    last_response = team_object.last_response.submit_date
     check_warnings(team_object)
     intro_email_object = Email.objects.get(type="IM", default_template=True)
     reminder_email_object = Email.objects.get(type="RM", default_template=True)
@@ -252,7 +252,8 @@ def team_detail(request, team_id):
         'fellow_responses': team_object.fellow_surveys.all(),
         'intro_email': intro_email_object,
         'reminder_email': reminder_email_object,
-        'team_warnings': team_object.warnings
+        'team_warnings': team_object.warnings,
+        'last_response': last_response
     }
     return render(request, "team_display.html", context=context)
 

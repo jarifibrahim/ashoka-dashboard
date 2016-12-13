@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from datetime import datetime as dt
-from datetime import date
+from datetime import date, timedelta
 from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -40,6 +40,9 @@ class Dashboard(models.Model):
         "Dashboard Create Date", auto_now_add=True)
     advisory_start_date = models.DateField("Start date of Advisory Process")
     advisory_end_date = models.DateField("End date of Advisory Process")
+    reminder_emails_after = models.PositiveIntegerField(
+        "Reminder emails should be sent after this many days from last "
+        "response submit", default=9)
 
     class Meta:
         verbose_name_plural = "Dashboards"
@@ -102,6 +105,7 @@ class Team(models.Model):
     def save(self, *arg, **kwargs):
         TeamStatus.objects.get_or_create(team=self.id, defaults={'team': self})
         TeamWarning.objects.get_or_create(team=self.id, defaults={'team': self})
+        super(Team, self).save(*arg, **kwargs)
 
     def __str__(self):
         return self.name
@@ -115,7 +119,7 @@ class Team(models.Model):
         """
         try:
             return ConsultantSurvey.objects.filter(team=self.id).latest(
-                'call_date')
+                'submit_date')
         except ConsultantSurvey.DoesNotExist:
             return None
 
@@ -303,6 +307,15 @@ class ConsultantSurvey(models.Model):
             self.missing_member.all().values_list('name', flat=True))
         return ", ".join(missing_member_list)
 
+    def save(self, *args, **kwargs):
+        last_date = self.team.last_response.submit_date
+        days = self.team.dashboard.reminder_emails_after
+        next_date = last_date + timedelta(days=days)
+        ts = self.team.team_status
+        ts.next_automatic_reminder = next_date
+        ts.save()
+        super(ConsultantSurvey, self).save(*args, **kwargs)
+
 
 class FellowSurvey(models.Model):
     """
@@ -406,6 +419,9 @@ class TeamStatus(models.Model):
     last_automatic_reminder = models.DateTimeField("Last automatic reminder "
                                                    "sent on", blank=True,
                                                    null=True, editable=False)
+    next_automatic_reminder = models.DateField(
+        "Next automatic reminder will be sent on", blank=True, null=True,
+        editable=False)
     KICK_OFF_CHOICES = (
         ('NS', 'Not Started'),
         ('IMS', 'Intro Mail Sent'),

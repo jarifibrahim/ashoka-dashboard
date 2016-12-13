@@ -3,22 +3,11 @@ from .models import *
 from django import forms
 
 
-# Inline models can be edited from other model's change page
-# Team model can be modified from Dashboard model change page
-class TeamInline(admin.TabularInline):
-    model = Team
-    extra = 1
-
-
 class DashboardAdmin(admin.ModelAdmin):
     def get_team(self, obj):
         return [str(o) for o in obj.teams.all()]
 
     get_team.short_description = 'Teams'
-    # Add team inline model so that it is available for editing
-    inlines = [
-        TeamInline,
-    ]
     list_display = ['name', 'get_team']
     search_fields = ['name']
     list_filter = ['name']
@@ -91,6 +80,10 @@ class WeekWarningAdmin(admin.ModelAdmin):
     ordering = ('week_number',)
 
 
+class TeamStatusAdmin(admin.ModelAdmin):
+    readonly_fields = ('last_automatic_reminder', 'next_automatic_reminder',)
+
+
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
@@ -100,6 +93,6 @@ admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
 admin.site.register(FellowSurvey)
 admin.site.register(SecondaryRole)
 admin.site.register(Email, EmailAdmin)
-admin.site.register(TeamStatus)
+admin.site.register(TeamStatus, TeamStatusAdmin)
 admin.site.register(WeekWarning, WeekWarningAdmin)
 admin.site.register(TeamWarning)
