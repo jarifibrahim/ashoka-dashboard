@@ -531,11 +531,17 @@
                             </div>
                         </td>
                         <td>{% if team_status.last_automatic_reminder %}
-                            Last email was sent on
+                            Last automatic reminder sent on
                             {{ team_status.last_automatic_reminder }}
                         {% else %}
                             Automatic Reminders not yet sent.
                         {% endif %}
+                            <br>
+                            Last response received on
+                            {{ last_response }}
+                            <br>
+                            Next automatic reminder will be sent on
+                            {{ team_status.next_automatic_reminder }}
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
