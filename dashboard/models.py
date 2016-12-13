@@ -6,6 +6,7 @@ from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 import math
+from . import utility
 
 
 class Data:
@@ -249,7 +250,7 @@ class Member(models.Model):
     role_comment = models.TextField("Role Comment", blank=True)
     participates_in_call = models.BooleanField("Participates in Calls",
                                                default=True)
-    missing_calls = models.PositiveIntegerField("Missing Call count", default=0)
+    missed_calls = models.PositiveIntegerField("Missing Call count", default=0)
 
     def __str__(self):
         return self.name
@@ -313,9 +314,11 @@ class ConsultantSurvey(models.Model):
             last_date = self.team.last_response.submit_date
             days = self.team.dashboard.reminder_emails_after
             next_date = last_date + timedelta(days=days)
+            # Schedule reminder email
+            utility.send_reminder_email(self.team, next_date)
             ts = self.team.team_status
             ts.next_automatic_reminder = next_date
-            ts.save()
+            #ts.save()
         super(ConsultantSurvey, self).save(*args, **kwargs)
 
 

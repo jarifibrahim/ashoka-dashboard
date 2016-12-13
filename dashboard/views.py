@@ -1,16 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .models import Dashboard, Data, AdvisoryPhase
-from .forms import ConsultantSurveyForm, FellowSurveyForm
+from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, WeekWarning
+from . import forms
 from .utility import *
-from post_office import mail
 
 
 @login_required
 def home(request):
     """ The main home page """
-    all_dashboards = Dashboard.objects.all()
+    all_dashboards = Dashboard.objects.all().order_by('id')
     context = {
         'all_dashboards': all_dashboards
     }
@@ -31,7 +30,6 @@ def dashboard_overview(request, dashboard_id):
     lrp_comment_and_teamid, status_and_teamid = (list() for _ in range(2))
     team_warnings = list()
     for team in all_teams:
-        check_warnings(team)
         team_list.append({
             'teamid': team.id,
             'name': team.name
@@ -82,7 +80,7 @@ def consultant_submit(request, hash_value):
     team_id = Data.decode_data(hash_value)
     team_object = get_object_or_404(Team, pk=team_id)
     if request.method == 'POST':
-        form = ConsultantSurveyForm(request.POST, team=team_id)
+        form = forms.ConsultantSurveyForm(request.POST, team=team_id)
         if form.is_valid():
             # It is necessary to save the object without commit
             # and then add the team id
@@ -93,12 +91,15 @@ def consultant_submit(request, hash_value):
             entry.save()
             # Save many to many data from the Form
             form.save_m2m()
-            messages.success(
-                request, 'Your Response has been saved Successfully. \
-                          Thank you!')
+            messages.success(request, 'Your Response has been saved '
+                                      'Successfully. Thank you!')
+            # Increase missing call count for each missing member
+            for m in form.cleaned_data['missing_member']:
+                m.missed_calls += 1
+                m.save()
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['help']:
-                email = get_email("consultant", form.cleaned_data['help'])
+                email = create_email("consultant", form.cleaned_data['help'])
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
@@ -109,7 +110,7 @@ def consultant_submit(request, hash_value):
                                  "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
-        form = ConsultantSurveyForm(team=team_id)
+        form = forms.ConsultantSurveyForm(team=team_id)
     return render(request, "survey_template.html",
                   context={'team': team_object.name,
                            'form': form})
@@ -127,7 +128,7 @@ def fellow_submit(request, hash_value):
     dashboard_id = Data.decode_data(hash_value)
     get_object_or_404(Dashboard, pk=dashboard_id)
     if request.method == "POST":
-        form = FellowSurveyForm(request.POST)
+        form = forms.FellowSurveyForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your Response has been saved '
@@ -135,7 +136,7 @@ def fellow_submit(request, hash_value):
 
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['other_help']:
-                email = get_email("fellow", form.cleaned_data['other_help'])
+                email = create_email("fellow", form.cleaned_data['other_help'])
                 team_object = form.cleaned_data['team']
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
@@ -147,7 +148,7 @@ def fellow_submit(request, hash_value):
                                  "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
-        form = FellowSurveyForm()
+        form = forms.FellowSurveyForm()
     return render(request, "survey_template.html", context={'form': form})
 
 
@@ -158,7 +159,7 @@ def show_urls(request):
     fellow_survey_urls = list()
     for d in dashboards:
         fellow_survey_urls.append(dict(name=d.name, url=d.fellow_form_url))
-    teams = Team.objects.all()
+    teams = Team.objects.all().order_by('id')
     consultant_survey_urls = list()
     for t in teams:
         consultant_survey_urls.append(
@@ -188,9 +189,9 @@ def update_value(request):
     }
     possible_member_change = {
         'Member_comment': 'member_comment',
-        'receives_reminder_email': 'receives_reminder_emails',
         'secondary_role_change': 'secondary_role_change',
         'role_comment': 'role_comment',
+        'participates_in_call': 'participates_in_call'
     }
     possible_status_change = {
         'kick_off_status': 'kick_off_status',
@@ -245,21 +246,30 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-    check_warnings(team_object)
     absolute_url = request.build_absolute_uri(team_object.consultant_form_url)
-    r_email = get_email("reminder", absolute_url)
-    w_email = get_email("welcome", absolute_url)
+    r_email = create_email("reminder", absolute_url)
+    w_email = create_email("welcome", absolute_url)
     lr = team_object.last_response
+    total_calls = team_object.consultant_surveys.all().count()
+    current_week = WeekWarning.objects.filter(
+        week_number=team_object.dashboard.current_week).values('calls_r')
+    expected_calls = current_week[0].get('calls_r',
+                                         '') if current_week else None
+    calls = {
+        'total': total_calls,
+        'expected': int(expected_calls) + 1
+    }
     context = {
         'team': team_object,
-        'team_members': team_object.members.all(),
+        'team_members': team_object.members.all().order_by('role_id'),
         'team_status': team_status,
-        'consultant_responses': team_object.consultant_surveys.all(),
-        'fellow_responses': team_object.fellow_surveys.all(),
+        'c_responses': team_object.consultant_surveys.all().order_by('id'),
+        'f_responses': team_object.fellow_surveys.all().order_by('id'),
         'welcome_email': w_email,
         'reminder_email': r_email,
         'team_warnings': team_object.warnings,
-        'last_response': lr.submit_date if lr else ''
+        'last_response': lr.submit_date if lr else '',
+        'calls': calls
     }
     return render(request, "team_display.html", context=context)
 
