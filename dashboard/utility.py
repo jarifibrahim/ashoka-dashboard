@@ -1,165 +1,171 @@
 from django.contrib import messages
-from .models import Team, Member, TeamStatus, SecondaryRole, WeekWarning
+from . import models
 from post_office.models import EmailTemplate
 from django.template import Context, Template
+from post_office import mail
 
 
-def check_warnings(team):
+class UpdateWarnings:
+    """
+    Contains functions used to update team status
+    """
     status = {
         'green': 'G',
         'yellow': 'Y',
         'red': 'R'
     }
 
-    current_week = team.dashboard.current_week
-    try:
-        week_warning = WeekWarning.objects.get(week_number=current_week)
-        tw = team.warnings
-    except WeekWarning.DoesNotExist:
-        raise
-    except team.RelatedObjectDoesNotExist:
-        raise
+    def __init__(self, team):
+        current_week = team.dashboard.current_week
+        self.team = team
+        self.week_warning = models.WeekWarning.objects.get(week_number=current_week)
+        self.tw = team.warnings
 
     # Total calls check
-    def _total_calls_check():
-        response_count = team.consultant_surveys.all().count()
-        change_count = team.team_status.call_change_count
+    def total_calls_check(self):
+        response_count = self.team.consultant_surveys.all().count()
+        change_count = self.team.team_status.call_change_count
         total_call_count = response_count + change_count
-        if total_call_count < week_warning.calls_r:
+        if total_call_count < self.week_warning.calls_r:
             msg = "Total Calls ({0}+{1})={2} < Expected Calls Red: {3}"
             msg = msg.format(response_count, change_count, total_call_count,
-                             week_warning.calls_r)
-            return status['red'], msg
-        elif total_call_count < week_warning.calls_y:
+                             self.week_warning.calls_r)
+            return self.status['red'], msg
+        elif total_call_count < self.week_warning.calls_y:
             msg = "Total Calls ({0}+{1})={2} < Expected Calls Yellow: {3}"
             msg = msg.format(response_count, change_count, total_call_count,
-                             week_warning.calls_y)
-            return status['yellow'], msg
+                             self.week_warning.calls_y)
+            return self.status['yellow'], msg
         else:
             msg = "Total Calls ({0}+{1})={2} >= Expected Calls: " \
                   "Yellow:{3} and Red:{4}"
             msg = msg.format(response_count, change_count, total_call_count,
-                             week_warning.calls_y, week_warning.calls_r)
-            return status['green'], msg
+                             self.week_warning.calls_y,
+                             self.week_warning.calls_r)
+            return self.status['green'], msg
 
     # Current Phase
-    def _phase_check():
-        last_response = team.last_response
+    def phase_check(self):
+        last_response = self.team.last_response
         # If there are no responses skip the following section
         if last_response:
             current_phase = last_response.current_phase
-            yellow = week_warning.phase_y
-            red = week_warning.phase_r
-            green = week_warning.phase
+            yellow = self.week_warning.phase_y
+            red = self.week_warning.phase_r
+            green = self.week_warning.phase
             if red:
                 if current_phase.phase_number <= red.phase_number:
                     msg = "Current Phase:{0} < Red warning Phase:{1}"
                     msg = msg.format(current_phase, red)
-                    return status['red'], msg
+                    return self.status['red'], msg
 
             if yellow:
                 if yellow.phase_number == current_phase.phase_number:
                     msg = "Current Phase:{1} is Yellow warning Phase:{0}"
                     msg = msg.format(yellow, current_phase)
-                    return status['yellow'], msg
+                    return self.status['yellow'], msg
             if green:
                 if green.phase_number == current_phase.phase_number:
                     msg = "Current Phase:{1} is Expected Phase:{0}"
                     msg = msg.format(green, current_phase)
-                    return status['green'], msg
-        msg = "No consultant responses found!"
-        return status['green'], msg
+                    return self.status['green'], msg
+        msg = "No consultant responses found"
+        return self.status['green'], msg
 
     # Kick Off
-    def _kick_off_check():
-        if team.team_status.kick_off == "NS":
-            yellow = week_warning.kick_off_y
-            red = week_warning.kick_off_r
+    def kick_off_check(self):
+        if self.team.team_status.kick_off == "NS":
+            yellow = self.week_warning.kick_off_y
+            red = self.week_warning.kick_off_r
             msg = "Kick off not yet happened"
             if red:
-                return status['red'], msg
+                return self.status['red'], msg
             if yellow:
-                return status['yellow'], msg
+                return self.status['yellow'], msg
             else:
-                return status['green'], "No kick off warnings found for this " \
-                                        "week. "
-        return status['green'], "Kick off Done."
+                return self.status['green'], "No kick off warnings found " \
+                                             "for this week"
+        return self.status['green'], "Kick off Done"
 
     # Mid Term
-    def _mid_term_check():
-        if team.team_status.mid_term == "NS":
-            yellow = week_warning.mid_term_y
-            red = week_warning.mid_term_r
+    def mid_term_check(self):
+        if self.team.team_status.mid_term == "NS":
+            yellow = self.week_warning.mid_term_y
+            red = self.week_warning.mid_term_r
             msg = "Mid Term not yet happened"
             if red:
-                return status['red'], msg
+                return self.status['red'], msg
             if yellow:
-                return status['yellow'], msg
+                return self.status['yellow'], msg
             else:
-                return status['green'], "No mid term warnings found for this " \
-                                        "week. "
-        return status['green'], "Mid Term Done"
+                return self.status['green'], "No mid term warnings found " \
+                                             "for this week"
+        return self.status['green'], "Mid Term Done"
 
     # Consultant Rating
-    def _consultant_rating_check():
-        c_last_rating = team.last_consultant_rating
+    def consultant_rating_check(self):
+        c_last_rating = self.team.last_consultant_rating
         if c_last_rating:
-            if c_last_rating <= week_warning.consultant_rating_r:
+            if c_last_rating <= self.week_warning.consultant_rating_r:
                 msg = "Last Consultant Rating: {0} <= Consultant Rating " \
-                      "Red Warning: {1}".format(c_last_rating,
-                                                week_warning.consultant_rating_r)
-                return status['red'], msg
+                      "Red Warning: {1}".format(
+                    c_last_rating, self.week_warning.consultant_rating_r)
+                return self.status['red'], msg
             else:
                 msg = "Last Consultant Rating: {0} > Consultant Rating " \
-                      "Red Warning: {1}".format(c_last_rating,
-                                                week_warning.consultant_rating_r)
-                return status['green'], msg
+                      "Red Warning: {1}".format(
+                    c_last_rating, self.week_warning.consultant_rating_r)
+                return self.status['green'], msg
         # If there are no ratings
         else:
-            return status['green'], "No Rating found (Either there are no " \
-                                    "consultant responses or none of the " \
-                                    "consultant responses have rating value) "
+            return self.status['green'], "No Rating found (Either there are " \
+                                         "no consultant responses or none of " \
+                                         "the consultant responses have " \
+                                         "rating value) "
 
     # Fellow Rating
-    def _fellow_rating_check():
-        f_last_rating = team.last_fellow_rating
+    def fellow_rating_check(self):
+        f_last_rating = self.team.last_fellow_rating
         if f_last_rating:
-            if f_last_rating < week_warning.fellow_rating_r:
+            if f_last_rating < self.week_warning.fellow_rating_r:
                 msg = "Last Fellow Rating: {0} < Fellow Rating " \
-                      "Red Warning: {1}".format(f_last_rating,
-                                                week_warning.fellow_rating_r)
-                return status['red'], msg
+                      "Red Warning: {1}".format(
+                    f_last_rating, self.week_warning.fellow_rating_r)
+                return self.status['red'], msg
             else:
                 msg = "Fellow Rating: {0} > Fellow Rating " \
-                      "Red Warning: {1}".format(f_last_rating,
-                                                week_warning.fellow_rating_r)
-                return status['green'], msg
+                      "Red Warning: {1}".format(
+                    f_last_rating, self.week_warning.fellow_rating_r)
+                return self.status['green'], msg
         # If there are no ratings
         else:
-            return status['green'], "No Rating found (Either there are no " \
-                                    "fellow responses or none of the " \
-                                    "fellow responses have rating value) "
+            return self.status['green'], "No Rating found (Either there are " \
+                                         "no fellow responses or none of the " \
+                                         "fellow responses have rating value) "
 
     # Unprepared calls
-    def _unprepared_calls_check():
-        percentage = team.unprepared_calls_percentage
+    def unprepared_calls_check(self):
+        percentage = self.team.unprepared_calls_percentage
         if percentage:
-            if percentage > week_warning.unprepared_calls_r:
+            if percentage > self.week_warning.unprepared_calls_r:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Red " \
                       "Threshold: {1}"
-                msg = msg.format(percentage, week_warning.unprepared_calls_r)
-                return status['red'], msg
-            elif percentage > week_warning.unprepared_calls_y:
+                msg = msg.format(percentage,
+                                 self.week_warning.unprepared_calls_r)
+                return self.status['red'], msg
+            elif percentage > self.week_warning.unprepared_calls_y:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Yellow " \
                       "Threshold: {1}"
-                msg = msg.format(percentage, week_warning.unprepared_calls_y)
-                return status['yellow'], msg
+                msg = msg.format(percentage,
+                                 self.week_warning.unprepared_calls_y)
+                return self.status['yellow'], msg
             else:
                 msg = "% Unprepared calls: {0} < % Unprepared calls " \
                       "Threshold Yellow:{1} and Red:{2}"
-                msg = msg.format(percentage, week_warning.unprepared_calls_y,
-                                 week_warning.unprepared_calls_r)
-                return status['green'], msg
+                msg = msg.format(percentage,
+                                 self.week_warning.unprepared_calls_y,
+                                 self.week_warning.unprepared_calls_r)
+                return self.status['green'], msg
         msg = ""
         if percentage is 0:
             msg = "% Unprepared calls: 0. Members were prepared for all " \
@@ -168,16 +174,23 @@ def check_warnings(team):
             msg = "Could not calculate % Unprepared calls. " \
                   "No consultant responses found."
 
-        return status['green'], msg
+        return self.status['green'], msg
 
-    tw.call_count, tw.call_count_comment = _total_calls_check()
-    tw.phase, tw.phase_comment = _phase_check()
-    tw.kick_off, tw.kick_off_comment = _kick_off_check()
-    tw.mid_term, tw.mid_term_comment = _mid_term_check()
-    tw.consultant_rating, tw.consultant_rating_comment = _consultant_rating_check()
-    tw.fellow_rating, tw.fellow_rating_comment = _fellow_rating_check()
-    tw.unprepared_call, tw.unprepared_call_comment = _unprepared_calls_check()
-    tw.save()
+    def check_all_warnings(self):
+        cc, cc_comment = self.total_calls_check()
+        self.tw.call_count, self.tw.call_count_comment = cc, cc_comment
+        self.tw.phase, self.tw.phase_comment = self.phase_check()
+        self.tw.kick_off, self.tw.kick_off_comment = self.kick_off_check()
+        self.tw.mid_term, self.tw.mid_term_comment = self.mid_term_check()
+        cr, cr_comment = self.consultant_rating_check()
+        self.tw.consultant_rating = cr
+        self.tw.consultant_rating_comment = cr_comment
+        fr, fr_comment = self.fellow_rating_check()
+        self.tw.fellow_rating, self.tw.fellow_rating_comment = fr, fr_comment
+        upc, upc_comment = self.unprepared_calls_check()
+        self.tw.unprepared_call = upc
+        self.tw.unprepared_call_comment = upc_comment
+        self.tw.save()
 
 
 def update_team_value(request, field_name):
@@ -192,8 +205,8 @@ def update_team_value(request, field_name):
     # Extract team id from the teamId string
     team_id = request.POST.get('teamId')
     try:
-        team_object = Team.objects.get(pk=team_id)
-    except Team.DoesNotExist:
+        team_object = models.Team.objects.get(pk=team_id)
+    except models.Team.DoesNotExist:
         messages.error(request, "Failed to update value. Invalid team id")
         return False
 
@@ -233,8 +246,8 @@ def update_team_status_value(request, field_name):
     team_id = request.POST.get('teamId')
 
     try:
-        team_object = Team.objects.get(pk=team_id)
-    except Team.DoesNotExist:
+        team_object = models.Team.objects.get(pk=team_id)
+    except models.Team.DoesNotExist:
         messages.error(request, "Failed to update value. Invalid Team id")
         messages.error(request, request.POST)
         return False
@@ -242,10 +255,15 @@ def update_team_status_value(request, field_name):
     # Change team call count
     if field_name == "change_calls_count":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.call_change_count = int(request.POST.get(field_name))
             status_object.save()
             messages.success(request, "Successfully changed call count value.")
+            update = UpdateWarnings(team_object)
+            cc, cc_comment = update.total_calls_check()
+            tw = team_object.warnings
+            tw.call_count, tw.call_count_comment = cc, cc_comment
+            tw.save()
             return True
         except Exception as e:
             messages.error(request, "Failed to change call count value.")
@@ -255,7 +273,7 @@ def update_team_status_value(request, field_name):
     # Change automatic reminder status
     elif field_name == "automatic_reminder_status":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.automatic_reminder = (
                 request.POST[field_name] == 'true')
             status_object.save()
@@ -270,9 +288,13 @@ def update_team_status_value(request, field_name):
 
     elif field_name == "kick_off_status":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.kick_off = request.POST[field_name]
             status_object.save()
+            update = UpdateWarnings(team_object)
+            tw = team_object.warnings
+            tw.kick_off, tw.kick_off_comment = update.kick_off_check()
+            tw.save()
             messages.success(request, "Successfully changed Kick off status "
                                       "value.")
             return True
@@ -284,7 +306,7 @@ def update_team_status_value(request, field_name):
 
     elif field_name == "kick_off_comment":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.kick_off_comment = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Kick Off Comment "
@@ -298,9 +320,13 @@ def update_team_status_value(request, field_name):
 
     elif field_name == "mid_term_status":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.mid_term = request.POST[field_name]
             status_object.save()
+            update = UpdateWarnings(team_object)
+            tw = team_object.warnings
+            tw.mid_term, tw.mid_term_comment = update.mid_term_check()
+            tw.save()
             messages.success(request, "Successfully changed Mid Term status "
                                       "value.")
             return True
@@ -312,7 +338,7 @@ def update_team_status_value(request, field_name):
 
     elif field_name == "mid_term_comment":
         try:
-            status_object = TeamStatus.objects.get(team=team_object)
+            status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.mid_term_comment = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Mid Term Comment "
@@ -342,8 +368,8 @@ def update_member_value(request, field_name):
     member_id = request.POST.get('memberId')
 
     try:
-        member_object = Member.objects.get(pk=member_id)
-    except Member.DoesNotExist:
+        member_object = models.Member.objects.get(pk=member_id)
+    except models.Member.DoesNotExist:
         messages.error(request, "Failed to update value. Invalid Member id")
         messages.error(request, request.POST)
         return False
@@ -361,22 +387,10 @@ def update_member_value(request, field_name):
             messages.debug(request, "Failed to update value. " + str(e))
             return False
 
-    elif field_name == "receives_reminder_emails":
-        try:
-            member_object.receives_survey_reminder_emails = (
-                request.POST[field_name].lower() == 'true')
-            member_object.save()
-            flash_message = "{}'s Reminder Email setting updated " \
-                            "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-
     elif field_name == 'secondary_role_change':
         try:
             short_name = request.POST.get('secondary_role_change')
-            sr_object = SecondaryRole.objects.get(short_name=short_name)
+            sr_object = models.SecondaryRole.objects.get(short_name=short_name)
             # If member already has role remove it
             if member_object.secondary_role.filter(
                     short_name=short_name).exists():
@@ -405,11 +419,25 @@ def update_member_value(request, field_name):
         except Exception as e:
             messages.debug(request, "Failed to update value. " + str(e))
             return False
+
+    # Participates in call status
+    elif field_name == "participates_in_call":
+        try:
+            member_object.participates_in_call = (
+                request.POST[field_name] == 'true')
+            member_object.save()
+            flash_message = "Participates in call status for {} updated successfully".format(
+                member_object.name)
+            messages.success(request, flash_message)
+            return True
+        except Exception as e:
+            messages.debug(request, "Failed to update value. " + str(e))
+            return False
     messages.debug(request, request.POST)
     return False
 
 
-def get_email(name, data=''):
+def create_email(name, data=''):
     """
     Returns a dictionary with email subject and message
     :param name:    Name of the email template to use
@@ -426,3 +454,22 @@ def get_email(name, data=''):
         'subject': intro_email_template.subject,
         'message': message
     }
+
+
+def send_reminder_email(team, next_date):
+    """
+    Schedule reminder email on the next_date
+    :param team:        Team that should be reminded
+    :param next_date:   Next date on which email should be sent
+    """
+    # Add automatic reminder only if automatic_reminder is true
+    if not team.team_status.automatic_reminder:
+        return
+    url = 'http:/' + team.consultant_form_url
+    email = create_email('reminder', url)
+    recipients = team.members.filter(secondary_role__short_name="PC")
+    to = []
+    if recipients:
+        to = [r['email'] for r in recipients.values('email').all()]
+    mail.send(to, "jarifibrahim@gmail.com", subject=email['subject'],
+              message=email['message'], scheduled_time=next_date)

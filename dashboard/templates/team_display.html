@@ -78,10 +78,10 @@
                         <td>{{ member.role }}</td>
                         <td>{{ member.name }}</td>
                         <td>{{ member.email }}</td>
-                        <td></td>
+                        <td>{{ member.missed_calls }}</td>
                         <td>
                             <form method="post"
-                                  class="participates-in-call-form form"
+                                  class="hidden-submit-form form"
                                   action={% url 'update' %}>
                                 {% csrf_token %}
                                 <input type="text"
@@ -93,10 +93,16 @@
                                         <option value={{ member.participates_in_call }}>
                                             {{ member.participates_in_call|yesno|capfirst }}
                                         </option>
-                                        <option value={{ member.participates_in_call|yesno:"False, True" }}>
+                                        <option value={{ member.participates_in_call|yesno:"false, true" }}>
                                             {{ member.participates_in_call|yesno:"No, Yes" }}
                                         </option>
                                     </select>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
                                 </div>
                             </form>
                         </td>
@@ -372,7 +378,7 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td>2 calls / 15 expected</td>
+                        <td>{{ calls.total }} calls / {{ calls.expected }} expected</td>
                         <td>Automatic Reminders</td>
                         <td>Status</td>
                         <td>Status</td>
@@ -530,7 +536,8 @@
                             </a>
                             </div>
                         </td>
-                        <td>{% if team_status.last_automatic_reminder %}
+                        <td>
+                        {% if team_status.last_automatic_reminder %}
                             Last automatic reminder sent on
                             {{ team_status.last_automatic_reminder }}
                         {% else %}
@@ -541,7 +548,9 @@
                             {{ last_response }}
                             <br>
                             Next automatic reminder will be sent on
+                        {% if team_status.next_automatic_reminder %}
                             {{ team_status.next_automatic_reminder }}
+                        {% endif %}
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
@@ -608,7 +617,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for response in fellow_responses %}
+                {% for response in f_responses %}
                     <tr>
                         <td>{{ response.submit_date|date:"d/M" }}</td>
                         <td>{{ response.phase_rating|default:"" }}</td>
@@ -647,7 +656,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for response in consultant_responses %}
+                {% for response in c_responses %}
                     <tr>
                         <td>{{ response.submit_date|date:"d/M" }}</td>
                         <td>{{ response.call_date|date:"d/M" }}</td>
