@@ -79,41 +79,46 @@
                         <td>{{ member.name }}</td>
                         <td>{{ member.email }}</td>
                         <td></td>
-                    <td>
-                        <form method="post" class="participates-in-call-form form" action={% url 'update' %}>
-                            {% csrf_token %}
-                            <input type="text" value={{ member.id }} name="memberId" hidden>
-                            <div class="form-group">
-                                <select id="PIC" class="form-control" name="participates_in_call">
-                                    <option value={{ member.participates_in_call }}>
-                                        {{ member.participates_in_call|yesno|capfirst }}
-                                    </option>
-                                    <option value={{ member.participates_in_call|yesno:"False, True" }}>
-                                        {{ member.participates_in_call|yesno:"No, Yes" }}
-                                    </option>
-                                </select>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <form class="form hidden-submit-form" method="post"
-                              action="{% url 'update' %}">
-                            {% csrf_token %}
-                            <input type="text" hidden name="memberId"
-                                   value="{{ member.id }}">
-                            <div class="form-group">
+                        <td>
+                            <form method="post"
+                                  class="participates-in-call-form form"
+                                  action={% url 'update' %}>
+                                {% csrf_token %}
+                                <input type="text"
+                                       value={{ member.id }} name="memberId"
+                                       hidden>
+                                <div class="form-group">
+                                    <select id="PIC" class="form-control"
+                                            name="participates_in_call">
+                                        <option value={{ member.participates_in_call }}>
+                                            {{ member.participates_in_call|yesno|capfirst }}
+                                        </option>
+                                        <option value={{ member.participates_in_call|yesno:"False, True" }}>
+                                            {{ member.participates_in_call|yesno:"No, Yes" }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form class="form hidden-submit-form" method="post"
+                                  action="{% url 'update' %}">
+                                {% csrf_token %}
+                                <input type="text" hidden name="memberId"
+                                       value="{{ member.id }}">
+                                <div class="form-group">
                                 <textarea class="form-control"
                                           name="member_comment">{{ member.comment }}</textarea>
-                            </div>
-                            <div class="form-group" id="submit-button"
-                                 style="display: none;">
-                                <input type="submit"
-                                       class="form-control btn-primary"
-                                       value="Save">
-                            </div>
-                        </form>
-                    </td>
-                </tr>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
                 {% endfor %}
                 <tr>
                     <td colspan="3">
@@ -130,7 +135,8 @@
                 </tr>
                 </tbody>
             </table>
-            <table id="secondary-role-table" class="table table-bordered table-striped">
+            <table id="secondary-role-table"
+                   class="table table-bordered table-striped">
                 <thead>
                 <tr>
                     <th>Name (Role)</th>
@@ -196,7 +202,8 @@
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
                                        hidden>
-                                <input type="text" value="{{ member.email }}" name="emailid" class="emailid"  hidden>
+                                <input type="text" value="{{ member.email }}"
+                                       name="emailid" class="emailid" hidden>
                                 <input type="text" value="PC"
                                        name="secondary_role_change" hidden>
                                 <div class="form-group">
@@ -572,39 +579,6 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Email div
-                <div class="col-xs-4 col-md-3">
-                    <table class="table table-responsive">
-                        <tr>
-                            <td>
-                                <a class="btn btn-warning email-button" id="send-instruction-email">
-                                    Send Instruction Mail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a class="btn btn-success email-button" id="send-reminder-email">
-                                    Send Reminder Mail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a class="btn btn-primary email-button" id="send-message-fellows">
-                                    Send Message to Fellows
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a class="btn btn-info email-button" id="send-message-team">
-                                    Send Message to Team
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </div> Email Div -->
         </div> <!-- Team management -->
 
         <!-- Fellow responses -->
@@ -694,7 +668,8 @@
                 Send to:
                 <div class="form-group" id="memberChoice">
                     {% for member in team_members %}
-                        <label><input type="checkbox" name="send_to" id="{{ member.name }}"
+                        <label><input type="checkbox" name="send_to"
+                                      id="{{ member.name }}"
                                       value="{{ member.email }}">{{ member.name }}
                             ({{ member.role }})</label>
                     {% endfor %}
@@ -781,7 +756,7 @@
                  Reminder Email
                  It should be sent to Pulse Checker
                  */
-                if(id == 'send-reminder-email') {
+                if (id == 'send-reminder-email') {
                     subject = "{{ reminder_email.subject }}";
                     message = "{{ reminder_email.message|escapejs }}";
                     $('#team-info-div #secondary-role-table tr').each(function () {
