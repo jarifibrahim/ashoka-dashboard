@@ -24,7 +24,7 @@ SECRET_KEY = 'nxf(ic=r9&s2vp-=uapqit5db_wp_lhr9zdl7srlpbr-e1%k5c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dashboard',
+    'post_office',
 ]
 
 MIDDLEWARE = [
@@ -132,9 +133,14 @@ DATABASES['default'] = dj_database_url.config()
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = ['*']
+EMAIL_BACKEND = 'post_office.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+# Port for sending e-mail.
+EMAIL_PORT = os.getenv('EMAIL_PORT', '')
+# Optional SMTP authentication information for EMAIL_HOST.
+EMAIL_HOST_USER = os.getenv('EMAIL_ID', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', '')
 
-DEBUG = True
 
 try:
     from .local_settings import *

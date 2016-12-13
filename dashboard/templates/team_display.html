@@ -520,7 +520,7 @@
                     <tr>
                         <td>
                             <a class="btn btn-warning email-button"
-                               id="send-instruction-email">
+                               id="send-welcome-email">
                                 Send Instruction Mail
                             </a>
                             <div style="margin-top: 10px;"><a
@@ -749,12 +749,12 @@
                 url = "http://" + url;
 
                 /*
-                 Instruction Email
+                 Welcome Email
                  It should be sent to all members
                  */
-                if (id == "send-instruction-email") {
-                    subject = "{{ intro_email.subject }}";
-                    message = "{{ intro_email.message|escapejs }}";
+                if (id == "send-welcome-email") {
+                    subject = "{{ welcome_email.subject }}";
+                    message = "{{ welcome_email.message|escapejs }}";
                     form.find('#memberChoice input').prop('checked', true);
                 }
 
@@ -775,8 +775,6 @@
                         }
                     });
                 }
-                // Add form url
-                message = message.replace(/#FORM_URL#/, url);
                 form.find('#email-subject').val(subject);
                 form.find('#email-body').text(message);
                 dialogEmail.dialog("open");
