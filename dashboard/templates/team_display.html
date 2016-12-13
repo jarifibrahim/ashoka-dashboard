@@ -61,7 +61,7 @@
             </div>
         </a>
         <div id="team-info-div">
-            <table class="table table-bordered table-striped">
+            <table id="main-table" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                     <th>Role</th>
@@ -130,7 +130,7 @@
                 </tr>
                 </tbody>
             </table>
-            <table class="table table-bordered table-striped">
+            <table id="secondary-role-table" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                     <th>Name (Role)</th>
@@ -196,6 +196,7 @@
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
                                        hidden>
+                                <input type="text" value="{{ member.email }}" name="emailid" class="emailid"  hidden>
                                 <input type="text" value="PC"
                                        name="secondary_role_change" hidden>
                                 <div class="form-group">
@@ -693,7 +694,7 @@
                 Send to:
                 <div class="form-group" id="memberChoice">
                     {% for member in team_members %}
-                        <label><input type="checkbox" name="send_to"
+                        <label><input type="checkbox" name="send_to" id="{{ member.name }}"
                                       value="{{ member.email }}">{{ member.name }}
                             ({{ member.role }})</label>
                     {% endfor %}
@@ -723,10 +724,6 @@
             // Show call count change submit button
             $('.hidden-submit-form').change(function () {
                 $(this).find('#submit-button').show();
-            });
-            // Submit form on receives reminder email value change
-            $(".receives-reminder-email-form").change(function () {
-                $(this).submit();
             });
 
             // Submit secondary role change form
@@ -764,44 +761,43 @@
 
             $('.email-button').click(function () {
                 var id = $(this).attr('id');
-                var name_email = [];
-                $('#team-info-div table tbody tr').each(function () {
-                    name_email.push({
-                        'name': $(this).find('td:nth-child(2)').text(),
-                        'email': $(this).find('td:nth-child(3)').text()
-                    });
-                });
-                // Remove last entry (link to the document)
-                name_email.pop();
+                var form = $('#email-form');
+                var subject;
+                var message;
+                var url = "{{ request.META.HTTP_HOST }}{{ team.consultant_form_url|escapejs}}";
+                url = "http://" + url;
 
                 /*
                  Instruction Email
                  It should be sent to all members
                  */
                 if (id == "send-instruction-email") {
-                    var form = $('#email-form');
-                    var subject = "{{ intro_email.subject }}";
-                    var message = "{{ intro_email.message|escapejs }}";
-                    var url = "{{ request.META.HTTP_HOST }}{{ team.consultant_form_url|escapejs}}";
-                    url = "http://" + url;
-                    // Add form url
-                    message = message.replace(/#FORM_URL#/, url);
+                    subject = "{{ intro_email.subject }}";
+                    message = "{{ intro_email.message|escapejs }}";
                     form.find('#memberChoice input').prop('checked', true);
-                    form.find('#email-subject').val(subject);
-                    form.find('#email-body').text(message);
                 }
 
-
                 /*
-                 var i;
-                 for (i in name_email) {
-                 var select_box = $('#dialog-email #memberChoice');
-                 var item = '<label><input type="checkbox" name="send_to"' +
-                 ' value="' + name_email[i]['email'] + '">' +
-                 name_email[i]['name'] + '</label>';
-                 select_box.append(item);
-                 }
-                 }*/
+                 Reminder Email
+                 It should be sent to Pulse Checker
+                 */
+                if(id == 'send-reminder-email') {
+                    subject = "{{ reminder_email.subject }}";
+                    message = "{{ reminder_email.message|escapejs }}";
+                    $('#team-info-div #secondary-role-table tr').each(function () {
+                        var PCtd = $(this).find('td:nth-child(4)');
+                        var PC = PCtd.find('input#main');
+                        if (PC.prop('checked')) {
+                            var emailid = PCtd.find('input.emailid').val();
+                            var ele = form.find('#memberChoice input[value="' + emailid + '"]');
+                            ele.prop('checked', true);
+                        }
+                    });
+                }
+                // Add form url
+                message = message.replace(/#FORM_URL#/, url);
+                form.find('#email-subject').val(subject);
+                form.find('#email-body').text(message);
                 dialogEmail.dialog("open");
             });
         }

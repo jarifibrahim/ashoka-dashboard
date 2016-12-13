@@ -106,21 +106,6 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
-    def get_members_with_role(self, role):
-        """
-        Returns names of team members belonging to a specific role.
-
-        :param role:Members should be belonging to this role.
-        :returns:   List of members belonging to specified role
-        """
-        role = Role.objects.filter(long_name=role).values("id")
-        if not role:
-            values = [r.long_name for r in Role.objects.all()]
-            raise ValueError(
-                "Invalid role name. Possible Values are: " + str(values))
-        role_members = self.members.filter(role=role[0]['id'])
-        return role_members
-
     @property
     def last_response(self):
         """
