@@ -1,11 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.urls import reverse
-from .models import Dashboard, Team, Member, SecondaryRole, TeamStatus, Email, \
-    Data, WeekWarning, AdvisoryPhase
+from .models import Dashboard, Email, Data, AdvisoryPhase
 from .forms import ConsultantSurveyForm, FellowSurveyForm
-from .utility import check_warnings
+from .utility import *
 from django.core.mail import send_mail
 
 
@@ -39,7 +37,7 @@ def dashboard_overview(request, dashboard_id):
             'name': team.name
         })
 
-        role_members = team.get_members_with_role("LRP")
+        role_members = team.members.filter(role__short_name="LRP")
         lrp_list.append(', '.join([str(i) for i in role_members]))
         working_document.append(team.working_document)
         consultant_requests.append(team.consultant_request)
@@ -100,8 +98,8 @@ def consultant_submit(request, hash_value):
                           Thank you!')
             if form.cleaned_data['help']:
                 email = Email.objects.get(type="CR", default_template=True)
-                all_emails = team_object.get_members_with_role(
-                    "LRP").all().values('email')
+                all_emails = team_object.members.filter(
+                    role__short_name="LRP").all().values('email')
                 to = [email['email'] for email in all_emails]
                 msg = email.message.replace("#REQUEST#",
                                             form.cleaned_data['help'])
@@ -120,6 +118,7 @@ def thanks(request):
     return render(request, "thank_you.html")
 
 
+@login_required
 def fellow_submit(request, hash_value):
     """ Fellow Survey from request and response """
     dashboard_id = Data.decode_data(hash_value)
@@ -163,235 +162,6 @@ def show_urls(request):
     return render(request, "show_urls.html",
                   context={'f_urls': fellow_survey_urls,
                            'c_urls': consultant_survey_urls})
-
-
-def update_team_value(request, field_name):
-    """
-    Updates the team value. This function is called only by update_value when
-    a value related to the team is to be updated. The value is sent by a dialog
-    form.
-    :param request:     Request object that contains all the required values
-    :param field_name:  Name of the form field that contains the new value
-    :return:            True is successful else False
-    """
-    # Extract team id from the teamId string
-    team_id = request.POST.get('teamId')
-    try:
-        team_object = Team.objects.get(pk=team_id)
-    except Team.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid team id")
-        return False
-
-    # Change Team status color
-    if field_name == "newStatusColor":
-        try:
-            team_object.status_choice = request.POST[field_name]
-            team_object.save()
-            messages.success(request, "Team status updated successfully.")
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-
-    # Change Team comment
-    elif field_name == "LRPComment":
-        try:
-            team_object.lrp_comment = request.POST[field_name]
-            team_object.save()
-            messages.success(request, "Team LRP comment updated successfully")
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-
-    messages.debug(request, "Unknown action " + field_name)
-    return False
-
-
-def update_team_status_value(request, field_name):
-    """
-    :param request:     Request object that contains all the required values
-    :param field_name:  Name of the form field that contains the new value
-    :return:            True is successful else False
-    """
-
-    team_id = request.POST.get('teamId')
-
-    try:
-        team_object = Team.objects.get(pk=team_id)
-    except Team.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid Team id")
-        messages.error(request, request.POST)
-        return False
-
-    # Change team call count
-    if field_name == "change_calls_count":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.call_change_count = int(request.POST.get(field_name))
-            status_object.save()
-            messages.success(request, "Successfully changed call count value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change call count value.")
-            messages.debug(request, str(e))
-            return False
-
-    # Change automatic reminder status
-    elif field_name == "automatic_reminder_status":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.automatic_reminder = (
-                request.POST[field_name] == 'true')
-            status_object.save()
-            messages.success(request, "Successfully changed automatic "
-                                      "reminder status value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change automatic reminder "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
-
-    elif field_name == "kick_off_status":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.kick_off = request.POST[field_name]
-            status_object.save()
-            messages.success(request, "Successfully changed Kick off status "
-                                      "value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change Kick off "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
-
-    elif field_name == "kick_off_comment":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.kick_off_comment = request.POST[field_name]
-            status_object.save()
-            messages.success(request, "Successfully changed Kick Off Comment "
-                                      "value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change Kick Off Comment "
-                                    "value")
-            messages.debug(request, str(e))
-            return False
-
-    elif field_name == "mid_term_status":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.mid_term = request.POST[field_name]
-            status_object.save()
-            messages.success(request, "Successfully changed Mid Term status "
-                                      "value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change Mid Term "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
-
-    elif field_name == "mid_term_comment":
-        try:
-            status_object = TeamStatus.objects.get(team=team_object)
-            status_object.mid_term_comment = request.POST[field_name]
-            status_object.save()
-            messages.success(request, "Successfully changed Mid Term Comment "
-                                      "value.")
-            return True
-        except Exception as e:
-            messages.error(request, "Failed to change Mid Term "
-                                    "Comment value")
-            messages.debug(request, str(e))
-            return False
-
-    messages.debug(request, "Unknown action " + field_name)
-    return False
-
-
-def update_member_value(request, field_name):
-    """
-    Updates the member object value. This function is called only by
-    update_value when a value related to a member is to be updated. The value
-    is sent by a dialog box which contains the form.
-    :param request:     Request object that contains all the required values
-    :param field_name:  Name of the form field that contains the new value
-    :return:            True is successful else False
-    """
-
-    # Extract member id from the memeberId string
-    member_id = request.POST.get('memberId')
-
-    try:
-        member_object = Member.objects.get(pk=member_id)
-    except Member.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid Member id")
-        messages.error(request, request.POST)
-        return False
-
-    # Change Member comment
-    if field_name == "member_comment":
-        try:
-            member_object.comment = request.POST.get(field_name, "")
-            member_object.save()
-            flash_message = "Comment for member {} updated successfully".format(
-                member_object.name)
-            messages.success(request, flash_message)
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-
-    elif field_name == "receives_reminder_emails":
-        try:
-            member_object.receives_survey_reminder_emails = (
-                request.POST[field_name].lower() == 'true')
-            member_object.save()
-            flash_message = "{}'s Reminder Email setting updated " \
-                            "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-
-    elif field_name == 'secondary_role_change':
-        try:
-            short_name = request.POST.get('secondary_role_change')
-            sr_object = SecondaryRole.objects.get(short_name=short_name)
-            # If member already has role remove it
-            if member_object.secondary_role.filter(
-                    short_name=short_name).exists():
-                member_object.secondary_role.remove(sr_object)
-                messages.success(request, "Removed role {} from {}".format(
-                    sr_object.role, member_object.name))
-            else:
-                member_object.secondary_role.add(sr_object)
-                messages.success(request, "Added role {} to {}".format(
-                    sr_object.role, member_object.name
-                ))
-            member_object.save()
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-
-    # Change Member role comment
-    elif field_name == "role_comment":
-        try:
-            member_object.role_comment = request.POST.get(field_name, "")
-            member_object.save()
-            flash_message = "Role Comment for member {} updated " \
-                            "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
-        except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-    messages.debug(request, request.POST)
-    return False
 
 
 @login_required
@@ -472,7 +242,6 @@ def team_detail(request, team_id):
         team_status.save()
 
     check_warnings(team_object)
-
     intro_email_object = Email.objects.get(type="IM", default_template=True)
     reminder_email_object = Email.objects.get(type="RM", default_template=True)
     context = {
@@ -495,7 +264,6 @@ def send_email(request):
     """
     if request.method == "GET":
         return redirect(reverse(home))
-    messages.success(request, request.POST)
     subject = request.POST.get('email_subject', '')
     body = request.POST.get('email_body', '')
     to = request.POST.getlist('send_to')
