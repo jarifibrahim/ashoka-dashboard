@@ -249,6 +249,7 @@ def team_detail(request, team_id):
     absolute_url = request.build_absolute_uri(team_object.consultant_form_url)
     r_email = get_email("reminder", absolute_url)
     w_email = get_email("welcome", absolute_url)
+    lr = team_object.last_response
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
@@ -258,7 +259,7 @@ def team_detail(request, team_id):
         'welcome_email': w_email,
         'reminder_email': r_email,
         'team_warnings': team_object.warnings,
-        'last_response': team_object.last_response.submit_date
+        'last_response': lr.submit_date if lr else ''
     }
     return render(request, "team_display.html", context=context)
 

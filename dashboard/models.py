@@ -309,12 +309,13 @@ class ConsultantSurvey(models.Model):
         return ", ".join(missing_member_list)
 
     def save(self, *args, **kwargs):
-        last_date = self.team.last_response.submit_date
-        days = self.team.dashboard.reminder_emails_after
-        next_date = last_date + timedelta(days=days)
-        ts = self.team.team_status
-        ts.next_automatic_reminder = next_date
-        ts.save()
+        if self.team.last_response:
+            last_date = self.team.last_response.submit_date
+            days = self.team.dashboard.reminder_emails_after
+            next_date = last_date + timedelta(days=days)
+            ts = self.team.team_status
+            ts.next_automatic_reminder = next_date
+            ts.save()
         super(ConsultantSurvey, self).save(*args, **kwargs)
 
 
