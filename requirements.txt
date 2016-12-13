@@ -1,6 +1,8 @@
 dj-database-url==0.4.1
 Django==1.10.3
+django-post-office==2.0.8
 gunicorn==19.6.0
+jsonfield==1.0.3
 psycopg2==2.6.2
 six==1.10.0
 whitenoise==3.2.2

@@ -247,8 +247,9 @@ class Member(models.Model):
                                             related_name="secondary_role")
     comment = models.TextField("comment", blank=True)
     role_comment = models.TextField("Role Comment", blank=True)
-    participates_in_call = models.BooleanField("Pariticipates in Calls",
+    participates_in_call = models.BooleanField("Participates in Calls",
                                                default=True)
+    missing_calls = models.PositiveIntegerField("Missing Call count", default=0)
 
     def __str__(self):
         return self.name

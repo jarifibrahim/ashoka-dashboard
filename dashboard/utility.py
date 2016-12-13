@@ -1,5 +1,7 @@
 from django.contrib import messages
 from .models import Team, Member, TeamStatus, SecondaryRole, WeekWarning
+from post_office.models import EmailTemplate
+from django.template import Context, Template
 
 
 def check_warnings(team):
@@ -405,3 +407,22 @@ def update_member_value(request, field_name):
             return False
     messages.debug(request, request.POST)
     return False
+
+
+def get_email(name, data=''):
+    """
+    Returns a dictionary with email subject and message
+    :param name:    Name of the email template to use
+    :param data:    Data to be added to the message
+    :return:        Dictionary containing email subject and message
+    """
+    # Work around to convert EmailTemplate to string with required data
+    intro_email_template = EmailTemplate.objects.get(name__icontains=name)
+    template = Template(intro_email_template.content)
+    context = Context({'data': data})
+    message = template.render(context)
+
+    return {
+        'subject': intro_email_template.subject,
+        'message': message
+    }

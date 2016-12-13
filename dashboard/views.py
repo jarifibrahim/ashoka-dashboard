@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .models import Dashboard, Email, Data, AdvisoryPhase
+from .models import Dashboard, Data, AdvisoryPhase
 from .forms import ConsultantSurveyForm, FellowSurveyForm
 from .utility import *
-from django.core.mail import send_mail
+from post_office import mail
 
 
 @login_required
@@ -96,15 +96,17 @@ def consultant_submit(request, hash_value):
             messages.success(
                 request, 'Your Response has been saved Successfully. \
                           Thank you!')
+            # Send email to LRP if there is a request in the response
             if form.cleaned_data['help']:
-                email = Email.objects.get(type="CR", default_template=True)
+                email = get_email("consultant", form.cleaned_data['help'])
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
-                to = [email['email'] for email in all_emails]
-                msg = email.message.replace("#REQUEST#",
-                                            form.cleaned_data['help'])
+                to = [e['email'] for e in all_emails]
                 from_email = "jarifibrahim@gmail.com"
-                send_mail(email.subject, msg, from_email, to)
+                mail.send(to, from_email, subject=email['subject'],
+                          message=email['message'])
+                messages.success(request,
+                                 "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
         form = ConsultantSurveyForm(team=team_id)
@@ -113,6 +115,7 @@ def consultant_submit(request, hash_value):
                            'form': form})
 
 
+@login_required
 def thanks(request):
     """ Survey response acknowledgement page """
     return render(request, "thank_you.html")
@@ -127,19 +130,21 @@ def fellow_submit(request, hash_value):
         form = FellowSurveyForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(
-                request, 'Your Response has been saved Successfully. \
-                          Thank you!')
+            messages.success(request, 'Your Response has been saved '
+                                      'Successfully. Thank you!')
+
+            # Send email to LRP if there is a request in the response
             if form.cleaned_data['other_help']:
-                email = Email.objects.get(type="FR", default_template=True)
+                email = get_email("fellow", form.cleaned_data['other_help'])
                 team_object = form.cleaned_data['team']
-                all_emails = team_object.get_members_with_role(
-                    "LRP").all().values('email')
-                to = [email['email'] for email in all_emails]
-                msg = email.message.replace("#REQUEST#",
-                                            form.cleaned_data['other_help'])
+                all_emails = team_object.members.filter(
+                    role__short_name="LRP").all().values('email')
+                to = [e['email'] for e in all_emails]
                 from_email = "jarifibrahim@gmail.com"
-                send_mail(email.subject, msg, from_email, to)
+                mail.send(to, from_email, subject=email['subject'],
+                          message=email['message'])
+                messages.success(request,
+                                 "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
         form = FellowSurveyForm()
@@ -240,24 +245,25 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-    last_response = team_object.last_response.submit_date
     check_warnings(team_object)
-    intro_email_object = Email.objects.get(type="IM", default_template=True)
-    reminder_email_object = Email.objects.get(type="RM", default_template=True)
+    absolute_url = request.build_absolute_uri(team_object.consultant_form_url)
+    r_email = get_email("reminder", absolute_url)
+    w_email = get_email("welcome", absolute_url)
     context = {
         'team': team_object,
         'team_members': team_object.members.all(),
         'team_status': team_status,
         'consultant_responses': team_object.consultant_surveys.all(),
         'fellow_responses': team_object.fellow_surveys.all(),
-        'intro_email': intro_email_object,
-        'reminder_email': reminder_email_object,
+        'welcome_email': w_email,
+        'reminder_email': r_email,
         'team_warnings': team_object.warnings,
-        'last_response': last_response
+        'last_response': team_object.last_response.submit_date
     }
     return render(request, "team_display.html", context=context)
 
 
+@login_required
 def send_email(request):
     """
     Sends email to a list of recipients. All required data is received
@@ -277,10 +283,18 @@ def send_email(request):
     elif not body:
         messages.error(request, "Cannot send email without Email Body")
         return redirect(request.META.get('HTTP_REFERER', 'index'))
-    send_mail(subject, body, "admin@ashoka.org", to, fail_silently=False)
+    mail.send(
+        to,
+        "jarifibrahim@gmail.com",
+        subject=subject,
+        message=body,
+        priority='now',
+    )
+
     return redirect(request.META.get('HTTP_REFERER', 'index'))
 
 
+@login_required
 def show_warnings(request):
     warnings = list(WeekWarning.objects.all())
     phases = list(AdvisoryPhase.objects.all())
