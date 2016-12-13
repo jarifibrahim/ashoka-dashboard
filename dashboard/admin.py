@@ -70,11 +70,6 @@ class AdvisoryPhaseAdmin(admin.ModelAdmin):
     ordering = ('phase_number',)
 
 
-class EmailAdmin(admin.ModelAdmin):
-    list_display = ['name', 'type', 'subject', 'default_template']
-    list_filter = ['type']
-
-
 class WeekWarningAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'phase_y', 'phase_r']
     ordering = ('week_number',)
@@ -92,7 +87,6 @@ admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
 admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
 admin.site.register(FellowSurvey)
 admin.site.register(SecondaryRole)
-#admin.site.register(Email, EmailAdmin)
 admin.site.register(TeamStatus, TeamStatusAdmin)
 admin.site.register(WeekWarning, WeekWarningAdmin)
 admin.site.register(TeamWarning)
