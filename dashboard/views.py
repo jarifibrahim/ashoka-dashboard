@@ -103,8 +103,7 @@ def consultant_submit(request, hash_value):
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
-                from_email = "jarifibrahim@gmail.com"
-                mail.send(to, from_email, subject=email['subject'],
+                mail.send(to, subject=email['subject'],
                           message=email['message'])
                 messages.success(request,
                                  "Email with your request will be sent to LRP.")
@@ -141,8 +140,7 @@ def fellow_submit(request, hash_value):
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
-                from_email = "jarifibrahim@gmail.com"
-                mail.send(to, from_email, subject=email['subject'],
+                mail.send(to, subject=email['subject'],
                           message=email['message'])
                 messages.success(request,
                                  "Email with your request will be sent to LRP.")
@@ -296,7 +294,6 @@ def send_email(request):
         return redirect(request.META.get('HTTP_REFERER', 'index'))
     mail.send(
         to,
-        "jarifibrahim@gmail.com",
         subject=subject,
         message=body,
         priority='now',

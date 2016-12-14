@@ -471,5 +471,5 @@ def send_reminder_email(team, next_date):
     to = []
     if recipients:
         to = [r['email'] for r in recipients.values('email').all()]
-    mail.send(to, "jarifibrahim@gmail.com", subject=email['subject'],
+    mail.send(to, subject=email['subject'],
               message=email['message'], scheduled_time=next_date)

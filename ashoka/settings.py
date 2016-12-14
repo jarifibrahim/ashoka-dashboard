@@ -140,7 +140,8 @@ EMAIL_PORT = os.getenv('EMAIL_PORT', '')
 # Optional SMTP authentication information for EMAIL_HOST.
 EMAIL_HOST_USER = os.getenv('EMAIL_ID', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', '')
-
+DEFAULT_FROM_EMAIL = os.getenv('FROM_EMAIL', '')
+EMAIL_USE_TLS = True
 
 try:
     from .local_settings import *
