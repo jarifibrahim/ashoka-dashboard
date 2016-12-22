@@ -26,19 +26,15 @@ class ConsultantSurveyForm(forms.ModelForm):
         choices=((False, 'No'), (True, 'Yes')))
 
     def __init__(self, *args, **kwargs):
-        team = kwargs.pop('team')
         super(ConsultantSurveyForm, self).__init__(*args, **kwargs)
         self.fields['call_date'].widget.attrs['class'] = 'datepicker'
         self.fields['missing_member'].widget = forms.CheckboxSelectMultiple()
-        # Add only members that belong to 'team'
-        self.fields['missing_member'].queryset = Member.objects.filter(
-            team=team, participates_in_call=True)
 
     class Meta:
         model = ConsultantSurvey
         required_css_class = 'required'
         fields = '__all__'
-        exclude = ['team', 'submit_date']
+        exclude = ['submit_date']
         widgets = {
             'other_comments': forms.Textarea(attrs={'class': 'form-control'}),
             'document_link': forms.TextInput,
@@ -52,7 +48,7 @@ class ConsultantSurveyForm(forms.ModelForm):
             'other_comments': 'Is there any other thing you would \
                                 like to tell us?',
             'all_prepared': 'Were all participants prepared for the call?',
-            'missing_member': 'Who was missing?',
+            'missing_member': 'Who was missing? (Please select a Team first)',
             'document_link': 'Link to current working document.',
             'help': 'Is there anything Ashoka Globalizer Team can help you'
                     ' with? (If you fill out this field, an email will be '

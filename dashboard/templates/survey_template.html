@@ -2,80 +2,114 @@
 {% load static %}
 {% block stylesheet %}
 
-<link rel="stylesheet" href="{% static 'dashboard/css/jquery-ui.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'dashboard/css/jquery-ui.min.css' %}">
 
-<style type="text/css">
-    ul {
-        list-style: none;
-        padding: 0px;
-    }
-    .form-control {
-        width: inherit;
-    }
-    label {
-        font-weight: bold;
-        color: rgb(51,51,51);
-        font-size: 14px;
-    }
-    .errorlist {
-        color: #f00;
-    }
-    span.helptext {
-        display: block;
-    }
-</style>
+    <style type="text/css">
+        ul {
+            list-style: none;
+            padding: 0px;
+        }
+
+        .form-control {
+            width: inherit;
+        }
+
+        label {
+            font-weight: bold;
+            color: rgb(51, 51, 51);
+            font-size: 14px;
+        }
+
+        .errorlist {
+            color: #f00;
+        }
+
+        span.helptext {
+            display: block;
+        }
+    </style>
 {% endblock %}
 {% block content %}
-<div class="container">
-<h3>
-    <span class="text-primary">
-    {% if team %}
-    {{ team|upper }}
-    </span>
-     Team
-    {% else %}
-     Fellow
-    {% endif %}
-     Survey
-</h3>
-  <form class="form-horizontal" method="POST" autocomplete="off">
-    {% csrf_token %}
-    <table class="table">
-    {{ form.as_table }}
+    <div class="container">
+        <h3>
+        <span class="text-primary">
+        {% if cs %}
+            Consultant
+            </span>
+        {% else %}
+            Fellow
+        {% endif %}
+            Survey
+        </h3>
+        <form class="form-horizontal" method="POST" autocomplete="off">
+            {% csrf_token %}
+            <table class="table">
+                {{ form.as_table }}
 
-  </table>
-    <div class="form-group">
-        <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" class="btn btn-default">Submit Form</button>
-        </div>
+            </table>
+            <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                    <button type="submit" class="btn btn-default">Submit Form
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
-  </form>
-</div>
 
 
 {% endblock %}
 {% block javascript %}
-<script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
 
-<script type="text/javascript">
-    $("label").addClass("form-label");
-    $("td > input").addClass("form-control");
-    $("td > select").addClass("form-control");
-    $("td > textarea").addClass("form-control");
-    // Remove unnecessary <br>
-    $("#id_missing_member").next().remove();
-    $('#id_all_prepared').next().remove();
-    $('textarea#id_help').next().remove();
+    <script type="text/javascript">
+        $("label").addClass("form-label");
+        $("td > input").addClass("form-control");
+        $("td > select").addClass("form-control");
+        $("td > textarea").addClass("form-control");
+        // Remove unnecessary <br>
+        $("#id_missing_member").next().remove();
+        $('#id_all_prepared').next().remove();
+        $('textarea#id_help').next().remove();
 
-    // Move helptext above input field
-    $('span.helptext').each(function(s){
-       $(this).prependTo($(this).parent());
-    });
-    $( ".datepicker" ).datepicker({
-        changeMonth: true,
-        showAnim: 'slideDown',
-        showStatus: true,
-    });
+        // Move helptext above input field
+        $('span.helptext').each(function (s) {
+            $(this).prependTo($(this).parent());
+        });
+        $(".datepicker").datepicker({
+            changeMonth: true,
+            showAnim: 'slideDown',
+            showStatus: true,
+        });
 
-</script>
+        {% if cs %}
+            $('#id_team').on('change', function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/members/",
+                    data: {
+                        team_id: $('#id_team').val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (member_list) {
+                        $('#data1').text(member_list);
+                        console.log(member_list);
+                        var main_ul = $('#id_missing_member');
+                        main_ul.empty();
+                        var mlist = $.parseJSON(member_list.replace(/'/g, '"'));
+                        mlist.forEach(function (member) {
+                            console.log(member);
+                            var html = $('<li>').append('<label class="form-label">' +
+                                '<input type="checkbox" name="missing_member" ' +
+                                'value=' + member.id + '> ' + member.name + '</label>');
+                            main_ul.append(html);
+                        });
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                })
+            });
+        {% endif %}
+    </script>
 {% endblock %}

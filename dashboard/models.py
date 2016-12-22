@@ -59,6 +59,15 @@ class Dashboard(models.Model):
     total_weeks = property(_get_total_weeks)
 
     @property
+    def consultant_form_url(self):
+        """
+        Returns encrypted form url for the Consultant Survey
+        :return: Encrypted url
+        """
+        hash_value = Data.encode_data(self.id)
+        return reverse('consultant_survey', kwargs={'hash_value': hash_value})
+
+    @property
     def fellow_form_url(self):
         """
         Returns the encrypted form url for the Fellow Survey
@@ -161,15 +170,6 @@ class Team(models.Model):
         if entry:
             return entry.latest('submit_date')['comments']
         return ""
-
-    @property
-    def consultant_form_url(self):
-        """
-        Returns encrypted form url for the Consultant Survey
-        :return: Encrypted url
-        """
-        hash_value = Data.encode_data(self.id)
-        return reverse('consultant_survey', kwargs={'hash_value': hash_value})
 
     @property
     def last_consultant_rating(self):

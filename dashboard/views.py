@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, WeekWarning
+from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, \
+    WeekWarning
 from . import forms
 from .utility import *
+from django.http import HttpResponse, Http404
 
 
 @login_required
@@ -77,11 +79,12 @@ def dashboard_overview(request, dashboard_id):
 @login_required
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
-    team_id = Data.decode_data(hash_value)
-    team_object = get_object_or_404(Team, pk=team_id)
+    dashboard = Data.decode_data(hash_value)
+    get_object_or_404(Dashboard, pk=int(dashboard))
     if request.method == 'POST':
-        form = forms.ConsultantSurveyForm(request.POST, team=team_id)
+        form = forms.ConsultantSurveyForm(request.POST)
         if form.is_valid():
+            team_object = form.cleaned_data['team']
             # It is necessary to save the object without commit
             # and then add the team id
             entry = form.save(commit=False)
@@ -109,9 +112,9 @@ def consultant_submit(request, hash_value):
                                  "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
-        form = forms.ConsultantSurveyForm(team=team_id)
+        form = forms.ConsultantSurveyForm()
     return render(request, "survey_template.html",
-                  context={'team': team_object.name,
+                  context={'cs': True,
                            'form': form})
 
 
@@ -154,18 +157,11 @@ def fellow_submit(request, hash_value):
 def show_urls(request):
     """ Show all form urls """
     dashboards = Dashboard.objects.all()
-    fellow_survey_urls = list()
+    survey_urls = list()
     for d in dashboards:
-        fellow_survey_urls.append(dict(name=d.name, url=d.fellow_form_url))
-    teams = Team.objects.all().order_by('id')
-    consultant_survey_urls = list()
-    for t in teams:
-        consultant_survey_urls.append(
-            dict(name=t.name, url=t.consultant_form_url))
-
+        survey_urls.append(dict(name=d.name, f_url=d.fellow_form_url, c_url=d.consultant_form_url))
     return render(request, "show_urls.html",
-                  context={'f_urls': fellow_survey_urls,
-                           'c_urls': consultant_survey_urls})
+                  context={'survey_urls': survey_urls})
 
 
 @login_required
@@ -244,7 +240,7 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-    absolute_url = request.build_absolute_uri(team_object.consultant_form_url)
+    absolute_url = request.build_absolute_uri(team_object.dashboard.consultant_form_url)
     r_email = create_email("reminder", absolute_url)
     w_email = create_email("welcome", absolute_url)
     lr = team_object.last_response
@@ -308,3 +304,20 @@ def show_warnings(request):
     phases = list(AdvisoryPhase.objects.all())
     return render(request, 'show_warnings.html', context={
         'warnings': warnings, 'phases': phases})
+
+
+@login_required
+def get_members(request):
+    if request.is_ajax():
+        try:
+            team_id = request.POST.get('team_id')
+            team = get_object_or_404(Team, pk=int(team_id))
+            member_list = list(team.members.filter(participates_in_call=True).values(
+                'name', 'id'))
+            if not member_list:
+                return HttpResponse("No Team members found")
+            return HttpResponse(str(member_list))
+        except Exception as e:
+            return HttpResponse(e)  # incorrect post
+    else:
+        raise Http404
