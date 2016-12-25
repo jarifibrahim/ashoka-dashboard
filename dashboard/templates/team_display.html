@@ -135,7 +135,7 @@
                         Consultant Survey URL: <a
                             href="{{ team.consultant_form_url }}"
                             target="_blank">
-                        {{ request.META.HTTP_HOST }}{{ team.consultant_form_url }}
+                        http:/{{ request.META.HTTP_HOST }}{{ team.consultant_form_url }}
                     </a>
                     </td>
                 </tr>

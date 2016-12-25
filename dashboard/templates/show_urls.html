@@ -7,11 +7,11 @@
                     <tr>
                         <td>{{ u.name }}</td>
                         <td> Fellow URL: <a
-                                href='{{ request.META.HTTP_HOST }}{{ u.f_url }}'>
-                            {{ request.META.HTTP_HOST }}{{ u.f_url }}</a></td>
+                                href='{{ u.f_url }}'>
+                            http:/{{ request.META.HTTP_HOST }}{{ u.f_url }}</a></td>
                         <td> Consultant URL: <a
-                                href='{{ request.META.HTTP_HOST }}{{ u.c_url }}'>
-                            {{ request.META.HTTP_HOST }}{{ u.c_url }}</a></td>
+                                href='{{ u.c_url }}'>
+                            http:/{{ request.META.HTTP_HOST }}{{ u.c_url }}</a></td>
                     </tr>
                 {% endfor %}
             </table>
