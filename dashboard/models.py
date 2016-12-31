@@ -377,6 +377,9 @@ class TeamStatus(models.Model):
     def __str__(self):
         return str(self.team)
 
+    class Meta:
+        verbose_name_plural = "Team status"
+        verbose_name = "Team status"
 
 class WeekWarning(models.Model):
     """

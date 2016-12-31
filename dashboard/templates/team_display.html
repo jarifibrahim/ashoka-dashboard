@@ -135,7 +135,7 @@
                         Consultant Survey URL: <a
                             href="{{ team.consultant_form_url }}"
                             target="_blank">
-                        http:/{{ request.META.HTTP_HOST }}{{ team.consultant_form_url }}
+                        http://{{ request.META.HTTP_HOST }}{{ team.consultant_form_url }}
                     </a>
                     </td>
                 </tr>
@@ -596,39 +596,6 @@
             </div>
         </div> <!-- Team management -->
 
-        <!-- Fellow responses -->
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"></span>
-                <span class="glyphicon glyphicon-arrow-up"
-                      style="display: none;"></span>
-                <h4 class="text-success show-hide-div-title"> Fellow
-                    Responses</h4>
-            </div>
-        </a>
-        <div id="fellow-responses-div">
-            <table class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Submit Date</th>
-                    <th>Rating</th>
-                    <th>Comments</th>
-                    <th>Help</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for response in f_responses %}
-                    <tr>
-                        <td>{{ response.submit_date|date:"d/M" }}</td>
-                        <td>{{ response.phase_rating|default:"" }}</td>
-                        <td>{{ response.comments }}</td>
-                        <td>{{ response.other_help }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div> <!-- Fellow Responses -->
-
         <!-- Consultant responses -->
         <a class="show-hide-div btn">
             <div class="well row">
@@ -673,6 +640,39 @@
                 </tbody>
             </table>
         </div> <!-- Consultant Responses -->
+
+        <!-- Fellow responses -->
+        <a class="show-hide-div btn">
+            <div class="well row">
+                <span class="glyphicon glyphicon-arrow-down"></span>
+                <span class="glyphicon glyphicon-arrow-up"
+                      style="display: none;"></span>
+                <h4 class="text-success show-hide-div-title"> Fellow
+                    Responses</h4>
+            </div>
+        </a>
+        <div id="fellow-responses-div">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>Submit Date</th>
+                    <th>Rating</th>
+                    <th>Comments</th>
+                    <th>Help</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for response in f_responses %}
+                    <tr>
+                        <td>{{ response.submit_date|date:"d/M" }}</td>
+                        <td>{{ response.phase_rating|default:"" }}</td>
+                        <td>{{ response.comments }}</td>
+                        <td>{{ response.other_help }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div> <!-- Fellow Responses -->
 
         <div id="dialog-email" title="Send Email" style="display: none;">
             <form class="form" id="email-form" method="POST"

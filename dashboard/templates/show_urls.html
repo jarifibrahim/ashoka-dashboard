@@ -8,10 +8,10 @@
                         <td>{{ u.name }}</td>
                         <td> Fellow URL: <a
                                 href='{{ u.f_url }}'>
-                            http:/{{ request.META.HTTP_HOST }}{{ u.f_url }}</a></td>
+                            http://{{ request.META.HTTP_HOST }}{{ u.f_url }}</a></td>
                         <td> Consultant URL: <a
                                 href='{{ u.c_url }}'>
-                            http:/{{ request.META.HTTP_HOST }}{{ u.c_url }}</a></td>
+                            http://{{ request.META.HTTP_HOST }}{{ u.c_url }}</a></td>
                     </tr>
                 {% endfor %}
             </table>
