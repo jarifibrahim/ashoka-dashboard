@@ -25,6 +25,37 @@
         .progress {
             margin-bottom: 7px;
         }
+
+        /* Start by setting display:none to make this hidden.
+       Then we position it in relation to the viewport window
+       with position:fixed. Width, height, top and left speak
+       for themselves. Background we set to 80% white with
+       our animation centered, and no-repeating */
+        .modal {
+            display:    none;
+            position:   fixed;
+            z-index:    1000;
+            top:        0;
+            left:       0;
+            height:     100%;
+            width:      100%;
+            background: rgba( 255, 255, 255, .8 )
+                        url('http://i.stack.imgur.com/FhHRx.gif')
+                        50% 50%
+                        no-repeat;
+        }
+
+        /* When the body has the loading class, we turn
+           the scrollbar off with overflow:hidden */
+        body.loading {
+            overflow: hidden;
+        }
+
+        /* Anytime the body has the loading class, our
+           modal element will be visible */
+        body.loading .modal {
+            display: block;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -176,65 +207,107 @@
             </tr>
 
             <tr>
-                <td colspan="{{ LRPs|length|add:"1" }}">Team Warnings</td>
+                <td colspan="{{ LRPs|length|add:"1" }}" class="bg-primary">
+                    <span>Team Warnings  </span>
+                    <a href="#" style="color:#AAA;" id='refresh'>(Click here to refresh all warnings)</a>
+                </td>
+            </tr>
+            <tr class="bg-primary">
+                <td style="color:#000;">Warning Type</td>
+                {% for team in teams %}
+                    <td><a href="{% url 'team_display' team.teamid %}"
+                           style="color:#000;"> {{ team.teamid }}: {{ team.name }} </a>
+                    </td>
+                {% endfor %}
             </tr>
             <tr>
                 <td>Call Count</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.call_count }}">{{ warning.call_count_comment }}</td>
+                    <td class="{{ warning.call_count }}" title="{{ warning.call_count_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Phase</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.phase }}">{{ warning.phase_comment }}</td>
+                    <td class="{{ warning.phase }}" title="{{ warning.phase_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Kick Off</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.kick_off }}">{{ warning.kick_off_comment }}</td>
+                    <td class="{{ warning.kick_off }}" title="{{ warning.kick_off_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Mid Term</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.mid_term }}">{{ warning.mid_term_comment }}</td>
+                    <td class="{{ warning.mid_term }}" title="{{ warning.mid_term_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Unprepared Calls</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.unprepared_call }}">{{ warning.unprepared_call_comment }}</td>
+                    <td class="{{ warning.unprepared_call }}" title="{{ warning.unprepared_call_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Consultant Rating</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.consultant_rating }}">{{ warning.consultant_rating_comment }}</td>
+                    <td class="{{ warning.consultant_rating }}" title="{{ warning.consultant_rating_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>
                 <td>Fellow Rating</td>
                 {% for warning in team_warnings %}
-                    <td class="{{ warning.fellow_rating }}">{{ warning.fellow_rating_comment }}</td>
+                    <td class="{{ warning.fellow_rating }}" title="{{ warning.fellow_rating_comment }}"></td>
                 {% endfor %}
             </tr>
             </tbody>
         </table>
     </div>
+    <div class="modal"><!-- Place at bottom of page --></div>
 {% endblock %}
 
 {% block javascript %}
     <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
     <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}"></script>
     <script>
-        $(function () {
+        $(function(){
+            $(document).tooltip();
+        });
+
+        $(function(){
             $("table").colResizable({resizeMode: 'overflow'});
             $('.hidden-submit-form').change(function () {
                 $(this).find('#submit-button').show();
             });
 
         });
+
+
+        $body = $("body");
+        $(document).on({
+            ajaxStart: function() { $body.addClass("loading"); },
+             ajaxStop: function() { $body.removeClass("loading"); }    
+        });
+
+        $('#refresh').click(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'refresh_warnigs' %}",
+                    data: {
+                        dashboard_id: '{{ dashboard.id }}',
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    timeout : 15000,  //timeout of the ajax call
+                    success: function (responseText) {
+                        alert(responseText);
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                })
+            });
     </script>
 {% endblock %}

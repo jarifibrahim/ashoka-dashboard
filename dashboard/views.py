@@ -71,7 +71,8 @@ def dashboard_overview(request, dashboard_id):
         'lrp_comment': lrp_comment_and_teamid,
         'dates': dates,
         'team_warnings': team_warnings,
-        'progress_percentage': progress_percentage
+        'progress_percentage': progress_percentage,
+        'dashboard': dashboard
     }
     return render(request, "dashboard_display.html", context=context)
 
@@ -251,7 +252,7 @@ def team_detail(request, team_id):
                                          '') if current_week else None
     calls = {
         'total': total_calls,
-        'expected': int(expected_calls) + 1
+        'expected': int(expected_calls) + 1 if expected_calls else 0
     }
     context = {
         'team': team_object,
@@ -308,15 +309,48 @@ def show_warnings(request):
 
 @login_required
 def get_members(request):
+    """
+    Handles the AJAX request sent by the Consultant survey form.
+    :returns: list of members
+    """
     if request.is_ajax():
         try:
             team_id = request.POST.get('team_id')
-            team = get_object_or_404(Team, pk=int(team_id))
+            try:
+                team_id = int(team_id)
+            except ValueError:
+                return HttpResponse("Invalid Team ID: ", team_id)
+            team = get_object_or_404(Team, pk=team_id)
             member_list = list(team.members.filter(participates_in_call=True).values(
                 'name', 'id'))
             if not member_list:
                 return HttpResponse("No Team members found")
             return HttpResponse(str(member_list))
+        except Exception as e:
+            return HttpResponse(e)  # incorrect post
+    else:
+        raise Http404
+
+
+@login_required
+def refresh_team_warnings(request):
+    """
+    Handles the AJAX request sent from the dashboard page to refresh team
+    warnings.
+    """
+    if request.is_ajax():
+        try:
+            dashboard_id = request.POST.get('dashboard_id')
+            try:
+                dashboard_id = int(dashboard_id)
+            except ValueError:
+                return HttpResponse("Invalid Dashboard ID: ", dashboard_id)
+            dashboard = get_object_or_404(Dashboard, pk=dashboard_id)
+            for team in dashboard.teams.all():
+                update_warnings_object = UpdateWarnings(team)
+                update_warnings_object.check_all_warnings()
+            return HttpResponse(
+                "Warnings related to all teams refreshed successfully")
         except Exception as e:
             return HttpResponse(e)  # incorrect post
     else:

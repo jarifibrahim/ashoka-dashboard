@@ -42,8 +42,16 @@ class Dashboard(models.Model):
     advisory_start_date = models.DateField("Start date of Advisory Process")
     advisory_end_date = models.DateField("End date of Advisory Process")
     reminder_emails_after = models.PositiveIntegerField(
-        "Reminder emails should be sent after this many days from last "
+        "Reminder emails should be sent after how many days from last "
         "response submit", default=9)
+    help_text = 'Total Number of Red warnings greater than this value will '\
+                'mark the Team as Red.'
+    overall_r = models.PositiveIntegerField(
+        "Overall - Red", help_text=help_text, default=0)
+    help_text = 'Total Number of Yellow warnings greater than this value '\
+                'will mark the Team as Yellow.'
+    overall_y = models.PositiveIntegerField(
+        "Overall - Yellow", help_text=help_text, default=0)
 
     class Meta:
         verbose_name_plural = "Dashboards"
@@ -113,9 +121,9 @@ class Team(models.Model):
 
     # Create Team Status and Team Warning Models when a new Team is created
     def save(self, *arg, **kwargs):
+        super(Team, self).save(*arg, **kwargs)
         TeamStatus.objects.get_or_create(team=self.id, defaults={'team': self})
         TeamWarning.objects.get_or_create(team=self.id, defaults={'team': self})
-        super(Team, self).save(*arg, **kwargs)
 
     def __str__(self):
         return self.name
@@ -318,7 +326,7 @@ class ConsultantSurvey(models.Model):
             utility.send_reminder_email(self.team, next_date)
             ts = self.team.team_status
             ts.next_automatic_reminder = next_date
-            #ts.save()
+            ts.save()
         super(ConsultantSurvey, self).save(*args, **kwargs)
 
 
@@ -380,6 +388,7 @@ class TeamStatus(models.Model):
     class Meta:
         verbose_name_plural = "Team status"
         verbose_name = "Team status"
+
 
 class WeekWarning(models.Model):
     """
@@ -559,3 +568,40 @@ class TeamWarning(models.Model):
 
     def __str__(self):
         return str(self.team) + " Warnings"
+
+    def get_warnings_count(self):
+        """
+        Returns Yellow and Red warning count
+        """
+        r_count = 0
+        r_count += 1 if self.call_count == "R" else 0
+        r_count += 1 if self.phase == "R" else 0
+        r_count += 1 if self.kick_off == "R" else 0
+        r_count += 1 if self.mid_term == "R" else 0
+        r_count += 1 if self.unprepared_call == "R" else 0
+        r_count += 1 if self.consultant_rating == "R" else 0
+        r_count += 1 if self.fellow_rating == "R" else 0
+
+        y_count = 0
+        y_count += 1 if self.call_count == "Y" else 0
+        y_count += 1 if self.phase == "Y" else 0
+        y_count += 1 if self.kick_off == "Y" else 0
+        y_count += 1 if self.mid_term == "Y" else 0
+        y_count += 1 if self.unprepared_call == "Y" else 0
+        y_count += 1 if self.consultant_rating == "Y" else 0
+        y_count += 1 if self.fellow_rating == "Y" else 0
+        return r_count, y_count
+
+    def save(self, *arg, **kwargs):
+        """
+        Update team status color when any status value changes
+        """
+        r_count, y_count = self.get_warnings_count()
+        if r_count > self.team.dashboard.overall_r:
+            self.team.status_color = "R"
+        elif y_count > self.team.dashboard.overall_y:
+            self.team.status_color = "Y"
+        else:
+            self.team.status_color = "G"
+        self.team.save()
+        super(TeamWarning, self).save(*arg, **kwargs)
