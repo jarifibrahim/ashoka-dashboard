@@ -34,7 +34,8 @@ def dashboard_overview(request, dashboard_id):
     for team in all_teams:
         team_list.append({
             'teamid': team.id,
-            'name': team.name
+            'name': team.name,
+            'kick_off': team.team_status.get_kick_off_display()
         })
 
         role_members = team.members.filter(role__short_name="LRP")
@@ -190,8 +191,10 @@ def update_value(request):
     }
     possible_status_change = {
         'kick_off_status': 'kick_off_status',
+        'systemic_vision_status': 'systemic_vision_status',
         'mid_term_status': 'mid_term_status',
         'kick_off_comment': 'kick_off_comment',
+        'systemic_vision_comment': 'systemic_vision_comment',
         'mid_term_comment': 'mid_term_comment',
         'change_calls_count': 'change_calls_count',
         'Automatic Reminder Status': 'automatic_reminder_status',

@@ -373,6 +373,7 @@
                         <th>Calls</th>
                         <th>Received Reminder Emails</th>
                         <th>Kick Off</th>
+                        <th>Systemic Vision</th>
                         <th>Mid Term</th>
                     </tr>
                     </thead>
@@ -380,6 +381,7 @@
                     <tr>
                         <td>{{ calls.total }} calls / {{ calls.expected }} expected</td>
                         <td>Automatic Reminders</td>
+                        <td>Status</td>
                         <td>Status</td>
                         <td>Status</td>
                     </tr>
@@ -481,7 +483,47 @@
                                            value="Save">
                                 </div>
                             </form>
-                        </td>
+                        </td> <!-- Kick off status change form -->
+                        <td>
+                            <form action="{% url 'update' %}" method="post"
+                                  class="form hidden-submit-form">
+                                {% csrf_token %}
+                                <input type="text" value="{{ team.id }}"
+                                       name="teamId" hidden>
+                                <div class="form-group">
+                                    <select name="systemic_vision_status"
+                                            id="systemic-vision-status"
+                                            class="form-control">
+                                        <option value="NS"
+                                                {% ifequal team_status.systemic_vision "NS" %}
+                                                selected
+                                                {% endifequal %}>Not Started
+                                        </option>
+                                        <option value="IMS"
+                                                {% ifequal team_status.systemic_vision "IMS" %}
+                                                selected
+                                                {% endifequal %}>Intro Mail Sent
+                                        </option>
+                                        <option value="DA"
+                                                {% ifequal team_status.systemic_vision "DA" %}
+                                                selected
+                                                {% endifequal %}>Date Arranged
+                                        </option>
+                                        <option value="CH"
+                                                {% ifequal team_status.systemic_vision "CH" %}
+                                                selected
+                                                {% endifequal %}>Call happened
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
+                                </div>
+                            </form>
+                        </td> <!-- Systemic Vision Change form -->
                         <td>
                             <form action="{% url 'update' %}" method="post"
                                   class="form hidden-submit-form">
@@ -521,7 +563,7 @@
                                            value="Save">
                                 </div>
                             </form>
-                        </td>
+                        </td> <!-- Mid Term status change form -->
                     </tr>
                     <tr>
                         <td>
@@ -538,16 +580,16 @@
                         </td>
                         <td>
                         {% if team_status.last_automatic_reminder %}
-                            Last automatic reminder sent on
+                            Last automatic reminder sent on: <br>
                             {{ team_status.last_automatic_reminder }}
                         {% else %}
                             Automatic Reminders not yet sent.
                         {% endif %}
                             <br>
-                            Last response received on
+                            Last response received on: <br>
                             {{ last_response }}
                             <br>
-                            Next automatic reminder will be sent on
+                            Next automatic reminder will be sent on: <br>
                         {% if team_status.next_automatic_reminder %}
                             {{ team_status.next_automatic_reminder }}
                         {% endif %}
@@ -562,6 +604,25 @@
                                     <label class="form-label">Comment</label>
                                     <textarea class="form-control"
                                               name="kick_off_comment">{{ team_status.kick_off_comment }}</textarea>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form class="form hidden-submit-form" method="post"
+                                  action="{% url 'update' %}">
+                                {% csrf_token %}
+                                <input type="text" hidden name="teamId"
+                                       value="{{ team.id }}">
+                                <div class="form-group">
+                                    <label class="form-label">Comment</label>
+                                    <textarea class="form-control"
+                                              name="systemic_vision_comment">{{ team_status.systemic_vision_comment }}</textarea>
                                 </div>
                                 <div class="form-group" id="submit-button"
                                      style="display: none;">

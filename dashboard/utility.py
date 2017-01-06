@@ -318,6 +318,34 @@ def update_team_status_value(request, field_name):
             messages.debug(request, str(e))
             return False
 
+    elif field_name == "systemic_vision_status":
+        try:
+            status_object = models.TeamStatus.objects.get(team=team_object)
+            status_object.systemic_vision = request.POST[field_name]
+            status_object.save()
+            messages.success(request, "Successfully changed Systemic Vision "
+                                      "status value.")
+            return True
+        except Exception as e:
+            messages.error(request, "Failed to change Systemic Vision "
+                                    "status value")
+            messages.debug(request, str(e))
+            return False
+
+    elif field_name == "systemic_vision_comment":
+        try:
+            status_object = models.TeamStatus.objects.get(team=team_object)
+            status_object.systemic_vision_comment = request.POST[field_name]
+            status_object.save()
+            messages.success(request, "Successfully changed Systemic Vision "
+                                      "Comment value.")
+            return True
+        except Exception as e:
+            messages.error(request, "Failed to change Systemic Vision Comment "
+                                    "value")
+            messages.debug(request, str(e))
+            return False
+
     elif field_name == "mid_term_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)

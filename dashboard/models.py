@@ -382,6 +382,12 @@ class TeamStatus(models.Model):
                                 default='NS', max_length=5)
     mid_term_comment = models.TextField("Mid Term Comment", blank=True)
 
+    systemic_vision = models.CharField(
+        "Systemic Vision Status", choices=KICK_OFF_CHOICES, default='NS',
+        max_length=5)
+    systemic_vision_comment = models.TextField(
+        "Systemic Vision Comment", blank=True)
+
     def __str__(self):
         return str(self.team)
 
