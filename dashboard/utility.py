@@ -493,7 +493,7 @@ def send_reminder_email(team, next_date):
     # Add automatic reminder only if automatic_reminder is true
     if not team.team_status.automatic_reminder:
         return
-    url = 'http:/' + team.consultant_form_url
+    url = 'http:/' + team.dashboard.consultant_form_url
     email = create_email('reminder', url)
     recipients = team.members.filter(secondary_role__short_name="PC")
     to = []

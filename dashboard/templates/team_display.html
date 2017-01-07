@@ -815,7 +815,7 @@
                 var form = $('#email-form');
                 var subject;
                 var message;
-                var url = "{{ request.META.HTTP_HOST }}{{ team.consultant_form_url|escapejs}}";
+                var url = "{{ request.META.HTTP_HOST }}{{ team.dashboard.consultant_form_url|escapejs}}";
                 url = "http://" + url;
 
                 /*
