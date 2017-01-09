@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, \
-    WeekWarning
+    WeekWarning, TeamWarning
 from . import forms
 from .utility import *
 from django.http import HttpResponse, Http404
@@ -32,10 +32,17 @@ def dashboard_overview(request, dashboard_id):
     lrp_comment_and_teamid, status_and_teamid = (list() for _ in range(2))
     team_warnings = list()
     for team in all_teams:
+        # Create new team status if it does not exits
+        try:
+            kof = team.team_status.get_kick_off_display()
+        except TeamStatus.DoesNotExist:
+            ts = TeamStatus(team=team)
+            ts.save()
+            kof = team.team_status.get_kick_off_display()
         team_list.append({
             'teamid': team.id,
             'name': team.name,
-            'kick_off': team.team_status.get_kick_off_display()
+            'kick_off': kof
         })
 
         role_members = team.members.filter(role__short_name="LRP")
@@ -52,8 +59,13 @@ def dashboard_overview(request, dashboard_id):
             'teamid': team.id,
             'comment': team.lrp_comment
         })
-        team_warnings.append(team.warnings)
-
+        # Create new team warnings if it does not exits
+        try:
+            team_warnings.append(team.warnings)
+        except TeamWarning.DoesNotExist:
+            tw = TeamWarning(team=team)
+            tw.save()
+            team_warnings.append(team.warnings)
     dates = {
         'start_date': dashboard.advisory_start_date,
         'end_date': dashboard.advisory_end_date,

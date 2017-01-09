@@ -69,6 +69,8 @@ class UpdateWarnings:
                     msg = "Current Phase:{1} is Expected Phase:{0}"
                     msg = msg.format(green, current_phase)
                     return self.status['green'], msg
+            msg = "No warnings found"
+            return self.status['green'], msg
         msg = "No consultant responses found"
         return self.status['green'], msg
 

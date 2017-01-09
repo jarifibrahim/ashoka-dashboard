@@ -109,7 +109,7 @@ class Team(models.Model):
         ('GREEN', 'All good!')
     )
     status_choice = models.CharField(
-        "Team status choices", choices=STATUS_CHOICES, max_length=7,
+        "Team status evaluation", choices=STATUS_CHOICES, max_length=7,
         default='AUTO')
     COLOR_CHOICES = (
         ('G', 'Green'),
@@ -118,12 +118,6 @@ class Team(models.Model):
     )
     status_color = models.CharField("Team status color", choices=COLOR_CHOICES,
                                     max_length=3, default='G')
-
-    # Create Team Status and Team Warning Models when a new Team is created
-    def save(self, *arg, **kwargs):
-        super(Team, self).save(*arg, **kwargs)
-        TeamStatus.objects.get_or_create(team=self.id, defaults={'team': self})
-        TeamWarning.objects.get_or_create(team=self.id, defaults={'team': self})
 
     def __str__(self):
         return self.name
