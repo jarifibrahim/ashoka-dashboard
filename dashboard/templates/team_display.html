@@ -149,9 +149,7 @@
                 <tr>
                     <th>Name (Role)</th>
                     <th>Process Manager</th>
-                    <th>Keeper of the Minutes</th>
                     <th>Pulse Checker</th>
-                    <th>Conference Convener</th>
                     <th>Conference Host</th>
                     <th>Comment</th>
                 </tr>
@@ -182,27 +180,6 @@
                             </form>
                         </td>
                         <td class="secondary-role-td">
-                            <form method="post" id="keeper-of-minutes-form"
-                                  class="secondary-role-change form"
-                                  action={% url 'update' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <input type="text" value="KOM"
-                                       name="secondary_role_change" hidden>
-                                <div class="form-group">
-                                    <input type="checkbox" class="form-control"
-                                           id="main" value="yes" name="value"
-                                            {% if member.secondary_role.all|has_secondary_role:"KOM" %}
-                                           checked
-                                            {% endif %}>
-                                    <input type='hidden' value='no' name='value'
-                                           id='backup'>
-                                </div>
-                            </form>
-                        </td>
-                        <td class="secondary-role-td">
                             <form method="post" id="pulse-checker-form"
                                   class="secondary-role-change form"
                                   action={% url 'update' %}>
@@ -218,27 +195,6 @@
                                     <input type="checkbox" class="form-control"
                                            id="main" value="yes" name="value"
                                             {% if member.secondary_role.all|has_secondary_role:"PC" %}
-                                           checked
-                                            {% endif %}>
-                                    <input type='hidden' value='no' name='value'
-                                           id='backup'>
-                                </div>
-                            </form>
-                        </td>
-                        <td class="secondary-role-td">
-                            <form method="post" id="conference-convener-form"
-                                  class="secondary-role-change form"
-                                  action={% url 'update' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <input type="text" value="CC"
-                                       name="secondary_role_change" hidden>
-                                <div class="form-group">
-                                    <input type="checkbox" class="form-control"
-                                           id="main" value="yes" name="value"
-                                            {% if member.secondary_role.all|has_secondary_role:"CC" %}
                                            checked
                                             {% endif %}>
                                     <input type='hidden' value='no' name='value'

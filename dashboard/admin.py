@@ -39,7 +39,7 @@ class MemberAdmin(admin.ModelAdmin):
     get_role.short_description = "Role"
     list_display = ['name', 'get_team', 'get_dashboard']
     search_fields = ['name', 'team__name', 'role__long_name']
-    list_filter = ['team__name', 'role__long_name']
+    list_filter = ['team__dashboard', 'team__name', 'role__long_name']
     filter_horizontal = ["secondary_role"]
 
 

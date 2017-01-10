@@ -93,7 +93,6 @@ def dashboard_overview(request, dashboard_id):
     return render(request, "dashboard_display.html", context=context)
 
 
-@login_required
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
     dashboard = Data.decode_data(hash_value)
@@ -125,8 +124,8 @@ def consultant_submit(request, hash_value):
                 to = [e['email'] for e in all_emails]
                 mail.send(to, subject=email['subject'],
                           message=email['message'])
-                messages.success(request,
-                                 "Email with your request will be sent to LRP.")
+                messages.success(
+                    request, "Email with your request will be sent to LRP.")
         return redirect(reverse(thanks))
     else:
         form = forms.ConsultantSurveyForm()
@@ -135,13 +134,11 @@ def consultant_submit(request, hash_value):
                            'form': form})
 
 
-@login_required
 def thanks(request):
     """ Survey response acknowledgement page """
     return render(request, "thank_you.html")
 
 
-@login_required
 def fellow_submit(request, hash_value):
     """ Fellow Survey from request and response """
     dashboard_id = Data.decode_data(hash_value)
@@ -327,7 +324,6 @@ def show_warnings(request):
         'warnings': warnings, 'phases': phases})
 
 
-@login_required
 def get_members(request):
     """
     Handles the AJAX request sent by the Consultant survey form.
