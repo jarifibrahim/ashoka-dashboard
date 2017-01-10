@@ -1,6 +1,10 @@
 from django.contrib import admin
 from .models import *
 from django import forms
+from django.contrib.auth.models import Group
+import os
+from post_office.admin import AttachmentAdmin, LogAdmin
+from post_office.models import Attachment, Log
 
 
 class DashboardAdmin(admin.ModelAdmin):
@@ -21,7 +25,7 @@ class TeamAdmin(admin.ModelAdmin):
     # Columns displayed on the model view page
     list_display = ['name', 'get_dashboard', ]
     search_fields = ['name', 'dashboard__name']
-    list_filter = ['name', 'dashboard']
+    list_filter = ['dashboard', 'name']
 
 
 class MemberAdmin(admin.ModelAdmin):
@@ -82,11 +86,16 @@ class TeamStatusAdmin(admin.ModelAdmin):
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
-admin.site.register(Role)
-admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
-admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
-admin.site.register(FellowSurvey)
-admin.site.register(SecondaryRole)
-admin.site.register(TeamStatus, TeamStatusAdmin)
-admin.site.register(WeekWarning, WeekWarningAdmin)
-admin.site.register(TeamWarning)
+if os.getenv("SHOW_ALL_MODELS").lower() == 'true':
+    admin.site.register(Role)
+    admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
+    admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)
+    admin.site.register(FellowSurvey)
+    admin.site.register(SecondaryRole)
+    admin.site.register(TeamStatus, TeamStatusAdmin)
+    admin.site.register(WeekWarning, WeekWarningAdmin)
+    admin.site.register(TeamWarning)
+else:
+    admin.site.unregister(Group)
+    admin.site.unregister(Attachment)
+    admin.site.unregister(Log)
