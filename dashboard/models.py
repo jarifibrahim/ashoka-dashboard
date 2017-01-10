@@ -257,7 +257,7 @@ class Member(models.Model):
     email = models.CharField("Email", max_length=200)
     role = models.ForeignKey(Role, related_name="role")
     secondary_role = models.ManyToManyField(SecondaryRole,
-                                            related_name="secondary_role")
+                                            related_name="secondary_role", blank=True)
     comment = models.TextField("comment", blank=True)
     role_comment = models.TextField("Role Comment", blank=True)
     participates_in_call = models.BooleanField("Participates in Calls",

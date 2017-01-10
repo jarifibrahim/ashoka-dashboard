@@ -1,1 +1,50 @@
-[{"model": "dashboard.advisoryphase", "pk": 1, "fields": {"phase": "Preparation phase (orientation call + kick-off call)", "phase_number": 1}}, {"model": "dashboard.advisoryphase", "pk": 2, "fields": {"phase": "Working on section 1 - \"Understand the social venture\"", "phase_number": 2}}, {"model": "dashboard.advisoryphase", "pk": 3, "fields": {"phase": "Working on section 2 - \"Develop a promising strategy\"", "phase_number": 3}}, {"model": "dashboard.advisoryphase", "pk": 4, "fields": {"phase": "Working on section 3 - \"Specify and check your hypothesis\"", "phase_number": 4}}, {"model": "dashboard.advisoryphase", "pk": 5, "fields": {"phase": "Working on section 4 - \"Sharpen the storyline\"", "phase_number": 5}}, {"model": "dashboard.advisoryphase", "pk": 6, "fields": {"phase": "Working on Section 5 - \"Final\"", "phase_number": 6}}]
+[
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 1,
+  "fields": {
+    "phase": "Preparation phase (orientation call + kick-off call)",
+    "phase_number": 1
+  }
+},
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 2,
+  "fields": {
+    "phase": "Working on section 1 - \"Understand the social venture\"",
+    "phase_number": 2
+  }
+},
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 3,
+  "fields": {
+    "phase": "Working on section 2 - \"Develop a promising strategy\"",
+    "phase_number": 3
+  }
+},
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 4,
+  "fields": {
+    "phase": "Working on section 3 - \"Specify and check your hypothesis\"",
+    "phase_number": 4
+  }
+},
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 5,
+  "fields": {
+    "phase": "Working on section 4 - \"Sharpen the storyline\"",
+    "phase_number": 5
+  }
+},
+{
+  "model": "dashboard.advisoryphase",
+  "pk": 6,
+  "fields": {
+    "phase": "Working on Section 5 - \"Final\"",
+    "phase_number": 6
+  }
+}
+]

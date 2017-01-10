@@ -1,1 +1,222 @@
-[{"model": "dashboard.weekwarning", "pk": 2, "fields": {"week_number": 1, "calls_y": 1, "calls_r": 1, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 0, "member_call_r": 0, "kick_off_y": true, "kick_off_r": false, "mid_term_y": false, "mid_term_r": false, "phase": 1, "phase_y": null, "phase_r": null, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 3, "fields": {"week_number": 2, "calls_y": 2, "calls_r": 2, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 0, "member_call_r": 0, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 2, "phase_y": 1, "phase_r": null, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 4, "fields": {"week_number": 3, "calls_y": 3, "calls_r": 2, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 0, "member_call_r": 1, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 2, "phase_y": 1, "phase_r": null, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 5, "fields": {"week_number": 4, "calls_y": 4, "calls_r": 3, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 0, "member_call_r": 1, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 2, "phase_y": 1, "phase_r": 1, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 6, "fields": {"week_number": 5, "calls_y": 5, "calls_r": 4, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 3, "phase_y": 2, "phase_r": 1, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 7, "fields": {"week_number": 6, "calls_y": 6, "calls_r": 5, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 3, "phase_y": 2, "phase_r": 1, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 8, "fields": {"week_number": 7, "calls_y": 7, "calls_r": 6, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": false, "mid_term_r": false, "phase": 3, "phase_y": 2, "phase_r": 2, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 9, "fields": {"week_number": 8, "calls_y": 8, "calls_r": 7, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": true, "mid_term_r": false, "phase": 4, "phase_y": 3, "phase_r": 2, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 10, "fields": {"week_number": 9, "calls_y": 9, "calls_r": 8, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": true, "mid_term_r": true, "phase": 4, "phase_y": 3, "phase_r": 2, "consultant_rating_r": 7, "fellow_rating_r": 7}}, {"model": "dashboard.weekwarning", "pk": 11, "fields": {"week_number": 10, "calls_y": 10, "calls_r": 9, "unprepared_calls_y": 50, "unprepared_calls_r": 30, "member_call_y": 1, "member_call_r": 2, "kick_off_y": true, "kick_off_r": true, "mid_term_y": true, "mid_term_r": true, "phase": 4, "phase_y": 3, "phase_r": 3, "consultant_rating_r": 7, "fellow_rating_r": 7}}]
+[
+{
+  "model": "dashboard.weekwarning",
+  "pk": 2,
+  "fields": {
+    "week_number": 1,
+    "calls_y": 1,
+    "calls_r": 1,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 0,
+    "member_call_r": 0,
+    "kick_off_y": true,
+    "kick_off_r": false,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 1,
+    "phase_y": null,
+    "phase_r": null,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 3,
+  "fields": {
+    "week_number": 2,
+    "calls_y": 2,
+    "calls_r": 2,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 0,
+    "member_call_r": 0,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 2,
+    "phase_y": 1,
+    "phase_r": null,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 4,
+  "fields": {
+    "week_number": 3,
+    "calls_y": 3,
+    "calls_r": 2,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 0,
+    "member_call_r": 1,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 2,
+    "phase_y": 1,
+    "phase_r": null,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 5,
+  "fields": {
+    "week_number": 4,
+    "calls_y": 4,
+    "calls_r": 3,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 0,
+    "member_call_r": 1,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 2,
+    "phase_y": 1,
+    "phase_r": 1,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 6,
+  "fields": {
+    "week_number": 5,
+    "calls_y": 5,
+    "calls_r": 4,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 3,
+    "phase_y": 2,
+    "phase_r": 1,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 7,
+  "fields": {
+    "week_number": 6,
+    "calls_y": 6,
+    "calls_r": 5,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 3,
+    "phase_y": 2,
+    "phase_r": 1,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 8,
+  "fields": {
+    "week_number": 7,
+    "calls_y": 7,
+    "calls_r": 6,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": false,
+    "mid_term_r": false,
+    "phase": 3,
+    "phase_y": 2,
+    "phase_r": 2,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 9,
+  "fields": {
+    "week_number": 8,
+    "calls_y": 8,
+    "calls_r": 7,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": true,
+    "mid_term_r": false,
+    "phase": 4,
+    "phase_y": 3,
+    "phase_r": 2,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 10,
+  "fields": {
+    "week_number": 9,
+    "calls_y": 9,
+    "calls_r": 8,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": true,
+    "mid_term_r": true,
+    "phase": 4,
+    "phase_y": 3,
+    "phase_r": 2,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+},
+{
+  "model": "dashboard.weekwarning",
+  "pk": 11,
+  "fields": {
+    "week_number": 10,
+    "calls_y": 10,
+    "calls_r": 9,
+    "unprepared_calls_y": 30,
+    "unprepared_calls_r": 50,
+    "member_call_y": 1,
+    "member_call_r": 2,
+    "kick_off_y": true,
+    "kick_off_r": true,
+    "mid_term_y": true,
+    "mid_term_r": true,
+    "phase": 4,
+    "phase_y": 3,
+    "phase_r": 3,
+    "consultant_rating_r": 7,
+    "fellow_rating_r": 7
+  }
+}
+]

@@ -55,22 +55,18 @@ class UpdateWarnings:
             yellow = self.week_warning.phase_y
             red = self.week_warning.phase_r
             green = self.week_warning.phase
-            if red:
-                if current_phase.phase_number <= red.phase_number:
-                    msg = "Current Phase:{0} < Red warning Phase:{1}"
-                    msg = msg.format(current_phase, red)
-                    return self.status['red'], msg
-
-            if yellow:
-                if yellow.phase_number == current_phase.phase_number:
-                    msg = "Current Phase:{1} is Yellow warning Phase:{0}"
-                    msg = msg.format(yellow, current_phase)
-                    return self.status['yellow'], msg
-            if green:
-                if green.phase_number == current_phase.phase_number:
+            if green and current_phase.phase_number >= green.phase_number:
                     msg = "Current Phase:{1} is Expected Phase:{0}"
                     msg = msg.format(green, current_phase)
                     return self.status['green'], msg
+            if yellow and current_phase.phase_number == yellow.phase_number:
+                    msg = "Current Phase:{1} is Yellow warning Phase:{0}"
+                    msg = msg.format(yellow, current_phase)
+                    return self.status['yellow'], msg
+            if red and current_phase.phase_number <= red.phase_number:
+                    msg = "Current Phase:{0} < Red warning Phase:{1}"
+                    msg = msg.format(current_phase, red)
+                    return self.status['red'], msg
             msg = "No warnings found"
             return self.status['green'], msg
         msg = "No consultant responses found"

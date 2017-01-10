@@ -86,7 +86,7 @@ class TeamStatusAdmin(admin.ModelAdmin):
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Member, MemberAdmin)
-if os.getenv("SHOW_ALL_MODELS").lower() == 'true':
+if os.getenv("SHOW_ALL_MODELS", "").lower() == 'true':
     admin.site.register(Role)
     admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
     admin.site.register(ConsultantSurvey, ConsultantSurveyAdmin)

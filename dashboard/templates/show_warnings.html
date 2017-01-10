@@ -126,20 +126,20 @@
             </tr>
 
             <tr>
-                <td><strong>Phases: Progress expected</strong></td>
+                <td><strong>Phases: Progress expected (Phase Number)</strong></td>
                 {% for w in warnings %}
                     <td class="truncate">{{ w.phase.phase_number }}</td>
                 {% endfor %}
             </tr>
             <tr>
-                <td><strong>Leads to yellow warning if in this Phase </strong>
+                <td><strong>Leads to yellow warning if in this Phase (Phase Number)</strong>
                 </td>
                 {% for w in warnings %}
                     <td class="truncate">{{ w.phase_y.phase_number }}</td>
                 {% endfor %}
             </tr>
             <tr>
-                <td><strong>Leads to red warning if in ≤ this Phase </strong>
+                <td><strong>Leads to red warning if in ≤ this Phase (Phase Number)</strong>
                 </td>
                 {% for w in warnings %}
                     <td class="truncate">{{ w.phase_r.phase_number }}</td>
@@ -151,7 +151,7 @@
             <table class="table table-responsive">
                 <thead>
                 <tr>
-                    <td><strong>Week Number</strong></td>
+                    <td><strong>Phase Number</strong></td>
                     <td><strong>Phase</strong></td>
                 </tr>
                 </thead>

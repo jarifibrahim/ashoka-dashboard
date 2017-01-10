@@ -33,6 +33,9 @@
                             <ul class="dropdown-menu">
                                 {% if user.is_staff %}
                                 <li><a href="/manage">Dashboard Management</a></li>
+                                <li>
+                                    <a href="{% url 'show_warnings' %}" target="_blank">Current Warning Settings</a>
+                                </li>
                                 <li role="separator" class="divider"></li>
                                 {% endif %}
                                 <li><a href="/logout">Logout</a></li>
