@@ -3,6 +3,7 @@ from . import models
 from post_office.models import EmailTemplate
 from django.template import Context, Template
 from post_office import mail
+from django.db.models import Q
 
 
 class UpdateWarnings:
@@ -18,7 +19,8 @@ class UpdateWarnings:
     def __init__(self, team):
         current_week = team.dashboard.current_week
         self.team = team
-        self.week_warning = models.WeekWarning.objects.get(week_number=current_week)
+        self.week_warning = models.WeekWarning.objects.get(
+            week_number=current_week)
         self.tw = team.warnings
 
     # Total calls check
@@ -87,7 +89,8 @@ class UpdateWarnings:
             else:
                 return self.status['green'], "No kick off warnings found " \
                                              "for this week"
-        return self.status['green'], "Kick off Done"
+        msg = self.team.team_status.get_kick_off_display()
+        return self.status['green'], msg
 
     # Mid Term
     def mid_term_check(self):
@@ -102,7 +105,8 @@ class UpdateWarnings:
             else:
                 return self.status['green'], "No mid term warnings found " \
                                              "for this week"
-        return self.status['green'], "Mid Term Done"
+        msg = self.team.team_status.get_mid_term_display()
+        return self.status['green'], msg
 
     # Consultant Rating
     def consultant_rating_check(self):
@@ -111,12 +115,12 @@ class UpdateWarnings:
             if c_last_rating <= self.week_warning.consultant_rating_r:
                 msg = "Last Consultant Rating: {0} <= Consultant Rating " \
                       "Red Warning: {1}".format(
-                    c_last_rating, self.week_warning.consultant_rating_r)
+                          c_last_rating, self.week_warning.consultant_rating_r)
                 return self.status['red'], msg
             else:
                 msg = "Last Consultant Rating: {0} > Consultant Rating " \
                       "Red Warning: {1}".format(
-                    c_last_rating, self.week_warning.consultant_rating_r)
+                          c_last_rating, self.week_warning.consultant_rating_r)
                 return self.status['green'], msg
         # If there are no ratings
         else:
@@ -132,12 +136,12 @@ class UpdateWarnings:
             if f_last_rating < self.week_warning.fellow_rating_r:
                 msg = "Last Fellow Rating: {0} < Fellow Rating " \
                       "Red Warning: {1}".format(
-                    f_last_rating, self.week_warning.fellow_rating_r)
+                          f_last_rating, self.week_warning.fellow_rating_r)
                 return self.status['red'], msg
             else:
                 msg = "Fellow Rating: {0} > Fellow Rating " \
                       "Red Warning: {1}".format(
-                    f_last_rating, self.week_warning.fellow_rating_r)
+                          f_last_rating, self.week_warning.fellow_rating_r)
                 return self.status['green'], msg
         # If there are no ratings
         else:
@@ -288,6 +292,35 @@ def update_team_status_value(request, field_name):
             messages.debug(request, str(e))
             return False
 
+    # Change advisory onboarding status
+    elif field_name == "advisor_onboarding_status":
+        try:
+            status_object = models.TeamStatus.objects.get(team=team_object)
+            status_object.advisor_onboarding = request.POST[field_name]
+            status_object.save()
+            messages.success(request, "Successfully changed Advisor "
+                                      "Onboarding status value.")
+            return True
+        except Exception as e:
+            messages.error(request, "Failed to change Advisory Onboarding "
+                                    "status value.")
+            messages.debug(request, str(e))
+            return False
+
+    elif field_name == "advisor_onboarding_comment":
+        try:
+            status_object = models.TeamStatus.objects.get(team=team_object)
+            status_object.advisor_onboarding_comment = request.POST[field_name]
+            status_object.save()
+            messages.success(request, "Successfully changed Advisor "
+                                      "Onboarding Comment value.")
+            return True
+        except Exception as e:
+            messages.error(request, "Failed to change Advisor Onboarding "
+                                    "Comment value")
+            messages.debug(request, str(e))
+            return False
+
     elif field_name == "kick_off_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
@@ -409,8 +442,8 @@ def update_member_value(request, field_name):
         try:
             member_object.comment = request.POST.get(field_name, "")
             member_object.save()
-            flash_message = "Comment for member {} updated successfully".format(
-                member_object.name)
+            flash_message = "Comment for member {} updated "\
+                            "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
         except Exception as e:
@@ -456,8 +489,8 @@ def update_member_value(request, field_name):
             member_object.participates_in_call = (
                 request.POST[field_name] == 'true')
             member_object.save()
-            flash_message = "Participates in call status for {} updated successfully".format(
-                member_object.name)
+            flash_message = "Participates in call status for {} updated "\
+                            "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
         except Exception as e:
@@ -497,7 +530,9 @@ def send_reminder_email(team, next_date):
         return
     url = 'http:/' + team.dashboard.consultant_form_url
     email = create_email('reminder', url)
-    recipients = team.members.filter(secondary_role__short_name="PC")
+    # Get all Pulse Checkers and LRPs
+    recipients = team.members.filter(Q(secondary_role__short_name="PC") or
+                                     Q(role__short_name="LRP")).distinct()
     to = []
     if recipients:
         to = [r['email'] for r in recipients.values('email').all()]

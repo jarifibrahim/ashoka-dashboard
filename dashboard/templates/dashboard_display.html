@@ -97,9 +97,9 @@
                 {% endfor %}
             </tr>
             <tr>
-                <td>Advisor orientation</td>
-                {% for LRP in LRPs %}
-                    <td></td>
+                <td>Advisor Onboarding</td>
+                {% for team in teams %}
+                    <td>{{ team.advisor_onboarding }}</td>
                 {% endfor %}
             </tr>
             <tr>
@@ -108,6 +108,19 @@
                     <td>{{ team.kick_off }}</td>
                 {% endfor %}
             </tr>
+            <tr>
+                <td>Systemic Vision</td>
+                {% for team in teams %}
+                    <td>{{ team.systemic_vision }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Mid-Term</td>
+                {% for team in teams %}
+                    <td>{{ team.mid_term }}</td>
+                {% endfor %}
+            </tr>
+
             <tr>
                 <td>Comment (Globalizer LRP)</td>
                 {% for comment in lrp_comment %}
@@ -303,9 +316,10 @@
                     timeout : 15000,  //timeout of the ajax call
                     success: function (responseText) {
                         alert(responseText);
+                        window.location.reload();
                     },
                     error: function (xhr, textStatus, errorThrown) {
-                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                        alert("Failed to refresh. Please report this error: " + errorThrown + xhr.status + xhr.responseText);
                     }
                 })
             });

@@ -54,8 +54,8 @@ class Dashboard(models.Model):
         "Overall - Yellow", help_text=help_text, default=0)
 
     class Meta:
-        verbose_name_plural = "Dashboards"
-        verbose_name = "Dashboard"
+        verbose_name_plural = "1. Dashboards"
+        verbose_name = "1. Dashboard"
 
     def __str__(self):
         return self.name
@@ -104,9 +104,9 @@ class Team(models.Model):
     lrp_comment = models.TextField("LRP Comment", blank=True)
     STATUS_CHOICES = (
         ('AUTO', 'Automatic'),
-        ('RED', 'Major issues!!!'),
-        ('YELLOW', 'Some minor issues!'),
-        ('GREEN', 'All good!')
+        ('RED', 'Red'),
+        ('YELLOW', 'Yellow'),
+        ('GREEN', 'Green')
     )
     status_choice = models.CharField(
         "Team status evaluation", choices=STATUS_CHOICES, max_length=7,
@@ -121,6 +121,10 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "2. Teams"
+        verbose_name = "2. Team"
 
     @property
     def last_response(self):
@@ -225,6 +229,9 @@ class Role(models.Model):
     def __str__(self):
         return self.long_name
 
+    class Meta:
+        verbose_name_plural = "Roles (Optional)"
+
 
 class SecondaryRole(models.Model):
     """
@@ -235,6 +242,9 @@ class SecondaryRole(models.Model):
 
     def __str__(self):
         return self.role
+
+    class Meta:
+        verbose_name_plural = "Secondary Roles (Optional)"
 
 
 class Member(models.Model):
@@ -257,6 +267,10 @@ class Member(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "3. Members"
+        verbose_name = "3. Member"
+
 
 class AdvisoryPhase(models.Model):
     """
@@ -266,11 +280,14 @@ class AdvisoryPhase(models.Model):
     phase_number = models.PositiveIntegerField(
         "Phase number", help_text="Phase are sorted according to this number. "
                                   "If phase 'A' should happen before phase "
-                                  "'B' then 'A' should have lower phase number "
-                                  "value than 'B'.", unique=True)
+                                  "'B' then 'A' should have lower phase number"
+                                  " value than 'B'.", unique=True)
 
     def __str__(self):
         return self.phase
+
+    class Meta:
+        verbose_name_plural = "Advisory Phases (Optional)"
 
 
 class ConsultantSurvey(models.Model):
@@ -300,6 +317,10 @@ class ConsultantSurvey(models.Model):
     def __str__(self):
         return "ID: {0}, Team: {1}, Submit Date: {2}, Call Date: {3}".format(
             self.id, self.team, dt.date(self.submit_date), self.call_date)
+
+    class Meta:
+        verbose_name_plural = "Consultant Surveys (Optional)"
+        verbose_name = "Consultant Survey (Optional)"
 
     @property
     def missing_member_names(self):
@@ -344,6 +365,10 @@ class FellowSurvey(models.Model):
         return "ID: {0}, Team: {1}, Date: {2}".format(
             self.id, self.team, dt.date(self.submit_date))
 
+    class Meta:
+        verbose_name = "Fellow Survey (Optional)"
+        verbose_name_plural = "Fellow Surveys (Optional)"
+
 
 class TeamStatus(models.Model):
     """
@@ -369,13 +394,18 @@ class TeamStatus(models.Model):
         ('DA', 'Date Arranged'),
         ('CH', 'Call Happened')
     )
+
+    advisor_onboarding = models.CharField(
+        "Advisor Onboarding Status", choices=KICK_OFF_CHOICES,
+        default='NS', max_length=5)
+    advisor_onboarding_comment = models.TextField(
+        "Advisor Onboarding Comment", blank=True)
     kick_off = models.CharField("Kick Off Status", choices=KICK_OFF_CHOICES,
                                 default='NS', max_length=5)
     kick_off_comment = models.TextField("Kick Off Comment", blank=True)
     mid_term = models.CharField("Mid Term Status", choices=KICK_OFF_CHOICES,
                                 default='NS', max_length=5)
     mid_term_comment = models.TextField("Mid Term Comment", blank=True)
-
     systemic_vision = models.CharField(
         "Systemic Vision Status", choices=KICK_OFF_CHOICES, default='NS',
         max_length=5)
@@ -386,8 +416,8 @@ class TeamStatus(models.Model):
         return str(self.team)
 
     class Meta:
-        verbose_name_plural = "Team status"
-        verbose_name = "Team status"
+        verbose_name = "Team status (Optional)"
+        verbose_name_plural = "Team status (Optional)"
 
 
 class WeekWarning(models.Model):
@@ -522,6 +552,10 @@ class WeekWarning(models.Model):
     def __str__(self):
         return "Week {}".format(self.week_number)
 
+    class Meta:
+        verbose_name = "Weekly Warnings (Optional)"
+        verbose_name_plural = "Weekly Warnings (Optional)"
+
 
 class TeamWarning(models.Model):
     """
@@ -568,6 +602,10 @@ class TeamWarning(models.Model):
 
     def __str__(self):
         return str(self.team) + " Warnings"
+
+    class Meta:
+        verbose_name = "Team Warnings (Optional)"
+        verbose_name_plural = "Team Warnings (Optional)"
 
     def get_warnings_count(self):
         """

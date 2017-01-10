@@ -128,8 +128,10 @@
                 {% endfor %}
                 <tr>
                     <td colspan="3">
-                        Document Link: <a
-                            href="{{ team.working_document }}">{{ team.working_document }}</a>
+                        Fellow Survey URL: <a
+                            href="{{ team.dashboard.fellow_form_url }}"
+                            target="_blank">
+                        http://{{ request.META.HTTP_HOST }}{{ team.dashboard.fellow_form_url }}</a>
                     </td>
                     <td colspan="3">
                         Consultant Survey URL: <a
@@ -372,6 +374,7 @@
                     <tr>
                         <th>Calls</th>
                         <th>Received Reminder Emails</th>
+                        <th>Advisor Onboarding</th>
                         <th>Kick Off</th>
                         <th>Systemic Vision</th>
                         <th>Mid Term</th>
@@ -381,6 +384,7 @@
                     <tr>
                         <td>{{ calls.total }} calls / {{ calls.expected }} expected</td>
                         <td>Automatic Reminders</td>
+                        <td>Status</td>
                         <td>Status</td>
                         <td>Status</td>
                         <td>Status</td>
@@ -444,6 +448,46 @@
                                 </div>
                             </form>
                         </td>
+                        <td>
+                            <form action="{% url 'update' %}" method="post"
+                                  class="form hidden-submit-form">
+                                {% csrf_token %}
+                                <input type="text" value="{{ team.id }}"
+                                       name="teamId" hidden>
+                                <div class="form-group">
+                                    <select name="advisor_onboarding_status"
+                                            id="change-advisor-onboarding-status"
+                                            class="form-control">
+                                        <option value="NS"
+                                                {% ifequal team_status.advisor_onboarding "NS" %}
+                                                selected
+                                                {% endifequal %}>Not Started
+                                        </option>
+                                        <option value="IMS"
+                                                {% ifequal team_status.advisor_onboarding "IMS" %}
+                                                selected
+                                                {% endifequal %}>Intro Mail Sent
+                                        </option>
+                                        <option value="DA"
+                                                {% ifequal team_status.advisor_onboarding "DA" %}
+                                                selected
+                                                {% endifequal %}>Date Arranged
+                                        </option>
+                                        <option value="CH"
+                                                {% ifequal team_status.advisor_onboarding "CH" %}
+                                                selected
+                                                {% endifequal %}>Call happened
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
+                                </div>
+                            </form>
+                        </td> <!-- Advisor Onboarding status change form -->
                         <td>
                             <form action="{% url 'update' %}" method="post"
                                   class="form hidden-submit-form">
@@ -593,6 +637,25 @@
                         {% if team_status.next_automatic_reminder %}
                             {{ team_status.next_automatic_reminder }}
                         {% endif %}
+                        </td>
+                        <td>
+                            <form class="form hidden-submit-form" method="post"
+                                  action="{% url 'update' %}">
+                                {% csrf_token %}
+                                <input type="text" hidden name="teamId"
+                                       value="{{ team.id }}">
+                                <div class="form-group">
+                                    <label class="form-label">Comment</label>
+                                    <textarea class="form-control"
+                                              name="advisor_onboarding_comment">{{ team_status.advisor_onboarding_comment }}</textarea>
+                                </div>
+                                <div class="form-group" id="submit-button"
+                                     style="display: none;">
+                                    <input type="submit"
+                                           class="form-control btn-primary"
+                                           value="Save">
+                                </div>
+                            </form>
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"

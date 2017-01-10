@@ -34,15 +34,18 @@ def dashboard_overview(request, dashboard_id):
     for team in all_teams:
         # Create new team status if it does not exits
         try:
-            kof = team.team_status.get_kick_off_display()
+            ad_onboard = team.team_status.get_advisor_onboarding_display()
         except TeamStatus.DoesNotExist:
             ts = TeamStatus(team=team)
             ts.save()
-            kof = team.team_status.get_kick_off_display()
+            ad_onboard = team.team_status.get_advisor_onboarding_display()
         team_list.append({
             'teamid': team.id,
             'name': team.name,
-            'kick_off': kof
+            'advisor_onboarding': ad_onboard,
+            'kick_off': team.team_status.get_kick_off_display(),
+            'systemic_vision': team.team_status.get_systemic_vision_display(),
+            'mid_term': team.team_status.get_mid_term_display(),
         })
 
         role_members = team.members.filter(role__short_name="LRP")
@@ -202,9 +205,11 @@ def update_value(request):
         'participates_in_call': 'participates_in_call'
     }
     possible_status_change = {
+        'advisor_onboarding_status': 'advisor_onboarding_status',
         'kick_off_status': 'kick_off_status',
         'systemic_vision_status': 'systemic_vision_status',
         'mid_term_status': 'mid_term_status',
+        'advisor_onboarding_comment': 'advisor_onboarding_comment',
         'kick_off_comment': 'kick_off_comment',
         'systemic_vision_comment': 'systemic_vision_comment',
         'mid_term_comment': 'mid_term_comment',
