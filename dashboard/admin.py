@@ -25,9 +25,14 @@ class TeamAdmin(admin.ModelAdmin):
     def get_dashboard(self, obj):
         return obj.dashboard
 
+    def get_members(self, obj):
+        return list(obj.members.all())
+
     get_dashboard.short_description = 'Dashboard'
+    get_members.short_description = 'Team members'
+
     # Columns displayed on the model view page
-    list_display = ['name', 'get_dashboard', ]
+    list_display = ['name', 'get_dashboard', 'get_members']
     search_fields = ['name', 'dashboard__name']
     list_filter = ['dashboard', 'name']
     inlines = [
