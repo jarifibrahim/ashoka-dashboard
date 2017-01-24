@@ -72,6 +72,22 @@ class UpdateWarnings:
         msg = "No consultant responses found"
         return self.status['green'], msg
 
+    # Advisor Onboarding
+    def advisor_on_check(self):
+        if self.team.team_status.advisor_on == "NS":
+            yellow = self.week_warning.advisor_on_y
+            red = self.week_warning.advisor_on_r
+            msg = "Advisor Onboarding not yet happened"
+            if red:
+                return self.status['red'], msg
+            if yellow:
+                return self.status['yellow'], msg
+            else:
+                return self.status['green'], "No Advisor Onboarding warnings "\
+                                             "found for this week"
+        msg = self.team.team_status.get_advisor_on_display()
+        return self.status['green'], msg
+
     # Kick Off
     def kick_off_check(self):
         if self.team.team_status.kick_off == "NS":
@@ -86,6 +102,22 @@ class UpdateWarnings:
                 return self.status['green'], "No kick off warnings found " \
                                              "for this week"
         msg = self.team.team_status.get_kick_off_display()
+        return self.status['green'], msg
+
+    # Systemic Vision
+    def sys_vision_check(self):
+        if self.team.team_status.sys_vision == "NS":
+            yellow = self.week_warning.sys_vision_y
+            red = self.week_warning.sys_vision_r
+            msg = "Systemic Vision not yet happened"
+            if red:
+                return self.status['red'], msg
+            if yellow:
+                return self.status['yellow'], msg
+            else:
+                return self.status['green'], "No Systemic Vision warnings "\
+                                             "found for this week"
+        msg = self.team.team_status.get_sys_vision_display()
         return self.status['green'], msg
 
     # Mid Term
@@ -182,7 +214,9 @@ class UpdateWarnings:
         cc, cc_comment = self.total_calls_check()
         self.tw.call_count, self.tw.call_count_comment = cc, cc_comment
         self.tw.phase, self.tw.phase_comment = self.phase_check()
+        self.tw.advisor_on, self.tw.advisor_on_comment = self.advisor_on_check()
         self.tw.kick_off, self.tw.kick_off_comment = self.kick_off_check()
+        self.tw.sys_vision, self.tw.sys_vision_comment = self.sys_vision_check()
         self.tw.mid_term, self.tw.mid_term_comment = self.mid_term_check()
         cr, cr_comment = self.consultant_rating_check()
         self.tw.consultant_rating = cr
@@ -288,7 +322,7 @@ def update_team_status_value(request, field_name):
             messages.debug(request, str(e))
             return False
 
-    # Change advisory onboarding status
+    # Change advisor onboarding status
     elif field_name == "advisor_onboarding_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
@@ -298,7 +332,7 @@ def update_team_status_value(request, field_name):
                                       "Onboarding status value.")
             return True
         except Exception as e:
-            messages.error(request, "Failed to change Advisory Onboarding "
+            messages.error(request, "Failed to change Advisor Onboarding "
                                     "status value.")
             messages.debug(request, str(e))
             return False

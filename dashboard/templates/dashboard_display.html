@@ -246,9 +246,21 @@
                 {% endfor %}
             </tr>
             <tr>
+                <td>Advisor Onboarding</td>
+                {% for warning in team_warnings %}
+                    <td class="{{ warning.advisor_on }}" title="{{ warning.advisor_on_comment }}"></td>
+                {% endfor %}
+            </tr>
+            <tr>
                 <td>Kick Off</td>
                 {% for warning in team_warnings %}
                     <td class="{{ warning.kick_off }}" title="{{ warning.kick_off_comment }}"></td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Systemic Vision</td>
+                {% for warning in team_warnings %}
+                    <td class="{{ warning.sys_vision }}" title="{{ warning.sys_vision_comment }}"></td>
                 {% endfor %}
             </tr>
             <tr>

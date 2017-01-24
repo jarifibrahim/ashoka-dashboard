@@ -88,6 +88,25 @@
                 <td></td>
             </tr>
 
+
+            <tr>
+                <td><strong>Advisor Onboarding not happened in this week leads to yellow
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.advisor_on_y|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Advisor Onboarding not happened in this week leads to red
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.advisor_on_r|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
             <tr>
                 <td><strong>kick-off not happened in this week leads to yellow
                     warning</strong></td>
@@ -95,12 +114,29 @@
                     <td>{{ w.kick_off_y|yesno:"X," }}</td>
                 {% endfor %}
             </tr>
-
             <tr>
                 <td><strong>kick-off not happened in this week leads to red
                     warning</strong></td>
                 {% for w in warnings %}
                     <td>{{ w.kick_off_r|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><strong>Systemic Vision not happened in this week leads to yellow
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.sys_vision_y|yesno:"X," }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Systemic Vision not happened in this week leads to red
+                    warning</strong></td>
+                {% for w in warnings %}
+                    <td>{{ w.sys_vision_r|yesno:"X," }}</td>
                 {% endfor %}
             </tr>
             <tr>

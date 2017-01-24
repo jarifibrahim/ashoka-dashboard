@@ -397,10 +397,10 @@ class TeamStatus(models.Model):
         ('CH', 'Call Happened')
     )
 
-    advisor_onboarding = models.CharField(
+    advisor_on = models.CharField(
         "Advisor Onboarding Status", choices=KICK_OFF_CHOICES,
         default='NS', max_length=5)
-    advisor_onboarding_comment = models.TextField(
+    advisor_on_comment = models.TextField(
         "Advisor Onboarding Comment", blank=True)
     kick_off = models.CharField("Kick Off Status", choices=KICK_OFF_CHOICES,
                                 default='NS', max_length=5)
@@ -408,10 +408,10 @@ class TeamStatus(models.Model):
     mid_term = models.CharField("Mid Term Status", choices=KICK_OFF_CHOICES,
                                 default='NS', max_length=5)
     mid_term_comment = models.TextField("Mid Term Comment", blank=True)
-    systemic_vision = models.CharField(
+    sys_vision = models.CharField(
         "Systemic Vision Status", choices=KICK_OFF_CHOICES, default='NS',
         max_length=5)
-    systemic_vision_comment = models.TextField(
+    sys_vision_comment = models.TextField(
         "Systemic Vision Comment", blank=True)
 
     def __str__(self):
@@ -456,6 +456,16 @@ class WeekWarning(models.Model):
     member_call_r = models.PositiveIntegerField(
         "Member missing call count - Red warning", help_text=help_text)
 
+    # Advisor onboarding warnings
+    help_text = "Advisor Onboarding not happened in this week leads to "\
+        "Yellow warning."
+    advisor_on_y = models.BooleanField(
+        "Advisor Onboarding - Yellow warning", help_text=help_text)
+    help_text = "Advisor Onboarding not happened in this week leads to "\
+        "Red warning."
+    advisor_on_r = models.BooleanField(
+        "Advisor Onboarding - Red warning", help_text=help_text)
+
     # Kick off warnings
     help_text = "Kick-off not happened in this week leads to Yellow warning."
     kick_off_y = models.BooleanField(
@@ -463,6 +473,16 @@ class WeekWarning(models.Model):
     help_text = "Kick-off not happened in this week leads to Red warning."
     kick_off_r = models.BooleanField(
         "Kick Off - Red warning", help_text=help_text)
+
+    # Systemic Vision warnings
+    help_text = "Systemic Vision not happened in this week leads to "\
+        "Yellow warning"
+    sys_vision_y = models.BooleanField(
+        "Systemic Vision - Yellow warning", help_text=help_text)
+    help_text = "Systemic Vision not happened in this week leads to "\
+        "Red warning"
+    sys_vision_r = models.BooleanField(
+        "Systemic Vision - Red warning", help_text=help_text)
 
     # Mid term warnings
     help_text = "Mid-term not happened in this week leads to Yellow warning"
@@ -517,12 +537,33 @@ class WeekWarning(models.Model):
         orig = WeekWarning.objects.get(pk=self.id)
 
         # Execute following code only if the value has changed
+        if self.advisor_on_y is not orig.advisor_on_y:
+            """
+            If a week has advisor onboarding yellow warning then all the
+            weeks following it should have the advisor onboarding
+            yellow warning.
+            """
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
+            weeks.update(advisor_on_y=self.advisor_on_y)
+
+        if self.advisor_on_r is not orig.advisor_on_r:
+            """
+            If a week has advisor onboarding red warning then all the
+            weeks following it should have the advisor onboarding
+            red warning.
+            """
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
+            weeks.update(advisor_on_r=self.advisor_on_r)
+
         if self.kick_off_y is not orig.kick_off_y:
             """
             If a week has kick off yellow warning then all the weeks following
             it should have the kick off yellow warning.
             """
-            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
             weeks.update(kick_off_y=self.kick_off_y)
 
         if self.kick_off_r is not orig.kick_off_r:
@@ -530,15 +571,35 @@ class WeekWarning(models.Model):
             If a week has kick off red warning then all the weeks following
             it should have the kick off red warning.
             """
-            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
             weeks.update(kick_off_r=self.kick_off_r)
+
+        if self.sys_vision_y is not orig.sys_vision_y:
+            """
+            If a week has systemic vision yellow warning then all the weeks
+            following it should have the systemic vision yellow warning.
+            """
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
+            weeks.update(sys_vision_y=self.sys_vision_y)
+
+        if self.sys_vision_r is not orig.sys_vision_r:
+            """
+            If a week has systemic vision red warning then all the weeks
+            following it should have the systemic vision red warning.
+            """
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
+            weeks.update(sys_vision_r=self.sys_vision_r)
 
         if self.mid_term_y is not orig.mid_term_y:
             """
             If a week has mid term yellow warning then all the weeks following
             it should have the mid term yellow warning.
             """
-            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
             weeks.update(mid_term_y=self.mid_term_y)
 
         if self.mid_term_r is not orig.mid_term_r:
@@ -546,7 +607,8 @@ class WeekWarning(models.Model):
             If a week has mid term red warning then all the weeks following
             it should have the mid term red warning.
             """
-            weeks = WeekWarning.objects.filter(week_number__gt=self.week_number)
+            weeks = WeekWarning.objects.filter(
+                week_number__gt=self.week_number)
             weeks.update(mid_term_r=self.mid_term_r)
 
         super(WeekWarning, self).save(*args, **kwargs)
@@ -578,6 +640,13 @@ class TeamWarning(models.Model):
                              default="G", max_length=3)
     phase_comment = models.CharField("Comment - Phase", max_length=300,
                                      blank=True)
+
+    advisor_on = models.CharField(
+        "Warning - Advisor Onboarding", choices=WARNING_TYPES,
+        default="G", max_length=3)
+    advisor_on_comment = models.CharField(
+        "Comment - Advisory Onboarding", max_length=300, blank=True)
+
     kick_off = models.CharField("Warning - Kick Off", choices=WARNING_TYPES,
                                 default="G", max_length=3)
     kick_off_comment = models.CharField("Comment - Kick Off", max_length=300,
@@ -586,6 +655,11 @@ class TeamWarning(models.Model):
                                 default="G", max_length=3)
     mid_term_comment = models.CharField("Comment - Mid Term", max_length=300,
                                         blank=True)
+    sys_vision = models.CharField(
+        "Warning - Systemic Vision", choices=WARNING_TYPES,
+        default="G", max_length=3)
+    sys_vision_comment = models.CharField(
+        "Comment - Systemic Vision", max_length=300, blank=True)
     unprepared_call = models.CharField("Warning - Unprepared Calls",
                                        choices=WARNING_TYPES, default="G",
                                        max_length=3)
