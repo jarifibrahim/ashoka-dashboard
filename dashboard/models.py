@@ -54,8 +54,8 @@ class Dashboard(models.Model):
         "Overall - Yellow", help_text=help_text, default=0)
 
     class Meta:
-        verbose_name_plural = "1. Dashboards"
-        verbose_name = "1. Dashboard"
+        verbose_name_plural = "Dashboards"
+        verbose_name = "Dashboard"
 
     def __str__(self):
         return self.name
@@ -125,8 +125,8 @@ class Team(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = "2. Teams"
-        verbose_name = "2. Team"
+        verbose_name_plural = "Teams"
+        verbose_name = "Team"
 
     @property
     def last_response(self):
@@ -270,8 +270,8 @@ class Member(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = "3. Members"
-        verbose_name = "3. Member"
+        verbose_name_plural = "Members"
+        verbose_name = "Member"
 
 
 class AdvisoryPhase(models.Model):
