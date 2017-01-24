@@ -91,7 +91,9 @@ class Dashboard(models.Model):
         :return: Week number of advisory process
         """
         start_date = self.advisory_start_date
-        return math.ceil(int((date.today() - start_date).days) / 7.0)
+        current_week = math.ceil(
+            int((date.today() - start_date).days) / 7.0) + 1
+        return min(current_week, self.total_weeks)
 
 
 class Team(models.Model):

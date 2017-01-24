@@ -17,6 +17,10 @@ class DashboardAdmin(admin.ModelAdmin):
     list_filter = ['name']
 
 
+class MemberInline(admin.TabularInline):
+    model = Member
+
+
 class TeamAdmin(admin.ModelAdmin):
     def get_dashboard(self, obj):
         return obj.dashboard
@@ -26,6 +30,9 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ['name', 'get_dashboard', ]
     search_fields = ['name', 'dashboard__name']
     list_filter = ['dashboard', 'name']
+    inlines = [
+        MemberInline,
+    ]
 
 
 class MemberAdmin(admin.ModelAdmin):
