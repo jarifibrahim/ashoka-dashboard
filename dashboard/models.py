@@ -534,7 +534,10 @@ class WeekWarning(models.Model):
 
     # Overwrite parent save method
     def save(self, *args, **kwargs):
-        orig = WeekWarning.objects.get(pk=self.id)
+        try:
+            orig = WeekWarning.objects.get(pk=self.id)
+        except WeekWarning.DoesNotExist:
+            orig = self
 
         # Execute following code only if the value has changed
         if self.advisor_on_y is not orig.advisor_on_y:

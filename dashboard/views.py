@@ -318,7 +318,7 @@ def send_email(request):
 
 @login_required
 def show_warnings(request):
-    warnings = list(WeekWarning.objects.all())
+    warnings = list(WeekWarning.objects.all().order_by('week_number'))
     phases = list(AdvisoryPhase.objects.all().order_by('phase_number'))
     return render(request, 'show_warnings.html', context={
         'warnings': warnings, 'phases': phases})
