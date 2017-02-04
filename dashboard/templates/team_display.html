@@ -415,22 +415,22 @@
                                             id="change-advisor-onboarding-status"
                                             class="form-control">
                                         <option value="NS"
-                                                {% ifequal team_status.advisor_onboarding "NS" %}
+                                                {% ifequal team_status.advisor_on "NS" %}
                                                 selected
                                                 {% endifequal %}>Not Started
                                         </option>
                                         <option value="IMS"
-                                                {% ifequal team_status.advisor_onboarding "IMS" %}
+                                                {% ifequal team_status.advisor_on "IMS" %}
                                                 selected
                                                 {% endifequal %}>Intro Mail Sent
                                         </option>
                                         <option value="DA"
-                                                {% ifequal team_status.advisor_onboarding "DA" %}
+                                                {% ifequal team_status.advisor_on "DA" %}
                                                 selected
                                                 {% endifequal %}>Date Arranged
                                         </option>
                                         <option value="CH"
-                                                {% ifequal team_status.advisor_onboarding "CH" %}
+                                                {% ifequal team_status.advisor_on "CH" %}
                                                 selected
                                                 {% endifequal %}>Call happened
                                         </option>
@@ -603,7 +603,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Comment</label>
                                     <textarea class="form-control"
-                                              name="advisor_onboarding_comment">{{ team_status.advisor_onboarding_comment }}</textarea>
+                                              name="advisor_onboarding_comment">{{ team_status.advisor_on_comment }}</textarea>
                                 </div>
                                 <div class="form-group" id="submit-button"
                                      style="display: none;">

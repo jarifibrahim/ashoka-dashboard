@@ -42,7 +42,7 @@ def dashboard_overview(request, dashboard_id):
         team_list.append({
             'teamid': team.id,
             'name': team.name,
-            'advisor_onboarding': ad_onboard,
+            'advisor_on': ad_onboard,
             'kick_off': team.team_status.get_kick_off_display(),
             'systemic_vision': team.team_status.get_sys_vision_display(),
             'mid_term': team.team_status.get_mid_term_display(),

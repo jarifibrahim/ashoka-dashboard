@@ -326,7 +326,7 @@ def update_team_status_value(request, field_name):
     elif field_name == "advisor_onboarding_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
-            status_object.advisor_onboarding = request.POST[field_name]
+            status_object.advisor_on = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Advisor "
                                       "Onboarding status value.")
@@ -340,7 +340,7 @@ def update_team_status_value(request, field_name):
     elif field_name == "advisor_onboarding_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
-            status_object.advisor_onboarding_comment = request.POST[field_name]
+            status_object.advisor_on_comment = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Advisor "
                                       "Onboarding Comment value.")
