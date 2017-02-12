@@ -6,6 +6,7 @@ from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, \
 from . import forms
 from .utility import *
 from django.http import HttpResponse, Http404
+import datetime
 
 
 @login_required
@@ -110,8 +111,6 @@ def consultant_submit(request, hash_value):
             entry.save()
             # Save many to many data from the Form
             form.save_m2m()
-            messages.success(request, 'Your Response has been saved '
-                                      'Successfully. Thank you!')
             # Increase missing call count for each missing member
             for m in form.cleaned_data['missing_member']:
                 m.missed_calls += 1
@@ -122,10 +121,10 @@ def consultant_submit(request, hash_value):
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
+                now = datetime.datetime.now()
+                now_plus_15 = now + datetime.timedelta(minutes=15)
                 mail.send(to, subject=email['subject'],
-                          message=email['message'])
-                messages.success(
-                    request, "Email with your request will be sent to LRP.")
+                          message=email['message'], scheduled_time=now_plus_15)
         return redirect(reverse(thanks))
     else:
         form = forms.ConsultantSurveyForm()
@@ -147,9 +146,6 @@ def fellow_submit(request, hash_value):
         form = forms.FellowSurveyForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Your Response has been saved '
-                                      'Successfully. Thank you!')
-
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['other_help']:
                 email = create_email("fellow", form.cleaned_data['other_help'])
@@ -157,10 +153,10 @@ def fellow_submit(request, hash_value):
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
+                now = datetime.datetime.now()
+                now_plus_15 = now + datetime.timedelta(minutes=15)
                 mail.send(to, subject=email['subject'],
-                          message=email['message'])
-                messages.success(request,
-                                 "Email with your request will be sent to LRP.")
+                          message=email['message'], scheduled_time=now_plus_15)
         return redirect(reverse(thanks))
     else:
         form = forms.FellowSurveyForm()
@@ -173,7 +169,8 @@ def show_urls(request):
     dashboards = Dashboard.objects.all()
     survey_urls = list()
     for d in dashboards:
-        survey_urls.append(dict(name=d.name, f_url=d.fellow_form_url, c_url=d.consultant_form_url))
+        survey_urls.append(
+            dict(name=d.name, f_url=d.fellow_form_url, c_url=d.consultant_form_url))
     return render(request, "show_urls.html",
                   context={'survey_urls': survey_urls})
 
@@ -258,7 +255,8 @@ def team_detail(request, team_id):
     except Team.team_status.RelatedObjectDoesNotExist:
         team_status = TeamStatus.objects.create(team=team_object)
         team_status.save()
-    absolute_url = request.build_absolute_uri(team_object.dashboard.consultant_form_url)
+    absolute_url = request.build_absolute_uri(
+        team_object.dashboard.consultant_form_url)
     r_email = create_email("reminder", absolute_url)
     w_email = create_email("welcome", absolute_url)
     lr = team_object.last_response
@@ -337,8 +335,8 @@ def get_members(request):
             except ValueError:
                 return HttpResponse("Invalid Team ID: ", team_id)
             team = get_object_or_404(Team, pk=team_id)
-            member_list = list(team.members.filter(participates_in_call=True).values(
-                'name', 'id'))
+            member_list = list(team.members.filter(
+                participates_in_call=True).values('name', 'id'))
             if not member_list:
                 return HttpResponse("No Team members found")
             return HttpResponse(str(member_list))

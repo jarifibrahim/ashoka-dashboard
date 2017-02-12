@@ -360,7 +360,7 @@ class FellowSurvey(models.Model):
                                  )
     comments = models.TextField("Any other comments?",
                                 blank=True)
-    other_help = models.TextField("Any other Ashoka should help with?",
+    other_help = models.TextField("Anything else Ashoka should help you with?",
                                   blank=True)
 
     def __str__(self):
