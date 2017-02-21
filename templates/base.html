@@ -21,6 +21,9 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="{% url 'index' %}">Ashoka Dashboard</a>
+                    {% if team %}
+                   <a class="navbar-brand">/</a><a class="navbar-brand" href={% url 'dashboard_overview' team.dashboard.id %}>{{team.dashboard.name}}</a>
+                    {% endif %}
                 </div>
 
                 {% if user.is_authenticated %}

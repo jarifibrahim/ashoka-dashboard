@@ -491,26 +491,26 @@
                                 <input type="text" value="{{ team.id }}"
                                        name="teamId" hidden>
                                 <div class="form-group">
-                                    <select name="systemic_vision_status"
+                                    <select name="sys_vision_status"
                                             id="systemic-vision-status"
                                             class="form-control">
                                         <option value="NS"
-                                                {% ifequal team_status.systemic_vision "NS" %}
+                                                {% ifequal team_status.sys_vision "NS" %}
                                                 selected
                                                 {% endifequal %}>Not Started
                                         </option>
                                         <option value="IMS"
-                                                {% ifequal team_status.systemic_vision "IMS" %}
+                                                {% ifequal team_status.sys_vision "IMS" %}
                                                 selected
                                                 {% endifequal %}>Intro Mail Sent
                                         </option>
                                         <option value="DA"
-                                                {% ifequal team_status.systemic_vision "DA" %}
+                                                {% ifequal team_status.sys_vision "DA" %}
                                                 selected
                                                 {% endifequal %}>Date Arranged
                                         </option>
                                         <option value="CH"
-                                                {% ifequal team_status.systemic_vision "CH" %}
+                                                {% ifequal team_status.sys_vision "CH" %}
                                                 selected
                                                 {% endifequal %}>Call happened
                                         </option>
@@ -641,7 +641,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Comment</label>
                                     <textarea class="form-control"
-                                              name="systemic_vision_comment">{{ team_status.systemic_vision_comment }}</textarea>
+                                              name="sys_vision_comment">{{ team_status.sys_vision_comment }}</textarea>
                                 </div>
                                 <div class="form-group" id="submit-button"
                                      style="display: none;">

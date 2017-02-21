@@ -383,10 +383,10 @@ def update_team_status_value(request, field_name):
             messages.debug(request, str(e))
             return False
 
-    elif field_name == "systemic_vision_status":
+    elif field_name == "sys_vision_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
-            status_object.systemic_vision = request.POST[field_name]
+            status_object.sys_vision = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Systemic Vision "
                                       "status value.")
@@ -397,10 +397,10 @@ def update_team_status_value(request, field_name):
             messages.debug(request, str(e))
             return False
 
-    elif field_name == "systemic_vision_comment":
+    elif field_name == "sys_vision_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
-            status_object.systemic_vision_comment = request.POST[field_name]
+            status_object.sys_vision_comment = request.POST[field_name]
             status_object.save()
             messages.success(request, "Successfully changed Systemic Vision "
                                       "Comment value.")

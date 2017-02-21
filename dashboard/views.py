@@ -45,7 +45,7 @@ def dashboard_overview(request, dashboard_id):
             'name': team.name,
             'advisor_on': ad_onboard,
             'kick_off': team.team_status.get_kick_off_display(),
-            'systemic_vision': team.team_status.get_sys_vision_display(),
+            'sys_vision': team.team_status.get_sys_vision_display(),
             'mid_term': team.team_status.get_mid_term_display(),
         })
 
@@ -201,11 +201,11 @@ def update_value(request):
     possible_status_change = {
         'advisor_onboarding_status': 'advisor_onboarding_status',
         'kick_off_status': 'kick_off_status',
-        'systemic_vision_status': 'systemic_vision_status',
+        'sys_vision_status': 'sys_vision_status',
         'mid_term_status': 'mid_term_status',
         'advisor_onboarding_comment': 'advisor_onboarding_comment',
         'kick_off_comment': 'kick_off_comment',
-        'systemic_vision_comment': 'systemic_vision_comment',
+        'sys_vision_comment': 'sys_vision_comment',
         'mid_term_comment': 'mid_term_comment',
         'change_calls_count': 'change_calls_count',
         'Automatic Reminder Status': 'automatic_reminder_status',
