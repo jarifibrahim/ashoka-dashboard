@@ -124,7 +124,7 @@
                 {% for comment in lrp_comment %}
                     <td>
                         <form class="form hidden-submit-form" method="post"
-                              action="{% url 'update' %}">
+                              action="{% url 'update_team' %}">
                             {% csrf_token %}
                             <input type="text" hidden name="teamId"
                                    value="{{ comment.teamid }}">
@@ -164,12 +164,12 @@
             <tr>
                 <td>Team STATUS</td>
                 {% for s in status %}
-                    <td class="
+                    <td id="status{{ s.teamid }}" class="
                             {% ifequal s.status_choice "AUTO" %}
                                 {{ s.status_color }}
                             {% else %}
                                 {{ s.status_choice }}
-                                {% endifequal %}
+                            {% endifequal %}
                      "></td>
                 {% endfor %}
             </tr>
@@ -179,7 +179,7 @@
                 {% for s in status %}
                     <td>
                         <form class="form hidden-submit-form"
-                              action="{% url 'update' %}" method="POST">
+                              action="{% url 'update_team' %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="teamId"
                                    class="form-control" value="{{ s.teamid }}">
@@ -296,21 +296,36 @@
     <script>
         $(function(){
             $(document).tooltip();
-        });
 
-        $(function(){
             $("table").colResizable({resizeMode: 'overflow'});
-            $('.hidden-submit-form').change(function () {
-                $(this).find('#submit-button').show();
+            $('.hidden-submit-form').change(function(e){
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: this.action,
+                    data: $(this).serialize(),
+                    timeout: 15000,  //timeout of the ajax call
+                    success: function (responseText) {
+                        $.notify(responseText['message'],
+                                 responseText['status'])
+                        if('newColorClass' in responseText){
+                            var id = "#status" + responseText['teamid'];
+                            console.log(id);
+                            $(id).removeClass();
+                            $(id).addClass(responseText['newColorClass']);
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Failed to Update. Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
             });
-
         });
-
 
         $body = $("body");
         $(document).on({
             ajaxStart: function() { $body.addClass("loading"); },
-             ajaxStop: function() { $body.removeClass("loading"); }    
+            ajaxStop: function() { $body.removeClass("loading"); }
         });
 
         $('#refresh').click(function (e) {

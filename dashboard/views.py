@@ -5,7 +5,7 @@ from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, \
     WeekWarning, TeamWarning
 from . import forms
 from .utility import *
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 import datetime
 
 
@@ -177,28 +177,17 @@ def show_urls(request):
 
 
 @login_required
-def update_value(request):
+def update_status(request):
     """
     Update dashboard values. Request is sent via dialog boxes on the
     dashboard page.
     """
     if request.method == "GET":
         return redirect('index')
-
+    response_url = request.META.get('HTTP_REFERER', 'index')
     # Contains possible fields that can be changed
     # Format:
     #    field to be changed: form field id
-    response_url = request.META.get('HTTP_REFERER', 'index')
-    possible_team_change = {
-        'Team Status Color': 'newStatusColor',
-        'LRP Comment': 'LRPComment'
-    }
-    possible_member_change = {
-        'Member_comment': 'member_comment',
-        'secondary_role_change': 'secondary_role_change',
-        'role_comment': 'role_comment',
-        'participates_in_call': 'participates_in_call'
-    }
     possible_status_change = {
         'advisor_onboarding_status': 'advisor_onboarding_status',
         'kick_off_status': 'kick_off_status',
@@ -212,22 +201,6 @@ def update_value(request):
         'Automatic Reminder Status': 'automatic_reminder_status',
     }
 
-    for change, name in possible_team_change.items():
-        if name in request.POST:
-            status = update_team_value(request, name)
-            if not status:
-                messages.error(request, "Failed to update {} value.".format(
-                    change))
-            return redirect(response_url)
-
-    for change, name in possible_member_change.items():
-        if name in request.POST:
-            status = update_member_value(request, name)
-            if not status:
-                messages.error(request, "Failed to update {} value.".format(
-                    change))
-            return redirect(response_url)
-
     for change, name in possible_status_change.items():
         if name in request.POST:
             status = update_team_status_value(request, name)
@@ -235,7 +208,50 @@ def update_value(request):
                 messages.error(request, "Failed to update {} value.".format(
                     change))
             return redirect(response_url)
+    messages.debug(request, request.POST)
+    messages.error(request, "Error: Unknown action.")
+    return redirect(response_url)
 
+
+@login_required
+def update_team(request):
+    if request.method == "GET":
+        return redirect('index')
+
+    # Contains possible fields that can be changed
+    # Format:
+    #    field to be changed: form field id
+    possible_team_change = {
+        'Team Status Color': 'newStatusColor',
+        'LRP Comment': 'LRPComment'
+    }
+    for change, name in possible_team_change.items():
+        if name in request.POST:
+            status = update_team_value(request, name)
+            return JsonResponse(status)
+    return JsonResponse(
+        {"message": "Error: Unknown action.", 'status': 'error'})
+
+
+@login_required
+def update_member(request):
+    if request.method == "GET":
+        return redirect('index')
+    response_url = request.META.get('HTTP_REFERER', 'index')
+
+    possible_member_change = {
+        'Member_comment': 'member_comment',
+        'secondary_role_change': 'secondary_role_change',
+        'role_comment': 'role_comment',
+        'participates_in_call': 'participates_in_call'
+    }
+    for change, name in possible_member_change.items():
+        if name in request.POST:
+            status = update_member_value(request, name)
+            if not status:
+                messages.error(request, "Failed to update {} value.".format(
+                    change))
+            return redirect(response_url)
     messages.debug(request, request.POST)
     messages.error(request, "Error: Unknown action.")
     return redirect(response_url)

@@ -56,17 +56,17 @@ class UpdateWarnings:
             red = self.week_warning.phase_r
             green = self.week_warning.phase
             if green and current_phase.phase_number >= green.phase_number:
-                    msg = "Current Phase:{1} is Expected Phase:{0}"
-                    msg = msg.format(green, current_phase)
-                    return self.status['green'], msg
+                msg = "Current Phase:{1} is Expected Phase:{0}"
+                msg = msg.format(green, current_phase)
+                return self.status['green'], msg
             if yellow and current_phase.phase_number == yellow.phase_number:
-                    msg = "Current Phase:{1} is Yellow warning Phase:{0}"
-                    msg = msg.format(yellow, current_phase)
-                    return self.status['yellow'], msg
+                msg = "Current Phase:{1} is Yellow warning Phase:{0}"
+                msg = msg.format(yellow, current_phase)
+                return self.status['yellow'], msg
             if red and current_phase.phase_number <= red.phase_number:
-                    msg = "Current Phase:{0} < Red warning Phase:{1}"
-                    msg = msg.format(current_phase, red)
-                    return self.status['red'], msg
+                msg = "Current Phase:{0} < Red warning Phase:{1}"
+                msg = msg.format(current_phase, red)
+                return self.status['red'], msg
             msg = "No warnings found"
             return self.status['green'], msg
         msg = "No consultant responses found"
@@ -243,33 +243,41 @@ def update_team_value(request, field_name):
     try:
         team_object = models.Team.objects.get(pk=team_id)
     except models.Team.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid team id")
-        return False
+        return {"message": "Failed to update value. Invalid team id",
+                "status": "error"}
 
     # Change Team status color
     if field_name == "newStatusColor":
         try:
             team_object.status_choice = request.POST[field_name]
             team_object.save()
-            messages.success(request, "Team status updated successfully.")
-            return True
+            if request.POST[field_name] == "AUTO":
+                new_class = team_object.status_color
+            else:
+                new_class = request.POST[field_name]
+            return {
+                "message": "Team {}'s status updated successfully.".format(
+                    team_object.name),
+                "status": "success",
+                "newColorClass": new_class,
+                "teamid": team_object.id}
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
+            return {"message": "Failed to update value. " + str(e),
+                    "status": "error"}
 
     # Change Team comment
     elif field_name == "LRPComment":
         try:
             team_object.lrp_comment = request.POST[field_name]
             team_object.save()
-            messages.success(request, "Team LRP comment updated successfully")
-            return True
+            return {
+                "message": "Team {}'s LRP comment updated successfully".format(
+                    team_object.name),
+                "status": "success"}
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-
-    messages.debug(request, "Unknown action " + field_name)
-    return False
+            return {"message": "Failed to update value. " + str(e),
+                    "status": "error"}
+    return {"message": "Unknown action " + field_name, "status": "error"}
 
 
 def update_team_status_value(request, field_name):

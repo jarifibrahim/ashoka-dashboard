@@ -81,7 +81,7 @@
                         <td>
                             <form method="post"
                                   class="hidden-submit-form form"
-                                  action={% url 'update' %}>
+                                  action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
@@ -107,7 +107,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_member' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="memberId"
                                        value="{{ member.id }}">
@@ -160,7 +160,7 @@
                         <td class="secondary-role-td">
                             <form method="post" id="process-manager-form"
                                   class="secondary-role-change form"
-                                  action={% url 'update' %}>
+                                  action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
@@ -181,7 +181,7 @@
                         <td class="secondary-role-td">
                             <form method="post" id="pulse-checker-form"
                                   class="secondary-role-change form"
-                                  action={% url 'update' %}>
+                                  action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
@@ -204,7 +204,7 @@
                         <td class="secondary-role-td">
                             <form method="post" id="conference-host-form"
                                   class="secondary-role-change form"
-                                  action={% url 'update' %}>
+                                  action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
                                        value={{ member.id }} name="memberId"
@@ -224,7 +224,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_member' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="memberId"
                                        value="{{ member.id }}">
@@ -348,7 +348,7 @@
                         <td>
                             <form class="form hidden-submit-form" method="post"
                                   id="change-calls-count-form"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_team' %}">
                                 <input type="text" hidden value="{{ team.id }}"
                                        name="teamId">
                                 {% csrf_token %}
@@ -371,7 +371,7 @@
                             </form>
                         </td>
                         <td>
-                            <form action="{% url 'update' %}" method="post"
+                            <form action="{% url 'update_status' %}" method="post"
                                   class="form hidden-submit-form"
                                   id="change-automatic-reminder-form">
                                 {% csrf_token %}
@@ -404,7 +404,7 @@
                             </form>
                         </td>
                         <td>
-                            <form action="{% url 'update' %}" method="post"
+                            <form action="{% url 'update_status' %}" method="post"
                                   class="form hidden-submit-form">
                                 {% csrf_token %}
                                 <input type="text" value="{{ team.id }}"
@@ -444,7 +444,7 @@
                             </form>
                         </td> <!-- Advisor Onboarding status change form -->
                         <td>
-                            <form action="{% url 'update' %}" method="post"
+                            <form action="{% url 'update_status' %}" method="post"
                                   class="form hidden-submit-form">
                                 {% csrf_token %}
                                 <input type="text" value="{{ team.id }}"
@@ -484,7 +484,7 @@
                             </form>
                         </td> <!-- Kick off status change form -->
                         <td>
-                            <form action="{% url 'update' %}" method="post"
+                            <form action="{% url 'update_status' %}" method="post"
                                   class="form hidden-submit-form">
                                 {% csrf_token %}
                                 <input type="text" value="{{ team.id }}"
@@ -524,7 +524,7 @@
                             </form>
                         </td> <!-- Systemic Vision Change form -->
                         <td>
-                            <form action="{% url 'update' %}" method="post"
+                            <form action="{% url 'update_status' %}" method="post"
                                   class="form hidden-submit-form">
                                 {% csrf_token %}
                                 <input type="text" value="{{ team.id }}"
@@ -595,7 +595,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_status' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="teamId"
                                        value="{{ team.id }}">
@@ -614,7 +614,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_status' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="teamId"
                                        value="{{ team.id }}">
@@ -633,7 +633,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_status' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="teamId"
                                        value="{{ team.id }}">
@@ -652,7 +652,7 @@
                         </td>
                         <td>
                             <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update' %}">
+                                  action="{% url 'update_status' %}">
                                 {% csrf_token %}
                                 <input type="text" hidden name="teamId"
                                        value="{{ team.id }}">
