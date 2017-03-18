@@ -152,12 +152,14 @@ class UpdateWarnings:
                 return self.status['green'], msg
         # If there are no ratings
         else:
-            return self.status['green'], "No Rating found (Either there are " \
-                                         "no consultant responses or none of " \
-                                         "the consultant responses have " \
-                                         "rating value) "
-
+            return (
+                self.status['green'], "No Rating found (Either there are "
+                "no consultant responses or none of "
+                "the consultant responses have "
+                "rating value) "
+            )
     # Fellow Rating
+
     def fellow_rating_check(self):
         f_last_rating = self.team.last_fellow_rating
         if f_last_rating:
@@ -173,29 +175,31 @@ class UpdateWarnings:
                 return self.status['green'], msg
         # If there are no ratings
         else:
-            return self.status['green'], "No Rating found (Either there are " \
-                                         "no fellow responses or none of the " \
-                                         "fellow responses have rating value) "
-
+            return (
+                self.status['green'], "No Rating found (Either there are "
+                "no fellow responses or none of the "
+                "fellow responses have rating value) "
+            )
     # Unprepared calls
+
     def unprepared_calls_check(self):
         percentage = self.team.unprepared_calls_percentage
         if percentage:
             if percentage > self.week_warning.unprepared_calls_r:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Red " \
-                      "Threshold: {1}"
+                    "Threshold: {1}"
                 msg = msg.format(percentage,
                                  self.week_warning.unprepared_calls_r)
                 return self.status['red'], msg
             elif percentage > self.week_warning.unprepared_calls_y:
                 msg = "% Unprepared calls: {0} > % Unprepared Calls Yellow " \
-                      "Threshold: {1}"
+                    "Threshold: {1}"
                 msg = msg.format(percentage,
                                  self.week_warning.unprepared_calls_y)
                 return self.status['yellow'], msg
             else:
                 msg = "% Unprepared calls: {0} < % Unprepared calls " \
-                      "Threshold Yellow:{1} and Red:{2}"
+                    "Threshold Yellow:{1} and Red:{2}"
                 msg = msg.format(percentage,
                                  self.week_warning.unprepared_calls_y,
                                  self.week_warning.unprepared_calls_r)
@@ -203,10 +207,10 @@ class UpdateWarnings:
         msg = ""
         if percentage is 0:
             msg = "% Unprepared calls: 0. Members were prepared for all " \
-                  "the calls."
+                "the calls."
         if percentage is None:
             msg = "Could not calculate % Unprepared calls. " \
-                  "No consultant responses found."
+                "No consultant responses found."
 
         return self.status['green'], msg
 
@@ -481,7 +485,7 @@ def update_member_value(request, field_name):
             member_object.comment = request.POST.get(field_name, "")
             member_object.save()
             flash_message = "Comment for member {} updated "\
-                            "successfully".format(member_object.name)
+                "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
         except Exception as e:
@@ -514,7 +518,7 @@ def update_member_value(request, field_name):
             member_object.role_comment = request.POST.get(field_name, "")
             member_object.save()
             flash_message = "Role Comment for member {} updated " \
-                            "successfully".format(member_object.name)
+                "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
         except Exception as e:
@@ -528,7 +532,7 @@ def update_member_value(request, field_name):
                 request.POST[field_name] == 'true')
             member_object.save()
             flash_message = "Participates in call status for {} updated "\
-                            "successfully".format(member_object.name)
+                "successfully".format(member_object.name)
             messages.success(request, flash_message)
             return True
         except Exception as e:

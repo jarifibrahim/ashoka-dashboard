@@ -12,6 +12,7 @@ class DashboardAdmin(admin.ModelAdmin):
     def get_team(self, obj):
         return [str(o) for o in obj.teams.all()]
 
+    exclude = ('reminder_emails_after', 'overall_r', 'overall_y')
     get_team.short_description = 'Teams'
     list_display = ['name', 'get_team']
     search_fields = ['name']
@@ -20,6 +21,8 @@ class DashboardAdmin(admin.ModelAdmin):
 
 class MemberInline(admin.TabularInline):
     model = Member
+    exclude = ('secondary_role', 'comment', 'role_comment',
+               'participates_in_call', 'missed_calls')
 
 
 class TeamAdmin(admin.ModelAdmin):
@@ -35,10 +38,12 @@ class TeamAdmin(admin.ModelAdmin):
     # Columns displayed on the model view page
     list_display = ['name', 'get_dashboard', 'get_members']
     search_fields = ['name', 'dashboard__name']
-    list_filter = ['dashboard', 'name']
+    list_filter = ['dashboard']
     inlines = [
         MemberInline,
     ]
+
+    exclude = ('lrp_comment', 'status_choice', 'status_color')
 
 
 class MemberAdmin(admin.ModelAdmin):
