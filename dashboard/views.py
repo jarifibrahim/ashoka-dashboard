@@ -184,7 +184,6 @@ def update_status(request):
     """
     if request.method == "GET":
         return redirect('index')
-    response_url = request.META.get('HTTP_REFERER', 'index')
     # Contains possible fields that can be changed
     # Format:
     #    field to be changed: form field id
@@ -203,14 +202,9 @@ def update_status(request):
 
     for change, name in possible_status_change.items():
         if name in request.POST:
-            status = update_team_status_value(request, name)
-            if not status:
-                messages.error(request, "Failed to update {} value.".format(
-                    change))
-            return redirect(response_url)
-    messages.debug(request, request.POST)
-    messages.error(request, "Error: Unknown action.")
-    return redirect(response_url)
+            return JsonResponse(update_team_status_value(request, name))
+    return JsonResponse(
+        {"message": "Error: Unknown action.", 'status': 'error'})
 
 
 @login_required

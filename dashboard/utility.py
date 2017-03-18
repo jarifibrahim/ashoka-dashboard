@@ -296,27 +296,30 @@ def update_team_status_value(request, field_name):
     try:
         team_object = models.Team.objects.get(pk=team_id)
     except models.Team.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid Team id")
-        messages.error(request, request.POST)
-        return False
-
+        return {
+            "message": "Failed to update value. Invalid team id",
+            "status": "error"
+        }
     # Change team call count
     if field_name == "change_calls_count":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.call_change_count = int(request.POST.get(field_name))
             status_object.save()
-            messages.success(request, "Successfully changed call count value.")
             update = UpdateWarnings(team_object)
             cc, cc_comment = update.total_calls_check()
             tw = team_object.warnings
             tw.call_count, tw.call_count_comment = cc, cc_comment
             tw.save()
-            return True
+            return {
+                'message': "Successfully changed call count value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change call count value.")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change call count value. " + str(e),
+                'status': 'error'
+            }
 
     # Change automatic reminder status
     elif field_name == "automatic_reminder_status":
@@ -325,14 +328,17 @@ def update_team_status_value(request, field_name):
             status_object.automatic_reminder = (
                 request.POST[field_name] == 'true')
             status_object.save()
-            messages.success(request, "Successfully changed automatic "
-                                      "reminder status value.")
-            return True
+            return {
+                'message': "Successfully changed automatic "
+                           "reminder status value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change automatic reminder "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change automatic reminder "
+                           "status value. " + str(e),
+                'status': 'error'
+            }
 
     # Change advisor onboarding status
     elif field_name == "advisor_onboarding_status":
@@ -340,28 +346,34 @@ def update_team_status_value(request, field_name):
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.advisor_on = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Advisor "
-                                      "Onboarding status value.")
-            return True
+            return {
+                'message': "Successfully changed Advisor "
+                           "Onboarding status value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Advisor Onboarding "
-                                    "status value.")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Advisor Onboarding "
+                           "status value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "advisor_onboarding_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.advisor_on_comment = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Advisor "
-                                      "Onboarding Comment value.")
-            return True
+            return {
+                'message': "Successfully changed Advisor "
+                           "Onboarding Comment value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Advisor Onboarding "
-                                    "Comment value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Advisor Onboarding "
+                           "Comment value",
+                'status': 'error'
+            }
 
     elif field_name == "kick_off_status":
         try:
@@ -372,56 +384,66 @@ def update_team_status_value(request, field_name):
             tw = team_object.warnings
             tw.kick_off, tw.kick_off_comment = update.kick_off_check()
             tw.save()
-            messages.success(request, "Successfully changed Kick off status "
-                                      "value.")
-            return True
+            return {
+                'message': "Successfully changed Kick off status value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Kick off "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Kick off "
+                           "status value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "kick_off_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.kick_off_comment = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Kick Off Comment "
-                                      "value.")
-            return True
+            return {
+                'message': "Successfully changed Kick Off Comment value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Kick Off Comment "
-                                    "value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Kick Off Comment "
+                           "value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "sys_vision_status":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.sys_vision = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Systemic Vision "
-                                      "status value.")
-            return True
+            return {
+                'message': "Successfully changed Systemic Vision status "
+                           "value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Systemic Vision "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Systemic Vision "
+                           "status value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "sys_vision_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.sys_vision_comment = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Systemic Vision "
-                                      "Comment value.")
-            return True
+            return {
+                'message': "Successfully changed Systemic Vision "
+                           "Comment value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Systemic Vision Comment "
-                                    "value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Systemic Vision Comment "
+                           "value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "mid_term_status":
         try:
@@ -432,31 +454,36 @@ def update_team_status_value(request, field_name):
             tw = team_object.warnings
             tw.mid_term, tw.mid_term_comment = update.mid_term_check()
             tw.save()
-            messages.success(request, "Successfully changed Mid Term status "
-                                      "value.")
-            return True
+            return {
+                'message': "Successfully changed Mid Term status value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Mid Term "
-                                    "status value")
-            messages.debug(request, str(e))
-            return False
+            return {
+                'message': "Failed to change Mid Term "
+                           "status value. " + str(e),
+                'status': 'error'
+            }
 
     elif field_name == "mid_term_comment":
         try:
             status_object = models.TeamStatus.objects.get(team=team_object)
             status_object.mid_term_comment = request.POST[field_name]
             status_object.save()
-            messages.success(request, "Successfully changed Mid Term Comment "
-                                      "value.")
-            return True
+            return {
+                'message': "Successfully changed Mid Term Comment value.",
+                'status': 'success'
+            }
         except Exception as e:
-            messages.error(request, "Failed to change Mid Term "
-                                    "Comment value")
-            messages.debug(request, str(e))
-            return False
-
-    messages.debug(request, "Unknown action " + field_name)
-    return False
+            return {
+                'message': "Failed to change Mid Term "
+                           "Comment value. " + str(e),
+                'status': 'error'
+            }
+    return {
+        'message': "Unknown action " + field_name,
+        'status': 'error'
+    }
 
 
 def update_member_value(request, field_name):
