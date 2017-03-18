@@ -159,7 +159,7 @@
                         <td>{{ member.name }} ({{ member.role }})</td>
                         <td class="secondary-role-td">
                             <form method="post" id="process-manager-form"
-                                  class="secondary-role-change form"
+                                  class="secondary-role-change hidden-submit-form form"
                                   action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
@@ -180,7 +180,7 @@
                         </td>
                         <td class="secondary-role-td">
                             <form method="post" id="pulse-checker-form"
-                                  class="secondary-role-change form"
+                                  class="secondary-role-change hidden-submit-form form"
                                   action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
@@ -203,7 +203,7 @@
                         </td>
                         <td class="secondary-role-td">
                             <form method="post" id="conference-host-form"
-                                  class="secondary-role-change form"
+                                  class="secondary-role-change hidden-submit-form form"
                                   action={% url 'update_member' %}>
                                 {% csrf_token %}
                                 <input type="text"
@@ -348,7 +348,7 @@
                         <td>
                             <form class="form hidden-submit-form" method="post"
                                   id="change-calls-count-form"
-                                  action="{% url 'update_team' %}">
+                                  action="{% url 'update_status' %}">
                                 <input type="text" hidden value="{{ team.id }}"
                                        name="teamId">
                                 {% csrf_token %}
@@ -790,17 +790,28 @@
             showHideSetup();
             sendEmailSetup();
 
-            // Show call count change submit button
-            $('.hidden-submit-form').change(function () {
-                $(this).find('#submit-button').show();
-            });
-
             // Submit secondary role change form
             $(".secondary-role-change").change(function () {
                 if ($(this).find('#main').prop('checked')) {
                     $(this).find('#backup').prop('disabled', true)
                 }
-                $(this).submit();
+            });
+
+            $('.hidden-submit-form').change(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: this.action,
+                    data: $(this).serialize(),
+                    timeout: 15000,  //timeout of the ajax call
+                    success: function (responseText) {
+                        $.notify(responseText['message'],
+                                 responseText['status']);
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Failed to Update. Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
             });
         });
 

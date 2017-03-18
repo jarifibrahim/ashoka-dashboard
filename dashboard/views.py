@@ -237,7 +237,6 @@ def update_team(request):
 def update_member(request):
     if request.method == "GET":
         return redirect('index')
-    response_url = request.META.get('HTTP_REFERER', 'index')
 
     possible_member_change = {
         'Member_comment': 'member_comment',
@@ -247,14 +246,11 @@ def update_member(request):
     }
     for change, name in possible_member_change.items():
         if name in request.POST:
-            status = update_member_value(request, name)
-            if not status:
-                messages.error(request, "Failed to update {} value.".format(
-                    change))
-            return redirect(response_url)
-    messages.debug(request, request.POST)
-    messages.error(request, "Error: Unknown action.")
-    return redirect(response_url)
+            return JsonResponse(update_member_value(request, name))
+    return {
+        "message": "Error: Unknown action.",
+        "status": "error"
+    }
 
 
 @login_required

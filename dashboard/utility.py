@@ -475,23 +475,25 @@ def update_member_value(request, field_name):
     try:
         member_object = models.Member.objects.get(pk=member_id)
     except models.Member.DoesNotExist:
-        messages.error(request, "Failed to update value. Invalid Member id")
-        messages.error(request, request.POST)
-        return False
-
+        return {
+            'message': "Failed to update value. Invalid Member id",
+            'status': 'error'
+        }
     # Change Member comment
     if field_name == "member_comment":
         try:
             member_object.comment = request.POST.get(field_name, "")
             member_object.save()
-            flash_message = "Comment for member {} updated "\
-                "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
+            return {
+                'message': "Comment for member {} updated "
+                "successfully".format(member_object.name),
+                'status': 'success'
+            }
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
-
+            return {
+                'message': "Failed to update value. " + str(e),
+                'status': 'error'
+            }
     elif field_name == 'secondary_role_change':
         try:
             short_name = request.POST.get('secondary_role_change')
@@ -500,30 +502,41 @@ def update_member_value(request, field_name):
             if member_object.secondary_role.filter(
                     short_name=short_name).exists():
                 member_object.secondary_role.remove(sr_object)
-                messages.success(request, "Removed role {} from {}".format(
-                    sr_object.role, member_object.name))
+                return {
+                    'message': "Removed role {} from {}".format(
+                        sr_object.role, member_object.name),
+                    'status': 'success'
+                }
             else:
                 member_object.secondary_role.add(sr_object)
-                messages.success(request, "Added role {} to {}".format(
-                    sr_object.role, member_object.name
-                ))
+                return {
+                    'message': "Added role {} to {}".format(
+                        sr_object.role, member_object.name
+                    ),
+                    'status': 'success'
+                }
             member_object.save()
-            return True
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
+            return {
+                'message': "Failed to update value. " + str(e),
+                'status': 'error'
+            }
 
     # Change Member role comment
     elif field_name == "role_comment":
         try:
             member_object.role_comment = request.POST.get(field_name, "")
             member_object.save()
-            flash_message = "Role Comment for member {} updated " \
-                "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
+            return {
+                'message': "Role Comment for member {} updated "
+                "successfully".format(member_object.name),
+                'status': 'success'
+            }
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
-            return False
+            return {
+                'message': "Failed to update value. " + str(e),
+                'status': 'error'
+            }
 
     # Participates in call status
     elif field_name == "participates_in_call":
@@ -531,15 +544,17 @@ def update_member_value(request, field_name):
             member_object.participates_in_call = (
                 request.POST[field_name] == 'true')
             member_object.save()
-            flash_message = "Participates in call status for {} updated "\
-                "successfully".format(member_object.name)
-            messages.success(request, flash_message)
-            return True
+            return {
+                'message': "Participates in call status for {} updated "
+                "successfully".format(member_object.name),
+                'status': 'success'
+            }
         except Exception as e:
-            messages.debug(request, "Failed to update value. " + str(e))
+            return {
+                'message': "Failed to update value. " + str(e),
+                'status': 'error'
+            }
             return False
-    messages.debug(request, request.POST)
-    return False
 
 
 def create_email(name, data=''):
