@@ -3,8 +3,9 @@ from .models import *
 from django import forms
 from django.contrib.auth.models import Group
 import os
-from post_office.admin import AttachmentAdmin, LogAdmin
 from post_office.models import Attachment, Log
+# Required for Admin page
+from post_office.admin import AttachmentAdmin, LogAdmin
 
 
 class DashboardAdmin(admin.ModelAdmin):

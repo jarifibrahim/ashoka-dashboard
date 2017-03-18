@@ -25,8 +25,9 @@ def dashboard_overview(request, dashboard_id):
     dashboard = get_object_or_404(Dashboard, id=dashboard_id)
     if not dashboard.teams.all():
         messages.error(
-            request, 'No Teams found in this dashboard. Please create teams')
-
+            request, 'No Teams found in this dashboard. '
+                     'Please create some teams.')
+        return render(request, "dashboard_display.html")
     all_teams = dashboard.teams.order_by('id').all()
     team_list, lrp_list, working_document = (list() for _ in range(3))
     consultant_requests, fellow_requests = (list() for _ in range(2))
