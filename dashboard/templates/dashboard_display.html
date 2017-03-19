@@ -292,7 +292,8 @@
 
 {% block javascript %}
     <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
-    <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/colResizable-1.6.min.js' %}">
+    </script>
     <script>
         $(function(){
             $(document).tooltip();
@@ -321,11 +322,6 @@
             });
         });
 
-        $body = $("body");
-        $(document).on({
-            ajaxStart: function() { $body.addClass("loading"); },
-            ajaxStop: function() { $body.removeClass("loading"); }
-        });
 
         $('#refresh').click(function (e) {
                 e.preventDefault();
@@ -337,6 +333,12 @@
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     timeout : 15000,  //timeout of the ajax call
+                    beforeSend: function(){
+                        $("body").addClass("loading");
+                    },
+                    complete: function(){
+                        $("body").removeClass("loading");
+                    },
                     success: function (responseText) {
                         alert(responseText);
                         window.location.reload();

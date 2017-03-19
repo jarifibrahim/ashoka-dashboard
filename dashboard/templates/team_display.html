@@ -2,882 +2,780 @@
 {% load static %}
 {% load myFilters %}
 {% block stylesheet %}
-    <link rel="stylesheet" href="{% static 'dashboard/css/jquery-ui.min.css' %}">
+<link rel="stylesheet" href="{% static 'dashboard/css/jquery-ui.min.css' %}">
 
-    <style type="text/css">
-        .well {
-            margin-bottom: 0;
-        }
+<style type="text/css">
+  .well {
+    margin-bottom: 0;
+  }
 
-        .show-hide-div {
-            width: 100%;
-        }
+  .show-hide-div {
+    width: 100%;
+  }
 
-        .show-hide-div-title {
-            margin: 0;
-            display: inline;
-        }
+  .show-hide-div-title {
+    margin: 0;
+    display: inline;
+  }
 
-        #dialog-email label {
-            margin-right: 5px;
-        }
+  #dialog-email label {
+    margin-right: 5px;
+  }
 
-        .secondary-role-td {
-            width: 50px;
-        }
+  .secondary-role-td {
+    width: 50px;
+  }
 
-        #consultant-responses-div, #fellow-responses-div, #team-management-div, #team-warnings-div {
-            display: none;
-        }
+  #consultant-responses-div, #fellow-responses-div, #team-management-div, #team-warnings-div {
+    display: none;
+  }
 
-        .R {
-            background-color: #FF0000;
-        }
+  .R {
+    background-color: #FF0000;
+  }
 
-        .Y {
-            background-color: #FFFF00;
-        }
+  .Y {
+    background-color: #FFFF00;
+  }
 
-        .G {
-            background-color: #00FF00;
-        }
+  .G {
+    background-color: #00FF00;
+  }
 
-    </style>
+  .nav-tabs > li > a {
+    font-size: 20px;
+    color: #3c763d;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        <h2 class="text-primary text-center"> {{ team.name }}</h2>
+<div class="container-fluid">
+  <h2 class="text-primary text-center"> {{ team.name }}</h2>
 
-        <!-- Team member information -->
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"
-                      style="display: none;"></span>
-                <span class="glyphicon glyphicon-arrow-up"></span>
-                <h4 class="text-danger show-hide-div-title"> Team
-                    Information</h4>
-            </div>
-        </a>
-        <div id="team-info-div">
-            <table id="main-table" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Role</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Missed Calls</th>
-                    <th>Participates In Call</th>
-                    <th>Comments</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for member in team_members %}
-                    <tr>
-                        <td>{{ member.role }}</td>
-                        <td>{{ member.name }}</td>
-                        <td>{{ member.email }}</td>
-                        <td>{{ member.missed_calls }}</td>
-                        <td>
-                            <form method="post"
-                                  class="hidden-submit-form form"
-                                  action={% url 'update_member' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <div class="form-group">
-                                    <select id="PIC" class="form-control"
-                                            name="participates_in_call">
-                                        <option value={{ member.participates_in_call }}>
-                                            {{ member.participates_in_call|yesno|capfirst }}
-                                        </option>
-                                        <option value={{ member.participates_in_call|yesno:"false, true" }}>
-                                            {{ member.participates_in_call|yesno:"No, Yes" }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_member' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="memberId"
-                                       value="{{ member.id }}">
-                                <div class="form-group">
-                                <textarea class="form-control"
-                                          name="member_comment">{{ member.comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-                <tr>
-                    <td colspan="3">
-                        Fellow Survey URL: <a
-                            href="{{ team.dashboard.fellow_form_url }}"
-                            target="_blank">
-                        http://{{ request.META.HTTP_HOST }}{{ team.dashboard.fellow_form_url }}</a>
-                    </td>
-                    <td colspan="3">
-                        Consultant Survey URL: <a
-                            href="{{ team.dashboard.consultant_form_url }}"
-                            target="_blank">
-                        http://{{ request.META.HTTP_HOST }}{{ team.dashboard.consultant_form_url }}
-                    </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <table id="secondary-role-table"
-                   class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Name (Role)</th>
-                    <th>Process Manager</th>
-                    <th>Pulse Checker</th>
-                    <th>Conference Host</th>
-                    <th>Comment</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for member in team_members %}
-                    <tr>
-                        <td>{{ member.name }} ({{ member.role }})</td>
-                        <td class="secondary-role-td">
-                            <form method="post" id="process-manager-form"
-                                  class="secondary-role-change hidden-submit-form form"
-                                  action={% url 'update_member' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <input type="text" value="PM"
-                                       name="secondary_role_change" hidden>
-                                <div class="form-group">
-                                    <input type="checkbox" class="form-control"
-                                           id="main" value="yes" name="value"
-                                            {% if member.secondary_role.all|has_secondary_role:"PM" %}
-                                           checked
-                                            {% endif %}>
-                                    <input type='hidden' value='no' name='value'
-                                           id='backup'>
-                                </div>
-                            </form>
-                        </td>
-                        <td class="secondary-role-td">
-                            <form method="post" id="pulse-checker-form"
-                                  class="secondary-role-change hidden-submit-form form"
-                                  action={% url 'update_member' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <input type="text" value="{{ member.email }}"
-                                       name="emailid" class="emailid" hidden>
-                                <input type="text" value="PC"
-                                       name="secondary_role_change" hidden>
-                                <div class="form-group">
-                                    <input type="checkbox" class="form-control"
-                                           id="main" value="yes" name="value"
-                                            {% if member.secondary_role.all|has_secondary_role:"PC" %}
-                                           checked
-                                            {% endif %}>
-                                    <input type='hidden' value='no' name='value'
-                                           id='backup'>
-                                </div>
-                            </form>
-                        </td>
-                        <td class="secondary-role-td">
-                            <form method="post" id="conference-host-form"
-                                  class="secondary-role-change hidden-submit-form form"
-                                  action={% url 'update_member' %}>
-                                {% csrf_token %}
-                                <input type="text"
-                                       value={{ member.id }} name="memberId"
-                                       hidden>
-                                <input type="text" value="CH"
-                                       name="secondary_role_change" hidden>
-                                <div class="form-group">
-                                    <input type="checkbox" class="form-control"
-                                           id="main" value="yes" name="value"
-                                            {% if member.secondary_role.all|has_secondary_role:"CH" %}
-                                           checked
-                                            {% endif %}>
-                                    <input type='hidden' value='no' name='value'
-                                           id='backup'>
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_member' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="memberId"
-                                       value="{{ member.id }}">
-                                <div class="form-group">
-                                    <textarea class="form-control"
-                                              name="role_comment">{{ member.role_comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs nav-justified" role="tablist">
+    <li role="presentation" class="active">
+      <a href="#team-info" aria-controls="team-info" role="tab" data-toggle="tab">Team Info</a>
+    </li>
+    <li role="presentation">
+      <a href="#team-warnings" aria-controls="team-warnings" role="tab" data-toggle="tab">Team Warnings</a>
+    </li>
+    <li role="presentation">
+      <a href="#team-management" aria-controls="team-management" role="tab" data-toggle="tab">Team Management</a>
+    </li>
+    <li role="presentation">
+      <a href="#consultant-responses" aria-controls="consultant-responses" role="tab" data-toggle="tab">Consultant Responses</a>
+    </li>
+    <li role="presentation">
+      <a href="#fellow-responses" aria-controls="fellow-responses" role="tab" data-toggle="tab">Fellow Responses</a>
+    </li>
+  </ul>
 
-                    </tr>
-                {% endfor %}
-                <tr>
-                    <td colspan="7">*Pulse Checker will receive reminder
-                        emails
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div> <!-- Team member info -->
-
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"></span>
-                <span class="glyphicon glyphicon-arrow-up"
-                      style="display: none;"></span>
-                <h4 class="text-success show-hide-div-title"> Team Warnings</h4>
-            </div>
-        </a>
-        <div id="team-warnings-div">
-            <a class="btn btn-info" href="{% url 'show_warnings' %}" target="_blank">View
-                Current Warning Settings</a>
-            <table class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Level</th>
-                    <th>Reason</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Call Count</td>
-                    <td class="{{ team_warnings.call_count }}"></td>
-                    <td>{{ team_warnings.call_count_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Phase</td>
-                    <td class="{{ team_warnings.phase }}"></td>
-                    <td>{{ team_warnings.phase_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Kick Off</td>
-                    <td class="{{ team_warnings.kick_off }}"></td>
-                    <td>{{ team_warnings.kick_off_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Mid Term</td>
-                    <td class="{{ team_warnings.mid_term }}"></td>
-                    <td>{{ team_warnings.mid_term_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Unprepared Calls</td>
-                    <td class="{{ team_warnings.unprepared_call }}"></td>
-                    <td>{{ team_warnings.unprepared_call_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Consultant Rating</td>
-                    <td class="{{ team_warnings.consultant_rating }}"></td>
-                    <td>{{ team_warnings.consultant_rating_comment }}</td>
-                </tr>
-                <tr>
-                    <td>Fellow Rating</td>
-                    <td class="{{ team_warnings.fellow_rating }}"></td>
-                    <td>{{ team_warnings.fellow_rating_comment }}</td>
-                </tr>
-
-                </tbody>
-            </table>
-        </div> <!-- Team Warnings -->
-
-        <!-- Team management -->
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"></span>
-                <span class="glyphicon glyphicon-arrow-up"
-                      style="display: none;"></span>
-                <h4 class="text-success show-hide-div-title"> Team
-                    Management</h4>
-            </div>
-        </a>
-        <div id="team-management-div">
-            <div class="">
-                <table class="table table-responsive table-bordered table-striped">
-                    <thead>
-                    <tr>
-                        <th>Calls</th>
-                        <th>Received Reminder Emails</th>
-                        <th>Advisor Onboarding</th>
-                        <th>Kick Off</th>
-                        <th>Systemic Vision</th>
-                        <th>Mid Term</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>{{ calls.total }} calls / {{ calls.expected }} expected</td>
-                        <td>Automatic Reminders</td>
-                        <td>Status</td>
-                        <td>Status</td>
-                        <td>Status</td>
-                        <td>Status</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  id="change-calls-count-form"
-                                  action="{% url 'update_status' %}">
-                                <input type="text" hidden value="{{ team.id }}"
-                                       name="teamId">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="change-calls-value">Add/Subtract
-                                        calls</label>
-                                    <input type="number"
-                                           name="change_calls_count"
-                                           id="change-calls-value"
-                                           class="form-control"
-                                           value={{ team_status.call_change_count }}>
-                                    </input>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form action="{% url 'update_status' %}" method="post"
-                                  class="form hidden-submit-form"
-                                  id="change-automatic-reminder-form">
-                                {% csrf_token %}
-                                <input type="text" value="{{ team.id }}"
-                                       name="teamId" hidden>
-                                <div class="form-group">
-                                    <select name="automatic_reminder_status"
-                                            id="automatic-reminder-status"
-                                            class="form-control">
-                                        <option value="true"
-                                                {% if team_status.automatic_reminder == True %}
-                                                selected="selected"
-                                                {% endif %}
-                                        >Yes
-                                        </option>
-                                        <option value="false"
-                                                {% if team_status.automatic_reminder == False %}
-                                                selected="selected"
-                                                {% endif %}
-                                        >No
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form action="{% url 'update_status' %}" method="post"
-                                  class="form hidden-submit-form">
-                                {% csrf_token %}
-                                <input type="text" value="{{ team.id }}"
-                                       name="teamId" hidden>
-                                <div class="form-group">
-                                    <select name="advisor_onboarding_status"
-                                            id="change-advisor-onboarding-status"
-                                            class="form-control">
-                                        <option value="NS"
-                                                {% ifequal team_status.advisor_on "NS" %}
-                                                selected
-                                                {% endifequal %}>Not Started
-                                        </option>
-                                        <option value="IMS"
-                                                {% ifequal team_status.advisor_on "IMS" %}
-                                                selected
-                                                {% endifequal %}>Intro Mail Sent
-                                        </option>
-                                        <option value="DA"
-                                                {% ifequal team_status.advisor_on "DA" %}
-                                                selected
-                                                {% endifequal %}>Date Arranged
-                                        </option>
-                                        <option value="CH"
-                                                {% ifequal team_status.advisor_on "CH" %}
-                                                selected
-                                                {% endifequal %}>Call happened
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td> <!-- Advisor Onboarding status change form -->
-                        <td>
-                            <form action="{% url 'update_status' %}" method="post"
-                                  class="form hidden-submit-form">
-                                {% csrf_token %}
-                                <input type="text" value="{{ team.id }}"
-                                       name="teamId" hidden>
-                                <div class="form-group">
-                                    <select name="kick_off_status"
-                                            id="change-kick-off-status"
-                                            class="form-control">
-                                        <option value="NS"
-                                                {% ifequal team_status.kick_off "NS" %}
-                                                selected
-                                                {% endifequal %}>Not Started
-                                        </option>
-                                        <option value="IMS"
-                                                {% ifequal team_status.kick_off "IMS" %}
-                                                selected
-                                                {% endifequal %}>Intro Mail Sent
-                                        </option>
-                                        <option value="DA"
-                                                {% ifequal team_status.kick_off "DA" %}
-                                                selected
-                                                {% endifequal %}>Date Arranged
-                                        </option>
-                                        <option value="CH"
-                                                {% ifequal team_status.kick_off "CH" %}
-                                                selected
-                                                {% endifequal %}>Call happened
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td> <!-- Kick off status change form -->
-                        <td>
-                            <form action="{% url 'update_status' %}" method="post"
-                                  class="form hidden-submit-form">
-                                {% csrf_token %}
-                                <input type="text" value="{{ team.id }}"
-                                       name="teamId" hidden>
-                                <div class="form-group">
-                                    <select name="sys_vision_status"
-                                            id="systemic-vision-status"
-                                            class="form-control">
-                                        <option value="NS"
-                                                {% ifequal team_status.sys_vision "NS" %}
-                                                selected
-                                                {% endifequal %}>Not Started
-                                        </option>
-                                        <option value="IMS"
-                                                {% ifequal team_status.sys_vision "IMS" %}
-                                                selected
-                                                {% endifequal %}>Intro Mail Sent
-                                        </option>
-                                        <option value="DA"
-                                                {% ifequal team_status.sys_vision "DA" %}
-                                                selected
-                                                {% endifequal %}>Date Arranged
-                                        </option>
-                                        <option value="CH"
-                                                {% ifequal team_status.sys_vision "CH" %}
-                                                selected
-                                                {% endifequal %}>Call happened
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td> <!-- Systemic Vision Change form -->
-                        <td>
-                            <form action="{% url 'update_status' %}" method="post"
-                                  class="form hidden-submit-form">
-                                {% csrf_token %}
-                                <input type="text" value="{{ team.id }}"
-                                       name="teamId" hidden>
-                                <div class="form-group">
-                                    <select name="mid_term_status"
-                                            id="change-mid-term-status"
-                                            class="form-control">
-                                        <option value="NS"
-                                                {% ifequal team_status.mid_term "NS" %}
-                                                selected
-                                                {% endifequal %}>Not Started
-                                        </option>
-                                        <option value="IMS"
-                                                {% ifequal team_status.mid_term "IMS" %}
-                                                selected
-                                                {% endifequal %}>Intro Mail Sent
-                                        </option>
-                                        <option value="DA"
-                                                {% ifequal team_status.mid_term "DA" %}
-                                                selected
-                                                {% endifequal %}>Date Arranged
-                                        </option>
-                                        <option value="CH"
-                                                {% ifequal team_status.mid_term "CH" %}
-                                                selected
-                                                {% endifequal %}>Call happened
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td> <!-- Mid Term status change form -->
-                    </tr>
-                    <tr>
-                        <td>
-                            <a class="btn btn-warning email-button"
-                               id="send-welcome-email">
-                                Send Instruction Mail
-                            </a>
-                            <div style="margin-top: 10px;"><a
-                                    class="btn btn-success email-button"
-                                    id="send-reminder-email">
-                                Send Reminder Mail
-                            </a>
-                            </div>
-                        </td>
-                        <td>
-                        {% if team_status.last_automatic_reminder %}
-                            Last automatic reminder sent on: <br>
-                            {{ team_status.last_automatic_reminder }}
-                        {% else %}
-                            Automatic Reminders not yet sent.
-                        {% endif %}
-                            <br>
-                            Last response received on: <br>
-                            {{ last_response }}
-                            <br>
-                            Next automatic reminder will be sent on: <br>
-                        {% if team_status.next_automatic_reminder %}
-                            {{ team_status.next_automatic_reminder }}
-                        {% endif %}
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_status' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="teamId"
-                                       value="{{ team.id }}">
-                                <div class="form-group">
-                                    <label class="form-label">Comment</label>
-                                    <textarea class="form-control"
-                                              name="advisor_onboarding_comment">{{ team_status.advisor_on_comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_status' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="teamId"
-                                       value="{{ team.id }}">
-                                <div class="form-group">
-                                    <label class="form-label">Comment</label>
-                                    <textarea class="form-control"
-                                              name="kick_off_comment">{{ team_status.kick_off_comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_status' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="teamId"
-                                       value="{{ team.id }}">
-                                <div class="form-group">
-                                    <label class="form-label">Comment</label>
-                                    <textarea class="form-control"
-                                              name="sys_vision_comment">{{ team_status.sys_vision_comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="form hidden-submit-form" method="post"
-                                  action="{% url 'update_status' %}">
-                                {% csrf_token %}
-                                <input type="text" hidden name="teamId"
-                                       value="{{ team.id }}">
-                                <div class="form-group">
-                                    <label class="form-label">Comment</label>
-                                    <textarea class="form-control"
-                                              name="mid_term_comment">{{ team_status.mid_term_comment }}</textarea>
-                                </div>
-                                <div class="form-group" id="submit-button"
-                                     style="display: none;">
-                                    <input type="submit"
-                                           class="form-control btn-primary"
-                                           value="Save">
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div> <!-- Team management -->
-
-        <!-- Consultant responses -->
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"></span>
-                <span class="glyphicon glyphicon-arrow-up"
-                      style="display: none;"></span>
-                <h4 class="text-success show-hide-div-title"> Consultant
-                    Responses</h4>
-            </div>
-        </a>
-        <div id="consultant-responses-div">
-            <table class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Submit Date</th>
-                    <th>Call Date</th>
-                    <th>Who was missing?</th>
-                    <th>All Prepared</th>
-                    <th>Progress</th>
-                    <th>Topic Discussed</th>
-                    <th>Requests</th>
-                    <th>Rating</th>
-                    <th>Comments</th>
-                    <th>Links</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for response in c_responses %}
-                    <tr>
-                        <td>{{ response.submit_date|date:"d/M" }}</td>
-                        <td>{{ response.call_date|date:"d/M" }}</td>
-                        <td>{{ response.missing_member_names }}</td>
-                        <td>{{ response.all_prepared|yesno }}</td>
-                        <td>{{ response.current_phase }}</td>
-                        <td>{{ response.topic_discussed }}</td>
-                        <td>{{ response.help }}</td>
-                        <td>{{ response.rating|default:"" }}</td>
-                        <td>{{ response.other_comments }}</td>
-                        <td>{{ response.document_link }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div> <!-- Consultant Responses -->
-
-        <!-- Fellow responses -->
-        <a class="show-hide-div btn">
-            <div class="well row">
-                <span class="glyphicon glyphicon-arrow-down"></span>
-                <span class="glyphicon glyphicon-arrow-up"
-                      style="display: none;"></span>
-                <h4 class="text-success show-hide-div-title"> Fellow
-                    Responses</h4>
-            </div>
-        </a>
-        <div id="fellow-responses-div">
-            <table class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>Submit Date</th>
-                    <th>Rating</th>
-                    <th>Comments</th>
-                    <th>Help</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for response in f_responses %}
-                    <tr>
-                        <td>{{ response.submit_date|date:"d/M" }}</td>
-                        <td>{{ response.phase_rating|default:"" }}</td>
-                        <td>{{ response.comments }}</td>
-                        <td>{{ response.other_help }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div> <!-- Fellow Responses -->
-
-        <div id="dialog-email" title="Send Email" style="display: none;">
-            <form class="form" id="email-form" method="POST"
-                  action="{% url 'send_email' %}">
+  <!-- Tab panes -->
+  <div class="tab-content">  
+    <!-- Team member information -->
+    <div role="tabpanel" class="tab-pane fade in active" id="team-info">
+      <table id="main-table" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Missed Calls</th>
+            <th>Participates In Call</th>
+            <th>Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in team_members %}
+          <tr>
+            <td>{{ member.role }}</td>
+            <td>{{ member.name }}</td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.missed_calls }}</td>
+            <td>
+              <form method="post"class="hidden-submit-form form"
+              action={% url 'update_member' %}>
                 {% csrf_token %}
-                <input type="hidden" class="form-control" name="teamId"
-                       value="{{ team.id }}">
-                Send to:
-                <div class="form-group" id="memberChoice">
-                    {% for member in team_members %}
-                        <label><input type="checkbox" name="send_to"
-                                      id="{{ member.name }}"
-                                      value="{{ member.email }}">{{ member.name }}
-                            ({{ member.role }})</label>
-                    {% endfor %}
-                </div>
+                <input type="text"
+                value={{ member.id }} name="memberId"
+                hidden>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="email_subject"
-                           id="email-subject" placeholder="Email Subject">
+                  <select id="PIC" class="form-control"
+                  name="participates_in_call">
+                    <option value={{ member.participates_in_call }}>
+                      {{ member.participates_in_call|yesno|capfirst }}
+                    </option>
+                    <option value={{ member.participates_in_call|yesno:"false, true" }}>
+                      {{ member.participates_in_call|yesno:"No, Yes" }}
+                    </option>
+                  </select>
                 </div>
+              </form>
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_member' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="memberId"
+                value="{{ member.id }}">
                 <div class="form-group">
-                    <textarea class="form-control" name="email_body"
-                              id="email-body" placeholder="Email Text"
-                              style="height: 230px;"></textarea>
+                  <textarea class="form-control"
+                  name="member_comment">{{ member.comment }}</textarea>
                 </div>
-            </form>
-        </div>
-    </div>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="3">
+              Fellow Survey URL: <a
+              href="{{ team.dashboard.fellow_form_url }}"
+              target="_blank">
+              http://{{ request.META.HTTP_HOST }}{{ team.dashboard.fellow_form_url }}</a>
+            </td>
+            <td colspan="3">
+              Consultant Survey URL: <a
+              href="{{ team.dashboard.consultant_form_url }}"
+              target="_blank">
+              http://{{ request.META.HTTP_HOST }}{{ team.dashboard.consultant_form_url }}</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table id="secondary-role-table"
+      class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Name (Role)</th>
+            <th>Process Manager</th>
+            <th>Pulse Checker</th>
+            <th>Conference Host</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in team_members %}
+          <tr>
+            <td>{{ member.name }} ({{ member.role }})</td>
+            <td class="secondary-role-td">
+              <form method="post" id="process-manager-form"
+              class="secondary-role-change hidden-submit-form form"
+              action={% url 'update_member' %}>
+                {% csrf_token %}
+                <input type="text"
+                value={{ member.id }} name="memberId"
+                hidden>
+                <input type="text" value="PM"
+                name="secondary_role_change" hidden>
+                <div class="form-group">
+                  <input type="checkbox" class="form-control"
+                  id="main" value="yes" name="value"
+                  {% if member.secondary_role.all|has_secondary_role:"PM" %}
+                  checked
+                  {% endif %}>
+                  <input type='hidden' value='no' name='value'
+                  id='backup'>
+                </div>
+              </form>
+            </td>
+            <td class="secondary-role-td">
+              <form method="post" id="pulse-checker-form"
+              class="secondary-role-change hidden-submit-form form"
+              action={% url 'update_member' %}>
+                {% csrf_token %}
+                <input type="text"
+                value={{ member.id }} name="memberId"
+                hidden>
+                <input type="text" value="{{ member.email }}"
+                name="emailid" class="emailid" hidden>
+                <input type="text" value="PC"
+                name="secondary_role_change" hidden>
+                <div class="form-group">
+                  <input type="checkbox" class="form-control"
+                  id="main" value="yes" name="value"
+                  {% if member.secondary_role.all|has_secondary_role:"PC" %}
+                  checked
+                  {% endif %}>
+                  <input type='hidden' value='no' name='value'
+                  id='backup'>
+                </div>
+              </form>
+            </td>
+            <td class="secondary-role-td">
+              <form method="post" id="conference-host-form"
+              class="secondary-role-change hidden-submit-form form"
+              action={% url 'update_member' %}>
+                {% csrf_token %}
+                <input type="text"
+                value={{ member.id }} name="memberId"
+                hidden>
+                <input type="text" value="CH"
+                name="secondary_role_change" hidden>
+                <div class="form-group">
+                  <input type="checkbox" class="form-control"
+                  id="main" value="yes" name="value"
+                  {% if member.secondary_role.all|has_secondary_role:"CH" %}
+                  checked
+                  {% endif %}>
+                  <input type='hidden' value='no' name='value'
+                  id='backup'>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_member' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="memberId"
+                value="{{ member.id }}">
+                <div class="form-group">
+                  <textarea class="form-control"
+                    name="role_comment">{{ member.role_comment }}</textarea>
+                </div>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="7">*Pulse Checker will receive reminder
+              emails
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div> <!-- Team member info -->
+
+    <!-- Team Warnings -->
+    <div role="tabpanel" class="tab-pane fade" id="team-warnings">
+      <a class="btn btn-info" href="{% url 'show_warnings' %}" target="_blank">View
+        Current Warning Settings</a>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Level</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Call Count</td>
+            <td class="{{ team_warnings.call_count }}"></td>
+            <td>{{ team_warnings.call_count_comment }}</td>
+          </tr>
+          <tr>
+            <td>Phase</td>
+            <td class="{{ team_warnings.phase }}"></td>
+            <td>{{ team_warnings.phase_comment }}</td>
+          </tr>
+          <tr>
+            <td>Kick Off</td>
+            <td class="{{ team_warnings.kick_off }}"></td>
+            <td>{{ team_warnings.kick_off_comment }}</td>
+          </tr>
+          <tr>
+            <td>Mid Term</td>
+            <td class="{{ team_warnings.mid_term }}"></td>
+            <td>{{ team_warnings.mid_term_comment }}</td>
+          </tr>
+          <tr>
+            <td>Unprepared Calls</td>
+            <td class="{{ team_warnings.unprepared_call }}"></td>
+            <td>{{ team_warnings.unprepared_call_comment }}</td>
+          </tr>
+          <tr>
+            <td>Consultant Rating</td>
+            <td class="{{ team_warnings.consultant_rating }}"></td>
+            <td>{{ team_warnings.consultant_rating_comment }}</td>
+          </tr>
+          <tr>
+            <td>Fellow Rating</td>
+            <td class="{{ team_warnings.fellow_rating }}"></td>
+            <td>{{ team_warnings.fellow_rating_comment }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div><!-- Team Warnings -->
+      
+    <!-- Team management -->
+    <div role="tabpanel" class="tab-pane fade" id="team-management">
+
+      <table class="table table-responsive table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Calls</th>
+            <th>Received Reminder Emails</th>
+            <th>Advisor Onboarding</th>
+            <th>Kick Off</th>
+            <th>Systemic Vision</th>
+            <th>Mid Term</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ calls.total }} calls / {{ calls.expected }} expected</td>
+            <td>Automatic Reminders</td>
+            <td>Status</td>
+            <td>Status</td>
+            <td>Status</td>
+            <td>Status</td>
+          </tr>
+          <tr>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              id="change-calls-count-form"
+              action="{% url 'update_status' %}">
+                <input type="text" hidden value="{{ team.id }}"
+                name="teamId">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="change-calls-value">Add/Subtract
+                    calls</label>
+                    <input type="number"
+                    name="change_calls_count"
+                    id="change-calls-value"
+                    class="form-control"
+                    value={{ team_status.call_change_count }}>
+                  </input>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form action="{% url 'update_status' %}" method="post"
+              class="form hidden-submit-form"
+              id="change-automatic-reminder-form">
+                {% csrf_token %}
+                <input type="text" value="{{ team.id }}"
+                name="teamId" hidden>
+                <div class="form-group">
+                  <select name="automatic_reminder_status"
+                  id="automatic-reminder-status"
+                  class="form-control">
+                    <option value="true"
+                    {% if team_status.automatic_reminder == True %}
+                    selected="selected"
+                    {% endif %}
+                    >Yes
+                    </option>
+                    <option value="false"
+                    {% if team_status.automatic_reminder == False %}
+                    selected="selected"
+                    {% endif %}
+                    >No
+                    </option>
+                  </select>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form action="{% url 'update_status' %}" method="post"
+              class="form hidden-submit-form">
+                {% csrf_token %}
+                <input type="text" value="{{ team.id }}"
+                name="teamId" hidden>
+                <div class="form-group">
+                  <select name="advisor_onboarding_status"
+                  id="change-advisor-onboarding-status"
+                  class="form-control">
+                    <option value="NS"
+                    {% ifequal team_status.advisor_on "NS" %}
+                    selected
+                    {% endifequal %}>Not Started
+                    </option>
+                    <option value="IMS"
+                    {% ifequal team_status.advisor_on "IMS" %}
+                    selected
+                    {% endifequal %}>Intro Mail Sent
+                    </option>
+                    <option value="DA"
+                    {% ifequal team_status.advisor_on "DA" %}
+                    selected
+                    {% endifequal %}>Date Arranged
+                    </option>
+                    <option value="CH"
+                    {% ifequal team_status.advisor_on "CH" %}
+                    selected
+                    {% endifequal %}>Call happened
+                    </option>
+                  </select>
+                </div>
+              </form>
+            </td> <!-- Advisor Onboarding status change form -->
+            <td>
+              <form action="{% url 'update_status' %}" method="post"
+              class="form hidden-submit-form">
+                {% csrf_token %}
+                <input type="text" value="{{ team.id }}"
+                name="teamId" hidden>
+                <div class="form-group">
+                  <select name="kick_off_status"
+                  id="change-kick-off-status"
+                  class="form-control">
+                    <option value="NS"
+                    {% ifequal team_status.kick_off "NS" %}
+                    selected
+                    {% endifequal %}>Not Started
+                    </option>
+                    <option value="IMS"
+                    {% ifequal team_status.kick_off "IMS" %}
+                    selected
+                    {% endifequal %}>Intro Mail Sent
+                    </option>
+                    <option value="DA"
+                    {% ifequal team_status.kick_off "DA" %}
+                    selected
+                    {% endifequal %}>Date Arranged
+                    </option>
+                    <option value="CH"
+                    {% ifequal team_status.kick_off "CH" %}
+                    selected
+                    {% endifequal %}>Call happened
+                    </option>
+                  </select>
+                </div>
+              </form>
+            </td> <!-- Kick off status change form -->
+            <td>
+              <form action="{% url 'update_status' %}" method="post"
+              class="form hidden-submit-form">
+                {% csrf_token %}
+                <input type="text" value="{{ team.id }}"
+                name="teamId" hidden>
+                <div class="form-group">
+                  <select name="sys_vision_status"
+                  id="systemic-vision-status"
+                  class="form-control">
+                    <option value="NS"
+                    {% ifequal team_status.sys_vision "NS" %}
+                    selected
+                    {% endifequal %}>Not Started
+                    </option>
+                    <option value="IMS"
+                    {% ifequal team_status.sys_vision "IMS" %}
+                    selected
+                    {% endifequal %}>Intro Mail Sent
+                    </option>
+                    <option value="DA"
+                    {% ifequal team_status.sys_vision "DA" %}
+                    selected
+                    {% endifequal %}>Date Arranged
+                    </option>
+                    <option value="CH"
+                    {% ifequal team_status.sys_vision "CH" %}
+                    selected
+                    {% endifequal %}>Call happened
+                    </option>
+                  </select>
+                </div>
+              </form>
+            </td> <!-- Systemic Vision Change form -->
+            <td>
+              <form action="{% url 'update_status' %}" method="post"
+              class="form hidden-submit-form">
+              {% csrf_token %}
+                <input type="text" value="{{ team.id }}"
+                name="teamId" hidden>
+                <div class="form-group">
+                  <select name="mid_term_status"
+                  id="change-mid-term-status"
+                  class="form-control">
+                    <option value="NS"
+                    {% ifequal team_status.mid_term "NS" %}
+                    selected
+                    {% endifequal %}>Not Started
+                    </option>
+                    <option value="IMS"
+                    {% ifequal team_status.mid_term "IMS" %}
+                    selected
+                    {% endifequal %}>Intro Mail Sent
+                    </option>
+                    <option value="DA"
+                    {% ifequal team_status.mid_term "DA" %}
+                    selected
+                    {% endifequal %}>Date Arranged
+                    </option>
+                    <option value="CH"
+                    {% ifequal team_status.mid_term "CH" %}
+                    selected
+                    {% endifequal %}>Call happened
+                    </option>
+                  </select>
+                </div>
+              </form>
+            </td> <!-- Mid Term status change form -->
+          </tr>
+          <tr>
+            <td>
+              <a class="btn btn-warning email-button"
+              id="send-welcome-email">
+              Send Instruction Mail
+              </a>
+              <div style="margin-top: 10px;">
+                <a class="btn btn-success email-button"
+                id="send-reminder-email">
+                Send Reminder Mail</a>
+              </div>
+            </td>
+            <td>
+              {% if team_status.last_automatic_reminder %}
+              Last automatic reminder sent on: <br>
+              {{ team_status.last_automatic_reminder }}
+              {% else %}
+              Automatic Reminders not yet sent.
+              {% endif %}
+              <br>
+              Last response received on: <br>
+              {{ last_response }}
+              <br>
+              Next automatic reminder will be sent on: 
+              {% if team_status.next_automatic_reminder %}
+              {{ team_status.next_automatic_reminder }}
+              {% endif %}
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_status' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="teamId"
+                value="{{ team.id }}">
+                <div class="form-group">
+                  <label class="form-label">Comment</label>
+                  <textarea class="form-control"
+                  name="advisor_onboarding_comment">{{ team_status.advisor_on_comment }}</textarea>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_status' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="teamId"
+                value="{{ team.id }}">
+                <div class="form-group">
+                  <label class="form-label">Comment</label>
+                  <textarea class="form-control"
+                  name="kick_off_comment">{{ team_status.kick_off_comment }}</textarea>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_status' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="teamId"
+                value="{{ team.id }}">
+                <div class="form-group">
+                  <label class="form-label">Comment</label>
+                  <textarea class="form-control"
+                  name="sys_vision_comment">{{ team_status.sys_vision_comment }}</textarea>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form class="form hidden-submit-form" method="post"
+              action="{% url 'update_status' %}">
+                {% csrf_token %}
+                <input type="text" hidden name="teamId"
+                value="{{ team.id }}">
+                <div class="form-group">
+                  <label class="form-label">Comment</label>
+                  <textarea class="form-control"
+                  name="mid_term_comment">{{ team_status.mid_term_comment }}</textarea>
+                </div>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div> <!-- Team management -->
+
+    <!-- Consultant responses -->
+    <div role="tabpanel" class="tab-pane fade" id="consultant-responses">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Submit Date</th>
+            <th>Call Date</th>
+            <th>Who was missing?</th>
+            <th>All Prepared</th>
+            <th>Progress</th>
+            <th>Topic Discussed</th>
+            <th>Requests</th>
+            <th>Rating</th>
+            <th>Comments</th>
+            <th>Links</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for response in c_responses %}
+          <tr>
+            <td>{{ response.submit_date|date:"d/M" }}</td>
+            <td>{{ response.call_date|date:"d/M" }}</td>
+            <td>{{ response.missing_member_names }}</td>
+            <td>{{ response.all_prepared|yesno }}</td>
+            <td>{{ response.current_phase }}</td>
+            <td>{{ response.topic_discussed }}</td>
+            <td>{{ response.help }}</td>
+            <td>{{ response.rating|default:"" }}</td>
+            <td>{{ response.other_comments }}</td>
+            <td>{{ response.document_link }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> <!-- Consultant Responses -->
+
+    <!-- Fellow responses -->
+    <div role="tabpanel" class="tab-pane fade" id="fellow-responses">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Submit Date</th>
+            <th>Rating</th>
+            <th>Comments</th>
+            <th>Help</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for response in f_responses %}
+          <tr>
+            <td>{{ response.submit_date|date:"d/M" }}</td>
+            <td>{{ response.phase_rating|default:"" }}</td>
+            <td>{{ response.comments }}</td>
+            <td>{{ response.other_help }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> <!-- Fellow Responses -->
+  </div>
+  <div id="dialog-email" title="Send Email" style="display: none;">
+    <form class="form" id="email-form" method="POST"
+    action="{% url 'send_email' %}">
+      {% csrf_token %}
+      <input type="hidden" class="form-control" name="teamId"
+      value="{{ team.id }}">
+      Send to:
+      <div class="form-group" id="memberChoice">
+        {% for member in team_members %}
+        <label><input type="checkbox" name="send_to"
+          id="{{ member.name }}"
+          value="{{ member.email }}">{{ member.name }}
+          ({{ member.role }})</label>
+          {% endfor %}
+      </div>
+      <div class="form-group">
+          <input type="text" class="form-control" name="email_subject"
+          id="email-subject" placeholder="Email Subject">
+      </div>
+      <div class="form-group">
+          <textarea class="form-control" name="email_body"
+          id="email-body" placeholder="Email Text"
+          style="height: 230px;"></textarea>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
-    <script>
-        $(function () {
+<script src="{% static 'dashboard/js/jquery-ui.min.js' %}"></script>
+<script>
+  $(function () {
 
-            showHideSetup();
-            sendEmailSetup();
+    showHideSetup();
+    sendEmailSetup();
 
             // Submit secondary role change form
             $(".secondary-role-change").change(function () {
-                if ($(this).find('#main').prop('checked')) {
-                    $(this).find('#backup').prop('disabled', true)
-                }
+              if ($(this).find('#main').prop('checked')) {
+                $(this).find('#backup').prop('disabled', true)
+              }
             });
 
             $('.hidden-submit-form').change(function (e) {
-                e.preventDefault();
-                $.ajax({
-                    type: "POST",
-                    url: this.action,
-                    data: $(this).serialize(),
+              e.preventDefault();
+              $.ajax({
+                type: "POST",
+                url: this.action,
+                data: $(this).serialize(),
                     timeout: 15000,  //timeout of the ajax call
                     success: function (responseText) {
-                        $.notify(responseText['message'],
-                                 responseText['status']);
+                      $.notify(responseText['message'],
+                       responseText['status']);
                     },
                     error: function (xhr, textStatus, errorThrown) {
-                        alert("Failed to Update. Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                      alert("Failed to Update. Please report this error: " + errorThrown + xhr.status + xhr.responseText);
                     }
-                });
+                  });
             });
-        });
+          });
 
-        function showHideSetup() {
+  function showHideSetup() {
             // Show/Hide sections
             $('a.show-hide-div').click(function () {
-                $(this).next().slideToggle();
-                $(this).find(".glyphicon-arrow-up, .glyphicon-arrow-down").toggle();
+              $(this).next().slideToggle();
+              $(this).find(".glyphicon-arrow-up, .glyphicon-arrow-down").toggle();
             });
-        }
-        function sendEmailSetup() {
+          }
+          function sendEmailSetup() {
             // Register a dialog box for email
             var dialogEmail = $("#dialog-email").dialog({
-                autoOpen: false,
-                height: 500,
-                width: 500,
-                modal: true,
-                buttons: {
-                    Send: function () {
-                        $('#email-form').submit();
-                    },
-                    Cancel: function () {
-                        dialogEmail.dialog("close");
-                    }
+              autoOpen: false,
+              height: 500,
+              width: 500,
+              modal: true,
+              buttons: {
+                Send: function () {
+                  $('#email-form').submit();
+                },
+                Cancel: function () {
+                  dialogEmail.dialog("close");
                 }
+              }
             });
 
             $('.email-button').click(function () {
-                var id = $(this).attr('id');
-                var form = $('#email-form');
-                var subject;
-                var message;
-                var url = "{{ request.META.HTTP_HOST }}{{ team.dashboard.consultant_form_url|escapejs}}";
-                url = "http://" + url;
+              var id = $(this).attr('id');
+              var form = $('#email-form');
+              var subject;
+              var message;
+              var url = "{{ request.META.HTTP_HOST }}{{ team.dashboard.consultant_form_url|escapejs}}";
+              url = "http://" + url;
 
                 /*
                  Welcome Email
                  It should be sent to all members
                  */
-                if (id == "send-welcome-email") {
-                    subject = "{{ welcome_email.subject }}";
-                    message = "{{ welcome_email.message|escapejs }}";
-                    form.find('#memberChoice input').prop('checked', true);
+                 if (id == "send-welcome-email") {
+                  subject = "{{ welcome_email.subject }}";
+                  message = "{{ welcome_email.message|escapejs }}";
+                  form.find('#memberChoice input').prop('checked', true);
                 }
 
                 /*
                  Reminder Email
                  It should be sent to Pulse Checker
                  */
-                if (id == 'send-reminder-email') {
-                    subject = "{{ reminder_email.subject }}";
-                    message = "{{ reminder_email.message|escapejs }}";
-                    $('#team-info-div #secondary-role-table tr').each(function () {
-                        var PCtd = $(this).find('td:nth-child(4)');
-                        var PC = PCtd.find('input#main');
-                        if (PC.prop('checked')) {
-                            var emailid = PCtd.find('input.emailid').val();
-                            var ele = form.find('#memberChoice input[value="' + emailid + '"]');
-                            ele.prop('checked', true);
-                        }
-                    });
+                 if (id == 'send-reminder-email') {
+                  subject = "{{ reminder_email.subject }}";
+                  message = "{{ reminder_email.message|escapejs }}";
+                  $('#team-info-div #secondary-role-table tr').each(function () {
+                    var PCtd = $(this).find('td:nth-child(4)');
+                    var PC = PCtd.find('input#main');
+                    if (PC.prop('checked')) {
+                      var emailid = PCtd.find('input.emailid').val();
+                      var ele = form.find('#memberChoice input[value="' + emailid + '"]');
+                      ele.prop('checked', true);
+                    }
+                  });
                 }
                 form.find('#email-subject').val(subject);
                 form.find('#email-body').text(message);
                 dialogEmail.dialog("open");
-            });
-        }
-    </script>
-{% endblock %}
+              });
+          }
+        </script>
+        {% endblock %}
