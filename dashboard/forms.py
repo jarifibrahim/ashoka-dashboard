@@ -25,8 +25,10 @@ class ConsultantSurveyForm(forms.ModelForm):
         coerce=lambda x: x == 'True',
         choices=((False, 'No'), (True, 'Yes')))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dashboard, *args, **kwargs):
         super(ConsultantSurveyForm, self).__init__(*args, **kwargs)
+        team_choices = [(t.id, t.name) for t in dashboard.teams.all()]
+        self.fields['team'].choices = [(None, '------')] + team_choices
         self.fields['call_date'].widget.attrs['class'] = 'datepicker'
         self.fields['missing_member'].widget = forms.CheckboxSelectMultiple()
 

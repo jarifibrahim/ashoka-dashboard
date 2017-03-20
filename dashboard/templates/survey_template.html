@@ -92,12 +92,10 @@
                     },
                     success: function (member_list) {
                         $('#data1').text(member_list);
-                        console.log(member_list);
                         var main_ul = $('#id_missing_member');
                         main_ul.empty();
                         var mlist = $.parseJSON(member_list.replace(/'/g, '"'));
                         mlist.forEach(function (member) {
-                            console.log(member);
                             var html = $('<li>').append('<label class="form-label">' +
                                 '<input type="checkbox" name="missing_member" ' +
                                 'value=' + member.id + '> ' + member.name + '</label>');

@@ -109,7 +109,7 @@ def consultant_submit(request, hash_value):
     dashboard = Data.decode_data(hash_value)
     dashboard = get_object_or_404(Dashboard, pk=int(dashboard))
     if request.method == 'POST':
-        form = forms.ConsultantSurveyForm(request.POST)
+        form = forms.ConsultantSurveyForm(dashboard, request.POST)
         if form.is_valid():
             team_object = form.cleaned_data['team']
             # It is necessary to save the object without commit
@@ -143,7 +143,7 @@ def consultant_submit(request, hash_value):
                 team_object, request.META['HTTP_HOST'], next_date)
         return redirect(reverse(thanks))
     else:
-        form = forms.ConsultantSurveyForm()
+        form = forms.ConsultantSurveyForm(dashboard)
     return render(request, "survey_template.html",
                   context={'cs': True,
                            'form': form})
