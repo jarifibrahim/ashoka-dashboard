@@ -162,6 +162,20 @@
             </tr>
 
             <tr>
+                <td>Topic Discussed</td>
+                {% for team in teams %}
+                    <td> {{ team.topic_discussed }}</td>
+                {% endfor %}
+            </tr>
+
+            <tr>
+                <td>Last Response Date</td>
+                {% for team in teams %}
+                    <td> {{ team.last_response_date }}</td>
+                {% endfor %}
+            </tr>
+
+            <tr>
                 <td>Team STATUS</td>
                 {% for s in status %}
                     <td id="status{{ s.teamid }}" class="

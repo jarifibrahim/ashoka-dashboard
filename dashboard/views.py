@@ -41,6 +41,13 @@ def dashboard_overview(request, dashboard_id):
             ts = TeamStatus(team=team)
             ts.save()
             ad_onboard = team.team_status.get_advisor_on_display()
+        lr = team.last_response
+        if lr:
+            last_response_date = lr.submit_date
+            topic_discussed = lr.topic_discussed
+        else:
+            last_response_date = "No response found"
+            topic_discussed = "No response found"
         team_list.append({
             'teamid': team.id,
             'name': team.name,
@@ -48,6 +55,8 @@ def dashboard_overview(request, dashboard_id):
             'kick_off': team.team_status.get_kick_off_display(),
             'sys_vision': team.team_status.get_sys_vision_display(),
             'mid_term': team.team_status.get_mid_term_display(),
+            'last_response_date': last_response_date,
+            'topic_discussed': topic_discussed
         })
 
         role_members = team.members.filter(role__short_name="LRP")
@@ -90,7 +99,7 @@ def dashboard_overview(request, dashboard_id):
         'dates': dates,
         'team_warnings': team_warnings,
         'progress_percentage': progress_percentage,
-        'dashboard': dashboard
+        'dashboard': dashboard,
     }
     return render(request, "dashboard_display.html", context=context)
 
