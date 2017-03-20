@@ -107,7 +107,7 @@ def dashboard_overview(request, dashboard_id):
 def consultant_submit(request, hash_value):
     """ Consultant Survey from request and response """
     dashboard = Data.decode_data(hash_value)
-    get_object_or_404(Dashboard, pk=int(dashboard))
+    dashboard = get_object_or_404(Dashboard, pk=int(dashboard))
     if request.method == 'POST':
         form = forms.ConsultantSurveyForm(request.POST)
         if form.is_valid():
@@ -135,6 +135,12 @@ def consultant_submit(request, hash_value):
                 now_plus_15 = now + datetime.timedelta(minutes=15)
                 mail.send(to, subject=email['subject'],
                           message=email['message'], scheduled_time=now_plus_15)
+            # Schedule Reminder Email
+            days = dashboard.reminder_emails_after
+            last_date = team_object.last_response.submit_date
+            next_date = last_date + datetime.timedelta(days=days)
+            send_reminder_email(
+                team_object, request.META['HTTP_HOST'], next_date)
         return redirect(reverse(thanks))
     else:
         form = forms.ConsultantSurveyForm()
@@ -180,7 +186,9 @@ def show_urls(request):
     survey_urls = list()
     for d in dashboards:
         survey_urls.append(
-            dict(name=d.name, f_url=d.fellow_form_url, c_url=d.consultant_form_url))
+            dict(name=d.name,
+                 f_url=d.fellow_form_url,
+                 c_url=d.consultant_form_url))
     return render(request, "show_urls.html",
                   context={'survey_urls': survey_urls})
 

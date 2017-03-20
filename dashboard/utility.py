@@ -1,4 +1,3 @@
-from django.contrib import messages
 from . import models
 from post_office.models import EmailTemplate
 from django.template import Context, Template
@@ -603,7 +602,7 @@ def create_email(name, data=''):
     }
 
 
-def send_reminder_email(team, next_date):
+def send_reminder_email(team, host, next_date):
     """
     Schedule reminder email on the next_date
     :param team:        Team that should be reminded
@@ -612,7 +611,9 @@ def send_reminder_email(team, next_date):
     # Add automatic reminder only if automatic_reminder is true
     if not team.team_status.automatic_reminder:
         return
-    url = 'http:/' + team.dashboard.consultant_form_url
+
+    # Schedule reminder email
+    url = 'http://' + host + team.dashboard.consultant_form_url
     email = create_email('reminder', url)
     # Get all Pulse Checkers and LRPs
     recipients = team.members.filter(Q(secondary_role__short_name="PC") or
@@ -622,3 +623,6 @@ def send_reminder_email(team, next_date):
         to = [r['email'] for r in recipients.values('email').all()]
     mail.send(to, subject=email['subject'],
               message=email['message'], scheduled_time=next_date)
+    ts = team.team_status
+    ts.next_automatic_reminder = next_date
+    ts.save()

@@ -334,18 +334,6 @@ class ConsultantSurvey(models.Model):
             self.missing_member.all().values_list('name', flat=True))
         return ", ".join(missing_member_list)
 
-    def save(self, *args, **kwargs):
-        if self.team.last_response:
-            last_date = self.team.last_response.submit_date
-            days = self.team.dashboard.reminder_emails_after
-            next_date = last_date + timedelta(days=days)
-            # Schedule reminder email
-            utility.send_reminder_email(self.team, next_date)
-            ts = self.team.team_status
-            ts.next_automatic_reminder = next_date
-            ts.save()
-        super(ConsultantSurvey, self).save(*args, **kwargs)
-
 
 class FellowSurvey(models.Model):
     """
