@@ -61,6 +61,12 @@ class ConsultantSurveyForm(forms.ModelForm):
 
 
 class FellowSurveyForm(forms.ModelForm):
+
+    def __init__(self, dashboard, *args, **kwargs):
+        super(FellowSurveyForm, self).__init__(*args, **kwargs)
+        team_choices = [(t.id, t.name) for t in dashboard.teams.all()]
+        self.fields['team'].choices = [(None, '------')] + team_choices
+
     class Meta:
         model = FellowSurvey
         fields = '__all__'

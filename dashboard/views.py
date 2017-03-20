@@ -157,9 +157,9 @@ def thanks(request):
 def fellow_submit(request, hash_value):
     """ Fellow Survey from request and response """
     dashboard_id = Data.decode_data(hash_value)
-    get_object_or_404(Dashboard, pk=dashboard_id)
+    dashboard = get_object_or_404(Dashboard, pk=dashboard_id)
     if request.method == "POST":
-        form = forms.FellowSurveyForm(request.POST)
+        form = forms.FellowSurveyForm(dashboard, request.POST)
         if form.is_valid():
             form.save()
             # Send email to LRP if there is a request in the response
@@ -175,7 +175,7 @@ def fellow_submit(request, hash_value):
                           message=email['message'], scheduled_time=now_plus_15)
         return redirect(reverse(thanks))
     else:
-        form = forms.FellowSurveyForm()
+        form = forms.FellowSurveyForm(dashboard)
     return render(request, "survey_template.html", context={'form': form})
 
 
