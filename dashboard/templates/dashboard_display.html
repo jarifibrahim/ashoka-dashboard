@@ -145,7 +145,10 @@
             <tr>
                 <td>Working document</td>
                 {% for document in working_document %}
-                    <td><a href="{{ document }}" target="_blank">Link</a></td>
+                    <td>
+                    {% if document %}<a href="{{ document }}" target="_blank">Link</a>
+                    {% endif %}
+                    </td>
                 {% endfor %}
             </tr>
             <tr>
