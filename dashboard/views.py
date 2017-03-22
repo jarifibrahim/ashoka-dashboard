@@ -128,7 +128,9 @@ def consultant_submit(request, hash_value):
                 m.save()
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['help']:
-                email = create_email("consultant", form.cleaned_data['help'])
+                help_msg = "From Team %s -\n" % team_object.name
+                help_msg += html_decode(form.cleaned_data['help'])
+                email = create_email("consultant", help_msg)
                 all_emails = team_object.members.filter(
                     role__short_name="LRP").all().values('email')
                 to = [e['email'] for e in all_emails]
