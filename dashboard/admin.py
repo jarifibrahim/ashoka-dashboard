@@ -3,16 +3,21 @@ from .models import *
 from django import forms
 from django.contrib.auth.models import Group
 import os
-from post_office.models import Attachment, Log
+from post_office.models import Attachment, Log, Email
 # Required for Admin page
-from post_office.admin import AttachmentAdmin, LogAdmin
+from post_office.admin import AttachmentAdmin, LogAdmin,\
+    EmailAdmin
+
+show_all_models = False
+if os.getenv("SHOW_ALL_MODELS", "").lower() == 'true':
+    show_all_models = True
 
 
 class DashboardAdmin(admin.ModelAdmin):
     def get_team(self, obj):
         return [str(o) for o in obj.teams.all()]
-
-    exclude = ('reminder_emails_after', 'overall_r', 'overall_y')
+    if not show_all_models:
+        exclude = ('reminder_emails_after', 'overall_r', 'overall_y')
     get_team.short_description = 'Teams'
     list_display = ['name', 'get_team']
     search_fields = ['name']
@@ -21,8 +26,9 @@ class DashboardAdmin(admin.ModelAdmin):
 
 class MemberInline(admin.TabularInline):
     model = Member
-    exclude = ('secondary_role', 'comment', 'role_comment',
-               'participates_in_call', 'missed_calls')
+    if not show_all_models:
+        exclude = ('secondary_role', 'comment', 'role_comment',
+                   'participates_in_call', 'missed_calls')
 
 
 class TeamAdmin(admin.ModelAdmin):
@@ -43,7 +49,8 @@ class TeamAdmin(admin.ModelAdmin):
         MemberInline,
     ]
 
-    exclude = ('lrp_comment', 'status_choice', 'status_color')
+    if not show_all_models:
+        exclude = ('lrp_comment', 'status_choice', 'status_color')
 
 
 class MemberAdmin(admin.ModelAdmin):
@@ -101,9 +108,19 @@ class TeamStatusAdmin(admin.ModelAdmin):
     readonly_fields = ('last_automatic_reminder', 'next_automatic_reminder',)
 
 
+class myEmailAdmin(EmailAdmin):
+    list_display = ('id', 'to_display', 'subject', 'last_updated',
+                    'status', 'scheduled_time')
+
+
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
-if os.getenv("SHOW_ALL_MODELS", "").lower() == 'true':
+# Remove default admin
+admin.site.unregister(Email)
+# Add my admin
+admin.site.register(Email, myEmailAdmin)
+
+if show_all_models:
     admin.site.register(Member, MemberAdmin)
     admin.site.register(Role)
     admin.site.register(AdvisoryPhase, AdvisoryPhaseAdmin)
