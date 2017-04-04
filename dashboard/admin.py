@@ -109,17 +109,8 @@ class TeamStatusAdmin(admin.ModelAdmin):
     readonly_fields = ('last_automatic_reminder', 'next_automatic_reminder',)
 
 
-class myEmailAdmin(EmailAdmin):
-    list_display = ('id', 'to_display', 'subject', 'last_updated',
-                    'status', 'scheduled_time')
-
-
 admin.site.register(Dashboard, DashboardAdmin)
 admin.site.register(Team, TeamAdmin)
-# Remove default admin
-admin.site.unregister(Email)
-# Add my admin
-admin.site.register(Email, myEmailAdmin)
 
 if show_all_models:
     admin.site.register(Member, MemberAdmin)
