@@ -1,12 +1,12 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from datetime import datetime as dt
-from datetime import date, timedelta
+from datetime import date
 from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 import math
-from . import utility
 
 
 class Data:
@@ -41,9 +41,6 @@ class Dashboard(models.Model):
         "Dashboard Create Date", auto_now_add=True)
     advisory_start_date = models.DateField("Start date of Advisory Process")
     advisory_end_date = models.DateField("End date of Advisory Process")
-    reminder_emails_after = models.PositiveIntegerField(
-        "Reminder emails should be sent after how many days from last "
-        "response submit", default=9)
     help_text = 'Total Number of Red warnings greater than this value will '\
                 'mark the Team as Red.'
     overall_r = models.PositiveIntegerField(
@@ -103,6 +100,18 @@ class Team(models.Model):
     dashboard = models.ForeignKey(
         Dashboard, on_delete=models.CASCADE, related_name="teams")
     name = models.CharField("Team Name", max_length=200, unique=True)
+    DAYS_OF_WEEK = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    )
+    reminder_emails_day = models.PositiveIntegerField(
+        "Reminder emails on",
+        choices=DAYS_OF_WEEK, default=0)
     lrp_comment = models.TextField("LRP Comment", blank=True)
     STATUS_CHOICES = (
         ('AUTO', 'Automatic'),

@@ -17,7 +17,7 @@ class DashboardAdmin(admin.ModelAdmin):
     def get_team(self, obj):
         return [str(o) for o in obj.teams.all()]
     if not show_all_models:
-        exclude = ('reminder_emails_after', 'overall_r', 'overall_y')
+        exclude = ('overall_r', 'overall_y')
     get_team.short_description = 'Teams'
     list_display = ['name', 'get_team']
     search_fields = ['name']
@@ -42,7 +42,8 @@ class TeamAdmin(admin.ModelAdmin):
     get_members.short_description = 'Team members'
 
     # Columns displayed on the model view page
-    list_display = ['name', 'get_dashboard', 'get_members']
+    list_display = ['name', 'get_dashboard',
+                    'get_members', 'reminder_emails_day']
     search_fields = ['name', 'dashboard__name']
     list_filter = ['dashboard']
     inlines = [

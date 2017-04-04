@@ -1,8 +1,4 @@
 from . import models
-from post_office.models import EmailTemplate
-from django.template import Context, Template
-from post_office import mail
-from django.db.models import Q
 
 
 class UpdateWarnings:
@@ -581,51 +577,6 @@ def update_member_value(request, field_name):
                 'status': 'error'
             }
             return False
-
-
-def create_email(name, data=''):
-    """
-    Returns a dictionary with email subject and message
-    :param name:    Name of the email template to use
-    :param data:    Data to be added to the message
-    :return:        Dictionary containing email subject and message
-    """
-    # Work around to convert EmailTemplate to string with required data
-    intro_email_template = EmailTemplate.objects.get(name__icontains=name)
-    template = Template(intro_email_template.content)
-    context = Context({'data': data})
-    message = template.render(context)
-
-    return {
-        'subject': intro_email_template.subject,
-        'message': message
-    }
-
-
-def send_reminder_email(team, host, next_date):
-    """
-    Schedule reminder email on the next_date
-    :param team:        Team that should be reminded
-    :param next_date:   Next date on which email should be sent
-    """
-    # Add automatic reminder only if automatic_reminder is true
-    if not team.team_status.automatic_reminder:
-        return
-
-    # Schedule reminder email
-    url = 'http://' + host + team.dashboard.consultant_form_url
-    email = create_email('reminder', url)
-    # Get all Pulse Checkers and LRPs
-    recipients = team.members.filter(Q(secondary_role__short_name="PC") or
-                                     Q(role__short_name="LRP")).distinct()
-    to = []
-    if recipients:
-        to = [r['email'] for r in recipients.values('email').all()]
-    mail.send(to, subject=email['subject'],
-              message=email['message'], scheduled_time=next_date)
-    ts = team.team_status
-    ts.next_automatic_reminder = next_date
-    ts.save()
 
 
 def html_decode(s):

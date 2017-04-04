@@ -1,13 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.http import HttpResponse, Http404, JsonResponse
+from django.contrib import messages
+from post_office import mail
 from .models import Dashboard, Team, Data, AdvisoryPhase, TeamStatus, \
     WeekWarning, TeamWarning
 from . import forms
-from .utility import *
-from django.http import HttpResponse, Http404, JsonResponse
-import datetime
-from django.contrib import messages
+from . import utility
+from . import emails
 
 
 @login_required
@@ -128,28 +129,19 @@ def consultant_submit(request, hash_value):
                 m.save()
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['help']:
-                help_msg = "From Team %s -\n" % team_object.name
-                help_msg += html_decode(form.cleaned_data['help'])
-                email = create_email("consultant", help_msg)
-                all_emails = team_object.members.filter(
-                    role__short_name="LRP").all().values('email')
-                to = [e['email'] for e in all_emails]
-                now = datetime.datetime.now()
-                now_plus_15 = now + datetime.timedelta(minutes=15)
-                mail.send(to, subject=email['subject'],
-                          message=email['message'], scheduled_time=now_plus_15)
-            # Schedule Reminder Email
-            days = dashboard.reminder_emails_after
-            last_date = team_object.last_response.submit_date
-            next_date = last_date + datetime.timedelta(days=days)
-            send_reminder_email(
-                team_object, request.META['HTTP_HOST'], next_date)
+                request = utility.html_decode(form.cleaned_data['help'])
+                emails.send_request_email(
+                    team_object, request, 'consultant_request')
         return redirect(reverse(thanks))
     else:
         form = forms.ConsultantSurveyForm(dashboard)
-    return render(request, "survey_template.html",
-                  context={'cs': True,
-                           'form': form})
+    return render(
+        request, "survey_template.html",
+        context={
+            'cs': True,
+            'form': form
+        }
+    )
 
 
 def thanks(request):
@@ -167,15 +159,10 @@ def fellow_submit(request, hash_value):
             form.save()
             # Send email to LRP if there is a request in the response
             if form.cleaned_data['other_help']:
-                email = create_email("fellow", form.cleaned_data['other_help'])
+                request = utility.html_decode(form.cleaned_data['help'])
                 team_object = form.cleaned_data['team']
-                all_emails = team_object.members.filter(
-                    role__short_name="LRP").all().values('email')
-                to = [e['email'] for e in all_emails]
-                now = datetime.datetime.now()
-                now_plus_15 = now + datetime.timedelta(minutes=15)
-                mail.send(to, subject=email['subject'],
-                          message=email['message'], scheduled_time=now_plus_15)
+                emails.send_request_email(
+                    team_object, request, 'fellow_request')
         return redirect(reverse(thanks))
     else:
         form = forms.FellowSurveyForm(dashboard)
@@ -222,9 +209,13 @@ def update_status(request):
 
     for change, name in possible_status_change.items():
         if name in request.POST:
-            return JsonResponse(update_team_status_value(request, name))
-    return JsonResponse(
-        {"message": "Error: Unknown action.", 'status': 'error'})
+            return JsonResponse(
+                utility.update_team_status_value(request, name)
+            )
+    return JsonResponse({
+        "message": "Error: Unknown action.",
+        "status": "error"
+    })
 
 
 @login_required
@@ -241,7 +232,7 @@ def update_team(request):
     }
     for change, name in possible_team_change.items():
         if name in request.POST:
-            status = update_team_value(request, name)
+            status = utility.update_team_value(request, name)
             return JsonResponse(status)
     return JsonResponse(
         {"message": "Error: Unknown action.", 'status': 'error'})
@@ -260,7 +251,7 @@ def update_member(request):
     }
     for change, name in possible_member_change.items():
         if name in request.POST:
-            return JsonResponse(update_member_value(request, name))
+            return JsonResponse(utility.update_member_value(request, name))
     return {
         "message": "Error: Unknown action.",
         "status": "error"
@@ -284,8 +275,8 @@ def team_detail(request, team_id):
         team_status.save()
     absolute_url = request.build_absolute_uri(
         team_object.dashboard.consultant_form_url)
-    r_email = create_email("reminder", absolute_url)
-    w_email = create_email("welcome", absolute_url)
+    r_email = emails.create_email("reminder_email", absolute_url)
+    w_email = emails.create_email("welcome_email", absolute_url)
     lr = team_object.last_response
     total_calls = team_object.consultant_surveys.all().count()
     current_week = WeekWarning.objects.filter(
@@ -388,7 +379,7 @@ def refresh_team_warnings(request):
                 return HttpResponse("Invalid Dashboard ID: ", dashboard_id)
             dashboard = get_object_or_404(Dashboard, pk=dashboard_id)
             for team in dashboard.teams.all():
-                update_warnings_object = UpdateWarnings(team)
+                update_warnings_object = utility.UpdateWarnings(team)
                 update_warnings_object.check_all_warnings()
             return HttpResponse(
                 "Warnings related to all teams refreshed successfully")
