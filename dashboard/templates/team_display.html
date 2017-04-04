@@ -306,7 +306,7 @@
         <thead>
           <tr>
             <th>Calls</th>
-            <th>Received Reminder Emails</th>
+            <th>Receives Reminder Emails</th>
             <th>Advisor Onboarding</th>
             <th>Kick Off</th>
             <th>Systemic Vision</th>
@@ -518,21 +518,7 @@
                 Send Reminder Mail</a>
               </div>
             </td>
-            <td>
-              {% if team_status.last_automatic_reminder %}
-              Last automatic reminder sent on: <br>
-              {{ team_status.last_automatic_reminder }}
-              {% else %}
-              Automatic Reminders not yet sent.
-              {% endif %}
-              <br>
-              Last response received on: <br>
-              {{ last_response }}
-              <br>
-              Next automatic reminder will be sent on: 
-              {% if team_status.next_automatic_reminder %}
-              {{ team_status.next_automatic_reminder }}
-              {% endif %}
+            <td>Reminder Emails on : {{team.get_reminder_emails_day_display}}
             </td>
             <td>
               <form class="form hidden-submit-form" method="post"
