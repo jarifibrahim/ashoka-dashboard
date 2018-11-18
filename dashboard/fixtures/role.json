@@ -1,50 +1,66 @@
 [
-  {
-    "model": "dashboard.role",
-    "pk": 1,
-    "fields": {
-      "short_name": "LRP",
-      "long_name": "LRP"
-    }
-  },
-  {
-    "model": "dashboard.role",
-    "pk": 2,
-    "fields": {
-      "short_name": "SA",
-      "long_name": "Senior Advisor"
-    }
-  },
-  {
-    "model": "dashboard.role",
-    "pk": 3,
-    "fields": {
-      "short_name": "SC",
-      "long_name": "Senior Consultant"
-    }
-  },
-  {
-    "model": "dashboard.role",
-    "pk": 4,
-    "fields": {
-      "short_name": "JC",
-      "long_name": "Junior Consultant"
-    }
-  },
-  {
-    "model": "dashboard.role",
-    "pk": 5,
-    "fields": {
-      "short_name": "C",
-      "long_name": "Consultant"
-    }
-  },
-  {
-    "model": "dashboard.role",
-    "pk": 6,
-    "fields": {
-      "short_name": "F",
-      "long_name": "Fellow"
-    }
+{
+  "model": "dashboard.role",
+  "pk": 1,
+  "fields": {
+    "short_name": "LRP",
+    "long_name": "LRP"
   }
+},
+{
+  "model": "dashboard.role",
+  "pk": 2,
+  "fields": {
+    "short_name": "SA",
+    "long_name": "Senior Advisor"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 3,
+  "fields": {
+    "short_name": "SC",
+    "long_name": "Senior Consultant"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 4,
+  "fields": {
+    "short_name": "JC",
+    "long_name": "Junior Consultant"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 5,
+  "fields": {
+    "short_name": "C",
+    "long_name": "Consultant"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 6,
+  "fields": {
+    "short_name": "F",
+    "long_name": "Fellow"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 7,
+  "fields": {
+    "short_name": "FS",
+    "long_name": "Fellow Staff"
+  }
+},
+{
+  "model": "dashboard.role",
+  "pk": 8,
+  "fields": {
+    "short_name": "ASC",
+    "long_name": "AS Consultant"
+  }
+}
 ]

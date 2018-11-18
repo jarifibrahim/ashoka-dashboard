@@ -43,7 +43,7 @@
   "model": "dashboard.advisoryphase",
   "pk": 6,
   "fields": {
-    "phase": "Working on Section 5 - \"Final\"",
+    "phase": "Done (handed strategy document in)",
     "phase_number": 6
   }
 }

@@ -1,26 +1,26 @@
 [
-  {
-    "model": "dashboard.secondaryrole",
-    "pk": 1,
-    "fields": {
-      "short_name": "PM",
-      "role": "Process Manager"
-    }
-  },
-  {
-    "model": "dashboard.secondaryrole",
-    "pk": 2,
-    "fields": {
-      "short_name": "PC",
-      "role": "Pulse Checker"
-    }
-  },
-  {
-    "model": "dashboard.secondaryrole",
-    "pk": 3,
-    "fields": {
-      "short_name": "CH",
-      "role": "Conference Host"
-    }
+{
+  "model": "dashboard.secondaryrole",
+  "pk": 1,
+  "fields": {
+    "short_name": "PM",
+    "role": "Process Manager"
   }
+},
+{
+  "model": "dashboard.secondaryrole",
+  "pk": 2,
+  "fields": {
+    "short_name": "PC",
+    "role": "Pulse Checker"
+  }
+},
+{
+  "model": "dashboard.secondaryrole",
+  "pk": 3,
+  "fields": {
+    "short_name": "CH",
+    "role": "Conference Host"
+  }
+}
 ]

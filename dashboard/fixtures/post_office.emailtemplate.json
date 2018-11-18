@@ -1,0 +1,62 @@
+[
+{
+  "model": "post_office.emailtemplate",
+  "pk": 1,
+  "fields": {
+    "name": "reminder_email",
+    "description": "Reminder email that is sent to LRP and Conference Host",
+    "created": "2017-01-24T11:35:45.993Z",
+    "last_updated": "2018-10-24T19:13:17.487Z",
+    "subject": "Ashoka Globalizer: Reminder to fill out the team survey",
+    "content": "Dear Conference Host, \r\n\r\nWe hope this e-mail finds you well!\r\n\r\nThis is just a friendly reminder to please submit the survey for your last call with the Globalizer advisory team.  If you already have, thanks so much!\r\n{{data}}\r\n  \r\nWe look at it regularly to get a sense of how your team is doing and really value your comments/feedback!  \r\n\r\nThanks and best regards,\r\nAshoka Globalizer Team\r\n\r\n----------------------------------- \r\nThis message is automatically generated. If you have already filled out the survey for the call please disregard this message.  If the call didn\u00b4t happen, please let us know so we can track that too!!",
+    "html_content": "",
+    "language": "",
+    "default_template": null
+  }
+},
+{
+  "model": "post_office.emailtemplate",
+  "pk": 2,
+  "fields": {
+    "name": "welcome_email",
+    "description": "Welcome Email",
+    "created": "2017-01-24T11:38:32.689Z",
+    "last_updated": "2018-10-24T19:13:58.899Z",
+    "subject": "Welcome",
+    "content": "Hi!\r\n\r\nThanks for taking over the role of the \"Conference Host\" for your team!\r\nThe Conference Host's role is to fill out a short team survey directly after each team call. It only takes 1 minute, but it's important to do it after every call. You can find the survey here: \r\n{{data}}\r\n\r\nThe Globalizer team manages many teams at the same time. Without your help, it would be impossible to keep a good overview. \r\n\r\nBest Regards,\r\nAshoka Globalizer Team\r\n\r\n----------------------------------------------------------------------------------------------------------------------------------------------------------------\r\nPlease note: This is an automated email. Kindly contact the Ashoka Globalizer Team if you have any questions.",
+    "html_content": "",
+    "language": "",
+    "default_template": null
+  }
+},
+{
+  "model": "post_office.emailtemplate",
+  "pk": 3,
+  "fields": {
+    "name": "consultant_request",
+    "description": "Consultant Request Email",
+    "created": "2017-01-24T11:46:38.772Z",
+    "last_updated": "2017-04-04T11:20:10.799Z",
+    "subject": "Consultant Request from Team {{team}}",
+    "content": "Dear LRP,\r\n\r\nThis is to inform you that we have received a request from the consultant of Team {{team}} .\r\nWe therefore kindly ask you to take a look at it.\r\n\r\nHere it is,\r\n{{request}}\r\n\r\n\r\n\r\nBest regards,\r\nAshoka Globalizer Team\r\n\r\n--- \r\nThis message is automatically generated. If you have any complaints regarding it please contact Ashoka Team.\r\n---",
+    "html_content": "",
+    "language": "",
+    "default_template": null
+  }
+},
+{
+  "model": "post_office.emailtemplate",
+  "pk": 4,
+  "fields": {
+    "name": "fellow_request",
+    "description": "Fellow Request Email",
+    "created": "2017-01-24T11:47:18.701Z",
+    "last_updated": "2017-04-04T11:19:18.818Z",
+    "subject": "Fellow Request from Team {{team}}",
+    "content": "Dear LRP,\r\n\r\nThis is to inform you that we have received a request from a fellow of the Team {{team}}.\r\nWe therefore kindly ask you to take a look at it.\r\n\r\nHere it is.\r\n{{request}}\r\n\r\n\r\nBest regards,\r\nAshoka Globalizer Team\r\n\r\n--- \r\nThis message is automatically generated. If you have any complaints regarding it please contact Ashoka Team.\r\n---",
+    "html_content": "",
+    "language": "",
+    "default_template": null
+  }
+}
+]
